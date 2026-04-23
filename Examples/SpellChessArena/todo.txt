@@ -1,0 +1,1 @@
+Collect helper functions for initialising board entities into sensible API

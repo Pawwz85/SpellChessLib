@@ -1,0 +1,29 @@
+{
+    "value0": [
+        {
+            "name": "Dragon by Komodo Chess 64-bit",
+            "executable": "D:\\Programs\\dragon\\dragon_05e2a7\\Windows\\dragon-64bit-avx2.exe",
+            "simoultanousGamePolicy": 0
+        },
+        {
+            "name": "<empty>",
+            "executable": "C:/Users/Pawwz/source/repos/SpellChessEngine/x64/Release/EngineExecutable.exe",
+            "simoultanousGamePolicy": 0
+        },
+        {
+            "name": "Stockfish 17.1",
+            "executable": "D:/Programs/stockfish/stockfish-windows-x86-64-avx2.exe",
+            "simoultanousGamePolicy": 0
+        },
+        {
+            "name": "C:/Users/Pawwz/source/repos/SpellChessEngine/x64/Release/old.exe",
+            "executable": "C:/Users/Pawwz/source/repos/SpellChessEngine/x64/Release/old.exe",
+            "simoultanousGamePolicy": 0
+        },
+        {
+            "name": "C:/Users/Pawwz/source/repos/SpellChessEngine/x64/Release/EngineExecutable.exe",
+            "executable": "C:/Users/Pawwz/source/repos/SpellChessEngine/x64/Release/EngineExecutable.exe",
+            "simoultanousGamePolicy": 0
+        }
+    ]
+}
