@@ -16,6 +16,7 @@
     enum SquareProperty {
         Frozen,
         Jumpable,
+        Selected,
         Interactable,
         Higlighted,
         HasMoveDot,
@@ -38,6 +39,7 @@
         
         BoardGridEditor startEdit();
         bool getPropertyValue(unsigned int index, SquareProperty property) const;
+        inline uint64_t getPropertyBitmask(SquareProperty property) const;
         inline const Board::BoardGridConfig & getConfig() const;
         unsigned int getIndex(unsigned int column, unsigned int row) const;
         void setConfig(const Board::BoardGridConfig & config);
@@ -66,4 +68,8 @@
     const BoardGridConfig & BoardGridModel::getConfig() const {
         return config;
     };
+
+    uint64_t BoardGridModel::getPropertyBitmask(SquareProperty property) const {
+        return data[property];
+    }   
  };

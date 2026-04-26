@@ -51,10 +51,7 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
             int x = col * step_x;
             int y = row * step_y;
             painter.drawRect(x, y, step_x, step_y);
-            if (boardGridModel.getPropertyValue(squareIndex, HasMoveDot)) {
-                painter.setBrush(QColorConstants::DarkGray);
-                painter.drawEllipse(QPoint(x + step_x / 2, y + step_y/2), step_x/8, step_y/8);
-            }
+
         }
 
     // step 2. Draw pieces or other stuff suppossed to be affected visually by spell (noop unless defined by subclass)
@@ -69,6 +66,11 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
         int x = col * step_x;
         int y = row * step_y;
         
+        if (boardGridModel.getPropertyValue(squareIndex, HasMoveDot)) {
+            painter.setBrush(QColorConstants::DarkGray);
+            painter.drawEllipse(QPoint(x + step_x / 2, y + step_y/2), step_x/8, step_y/8);
+        }
+
         if (boardGridModel.getPropertyValue(squareIndex, Frozen)){
             painter.setBrush(QColor::fromRgba(boardGridModel.getConfig().freezeAreaColour));
             painter.drawRect(x, y, step_x, step_y);
@@ -85,7 +87,8 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
 }
 
 void BoardGridWidget::resetHiglight() {
-     boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, 0).commit();
+    uint64_t selected = boardGridModel.getPropertyBitmask(Board::Selected); 
+    boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, selected).commit();
 };
 
 
@@ -103,9 +106,10 @@ void BoardGridWidget::mouseMoveEvent(QMouseEvent* event) {
     if (hoveredSquareIndex == (unsigned int) -1 || !boardGridModel.getPropertyValue(hoveredSquareIndex, Board::Interactable)) {
         resetHiglight();
         return;
-    }
-
-    boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, 1ull << hoveredSquareIndex).commit();
+    }    
+    uint64_t selected = boardGridModel.getPropertyBitmask(Board::Selected); 
+    uint64_t higlight = selected | (1ull << hoveredSquareIndex);
+    boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, higlight).commit();
 };
 
 

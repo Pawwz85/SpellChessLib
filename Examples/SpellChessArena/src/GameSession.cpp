@@ -112,7 +112,7 @@ GameSession::GameSessionModel::UserFunction GameSession::GameSessionModel::userF
     bool isWhiteHuman = request.getWhitePlayer().isHuman();
     bool isBlackHuman = request.getBlackPlayer().isHuman();
 
-    if(isWhiteHuman || isBlackHuman)
+    if(isWhiteHuman && isBlackHuman)
         userRole = UserFunction::SelfPlay;
     else if(isWhiteHuman) 
         userRole = UserFunction::WhitePlayer;
@@ -320,7 +320,9 @@ void GameSession::States::NoFocus::onPieceClicked(SpellChessLib::SquareIndex pie
         view->moveBuilder->setFromSquare(pieceSquare);
         view->moveBuilder->setDestSquare(SpellChessLib::NoSquare);
         view->updateLinter();
-    }
+        view->board->update();
+    } else 
+        onEmptySquareClicked(pieceSquare);
 }
 
 void GameSession::States::NoFocus::onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) {
@@ -350,11 +352,12 @@ view(view), UserInteractionState(manager) {
     int y = anchorIndex / 8;
 
     if (y  + 4 >= 8)
-        y = 3;
+        y = 4;
 
     view->moveBuilder->setDestSquare(anchorIndex);
 
     menu.setPosition(QPointF(x, y));
+    menu.setPiecesColor(anchorIndex >= 56 ? Board::Black : Board::White);
     auto viewPtr = view;
 
     menu.connect(&menu, &Board::PromotionContextMenuOverlay::onActionSelected, view, &GameSessionView::handlePromotionActionSelected);

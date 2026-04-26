@@ -53,7 +53,7 @@ uint64_t GameSession::Internal::getJumpableSquares(const LinterInput & input) {
         result |= 1ull << input.state.getJumpSquare();
 
     if (input.previewedJumpableSquare != SpellChessLib::NoSquare)
-        result != 1ull << input.previewedJumpableSquare;
+        result |= (1ull << input.previewedJumpableSquare);
 
     return result;
 };
@@ -85,9 +85,12 @@ uint64_t GameSession::Internal::getInteractiveSquares(const LinterInput & input)
 
  void GameSession::lintBoard(Board::BoardGridModel & model, const LinterInput & input) {
     uint64_t interactable = Internal::getInteractiveSquares(input);
+    uint64_t selected =  input.selectedSquare != SpellChessLib::NoSquare ? (1ull << input.selectedSquare) : 0ull;
+
     model.startEdit()
     .setPropertyBitmask(Board::Frozen,          Internal::getFrozenSquares(input))
     .setPropertyBitmask(Board::Jumpable,        Internal::getJumpableSquares(input))
+    .setPropertyBitmask(Board::Selected,        selected)
     .setPropertyBitmask(Board::Interactable,    interactable)
     .setPropertyBitmask(Board::HasMoveDot,      input.selectedSquare != SpellChessLib::NoSquare ? interactable : 0ull)
     .commit();

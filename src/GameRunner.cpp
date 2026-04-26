@@ -128,6 +128,8 @@ void SpellChessLib::GameRunner::run(){
     if (blPlayer->isPondering())
         blPlayer->interrupt();
 
+    if (gameMonitor)
+        gameMonitor->onGameValueChanged(*game);
 }
 
 bool SpellChessLib::GameRunner::isRunning() const{

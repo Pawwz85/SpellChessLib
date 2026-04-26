@@ -61,14 +61,7 @@ std::unique_ptr<SpellChessLib::Player> SpellChessLib::UCIPlayerFactory::makeObje
 {
     auto process = UCILoader::openProcess({ pathToExecutable }, "/");
 
-    char loggerPreffix[5] = {0 , 0, 0 ,0 , 0};
-    for(int i = 0; i < 4; ++i)
-        loggerPreffix[i] = 'a' + rand() % ('z' - 'a' + 1);
-
-    auto logger = UCILoader::Loggers::toFile(std::string("log_") + loggerPreffix + ".txt") | UCILoader::LoggerTraits::Pretty;
-
-    std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance(SpellChessEngineInstanceBuilder->build(process,
-        std::move(logger)));
+    std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance(SpellChessEngineInstanceBuilder->build(process));
 
     instance->sync();
     return std::make_unique<SpellChessLib::UCIEnginePlayer>(instance);
