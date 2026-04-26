@@ -1,5 +1,6 @@
 #include <SpellChess/UCIEnginePlayer.h>
 #include <SpellChess/SpellChessUciLoaderPort.h>
+#include <UCILoader/Logger.h>
 
 SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult()
 {
@@ -25,7 +26,7 @@ void SpellChessLib::UCIEnginePlayer::startPondering(const Game& game, const Spel
     auto moves = game.getMovesSinceRoot();
     GameState state = game.getRoot();
     moves.push_back(ponderMove);
-    searchConnection = instance->search(game.getGoParams(), StateFormatter(game.getRoot()), moves);
+    searchConnection = instance->search(params, StateFormatter(game.getRoot()), moves);
 }
 
 void SpellChessLib::UCIEnginePlayer::cancelPondering(){
@@ -56,11 +57,19 @@ bool SpellChessLib::UCIEnginePlayer::isAlive()
     return instance->healthCheck();
 }
 
-
 std::unique_ptr<SpellChessLib::Player> SpellChessLib::UCIPlayerFactory::makeObject()
 {
     auto process = UCILoader::openProcess({ pathToExecutable }, "/");
-    std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance(SpellChessEngineInstanceBuilder->build(process));
+
+    char loggerPreffix[5] = {0 , 0, 0 ,0 , 0};
+    for(int i = 0; i < 4; ++i)
+        loggerPreffix[i] = 'a' + rand() % ('z' - 'a' + 1);
+
+    auto logger = UCILoader::Loggers::toFile(std::string("log_") + loggerPreffix + ".txt") | UCILoader::LoggerTraits::Pretty;
+
+    std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance(SpellChessEngineInstanceBuilder->build(process,
+        std::move(logger)));
+
     instance->sync();
     return std::make_unique<SpellChessLib::UCIEnginePlayer>(instance);
 }

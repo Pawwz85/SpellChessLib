@@ -165,7 +165,7 @@ EngineOptionsWidget::EngineOptionsWidget(std::shared_ptr<SpellChessLib::GameRunn
         builder->withPosition(str.toStdString());});
     startingFen->setText("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 - - F50/f50/J20/j20");
   
-    connect(nodeLimit, &QSpinBox::valueChanged, [builder](int v){
+    connect(moveTimeLimit, &QSpinBox::valueChanged, [builder](int v){
         builder->withMoveTimeLimit((uint32_t)v);});
     moveTimeLimit->setValue(0);
     moveTimeLimit->setMinimum(0);
@@ -238,20 +238,24 @@ GameRunnerConfigurationDialog::GameRunnerConfigurationDialog(QWidget *parent) : 
     mainLayout->addLayout(buttonLayout);
 
     connect(submitBtn, &QPushButton::clicked, this, &GameRunnerConfigurationDialog::trySubmit);
-    connect(submitBtn, &QPushButton::clicked, this, &QDialog::accept);
     connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
 
     setLayout(mainLayout);
 }
 
 void GameRunnerConfigurationDialog::trySubmit() {
+    if (alreadySubmitted)
+        return;
+
     playerForm->submit();
     timerForm->submit();
 
     bool anyError = playerForm->resetErrorFlag() || timerForm->resetErrorFlag();
 
-    if (!anyError) 
+    if (!anyError) {
+        alreadySubmitted = true;
         QDialog::accept();
+    }
 }
 
 GameSession::OpenSessionRequest GameRunnerConfigurationDialog::buildRequest() {

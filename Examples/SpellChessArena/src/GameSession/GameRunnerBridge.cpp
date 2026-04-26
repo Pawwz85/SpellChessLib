@@ -89,13 +89,20 @@ SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player> GameSession::Ga
 }
 
 void GameSession::GameRunnerBridge::submitMove(SpellChessLib::SpellChessMove move){
-    if(movePromise != nullptr)
+    if(movePromise != nullptr) {
         movePromise->set_value(move);
+        movePromise.reset();
+    }
 }
 
 SpellChessLib::Player::Result GameSession::GuiPlayer::makeResult(const SpellChessLib::Game &game, const std::chrono::milliseconds &timeOut){
-    session->movePromise.reset( new std::promise<SpellChessLib::SpellChessMove>() );
+    session->movePromise.reset(new std::promise<SpellChessLib::SpellChessMove>);
     auto future = session->movePromise->get_future();
+    
+    if (timeOut == std::chrono::milliseconds(0)) {
+        return future.get();
+    };
+
     auto status = future.wait_for(timeOut);
     if(status == std::future_status::ready)
         return Result(future.get());

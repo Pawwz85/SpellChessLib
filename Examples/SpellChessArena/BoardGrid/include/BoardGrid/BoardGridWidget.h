@@ -69,7 +69,6 @@ namespace Board {
             DragHandleImpl(BoardWidget & context, std::shared_ptr<Internal::DragInfo> dragInfo);
         };
         DragHandle<BoardWidget> * startDrag(unsigned int EntityId) override;
-        QPointF calculateDraggedPieceNormalisedLocation(QPointF rawMousePoint);
         BoardEntity * trySelectDraggedEntity(QPointF rawMousePoint);
 
         PromotionContextMenuOverlay * promotionContextMenu = nullptr;
@@ -97,7 +96,8 @@ namespace Board {
         void mouseMoveEvent(QMouseEvent * event) override;
         void paintEvent(QPaintEvent * event) override;
         
-        unsigned int squareIndexFromMousePos(QPointF pos);
+        unsigned int squareIndexFromBoardPos(QPointF pos);
+        QPointF calculateNormalisedLocation(QPointF rawMousePoint);
 
         BoardEntityList entities;
 

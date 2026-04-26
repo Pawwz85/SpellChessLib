@@ -21,7 +21,7 @@ void SpellChessLib::TimerService::refreshTimers(time_t delta_t)
 	for (auto& timer : timers) {
 		std::lock_guard<std::mutex> guard(timer.lock);
 		if (!timer.stopped && timer.value > 0) {
-			;			timer.value -= delta_t;
+			timer.value -= delta_t;
 			if (timer.value <= 0) {
 				timer.expirationCallback();
 				timer.value = 0;

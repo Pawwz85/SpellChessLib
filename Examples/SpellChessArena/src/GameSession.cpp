@@ -167,7 +167,7 @@ QPointF GameSession::GameSessionView::pointFromSquareIndex(unsigned int sqId) co
 }
 
 void GameSession::GameSessionView::handleDrag(Board::DragHandle<Board::BoardWidget> & drag) {
-        unsigned int finalSquareIndex = board->squareIndexFromMousePos(drag.getFinalPosition());
+        unsigned int finalSquareIndex = board->squareIndexFromBoardPos(drag.getFinalPosition());
         interactionManager->onPieceDragEnded(finalSquareIndex);
 
         bool shouldAccept = board->boardGridModel.getPropertyValue(finalSquareIndex, Board::HasMoveDot);
@@ -179,7 +179,8 @@ void GameSession::GameSessionView::handleDrag(Board::DragHandle<Board::BoardWidg
 };
 
 void GameSession::GameSessionView::handleClick(Board::BoardWidget::ClickHandle &click){
-    unsigned int squareIndex = board->squareIndexFromMousePos(click.getPosition());
+    auto boardPos = board->calculateNormalisedLocation(click.getPosition());
+    unsigned int squareIndex = board->squareIndexFromBoardPos(boardPos);
 
     if (squareIndex > 63) {
         interactionManager->onSpellDiscarded();
@@ -227,13 +228,14 @@ void GameSession::GameSessionView::handleGamestateChange(const SpellChessLib::Ga
 
     lintBoard(board->boardGridModel, linterInput);
     moveBuilder->reset();
-
+    board->update();
 }
 
 GameSession::GameSessionView::GameSessionView(GameSessionModel *model, QWidget *parent) : QWidget(parent), model(model){
-    interactionManager = nullptr;// std::make_shared<GameSession::UserInteractionManager>();
+    interactionManager = std::make_shared<GameSession::UserInteractionManager>();
     moveBuilder = std::make_shared<GameSession::SpellChessMoveBuilder>();
-
+    interactionManager->setCurrentState(std::make_unique<States::NoFocus>(this, interactionManager));
+    
     board = new Board::BoardWidget(this);
     layout = new QGridLayout(this);
 
@@ -248,6 +250,75 @@ GameSession::GameSessionView::~GameSessionView(){
     delete model;
 }
 
+void GameSession::GameSessionView::updateLinter() {
+    auto linterInput = prepareInfoForLinter();
+    lintBoard(board->boardGridModel, linterInput);
+    update();
+};
+
+void GameSession::States::NoFocus::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
+    // TODO: implement
+}
+
+void GameSession::States::NoFocus::onSpellDiscarded() {
+    // ignored
+}
+
+void GameSession::States::NoFocus::onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) {
+    // todo: 
+    view->moveBuilder->reset();
+    view->updateLinter();
+}
+
+void GameSession::States::NoFocus::onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) {
+    bool canMove =  view->model->userFunction == GameSessionModel::UserFunction::SelfPlay ||
+                    (piece.owner == SpellChessLib::White && view->model->userFunction == GameSessionModel::UserFunction::WhitePlayer) ||
+                    (piece.owner == SpellChessLib::Black && view->model->userFunction == GameSessionModel::UserFunction::BlackPlayer);
+
+    canMove &= (piece.owner == view->model->getCurrentState().getSideToMove());
+
+    if (canMove) {
+        view->moveBuilder->setFromSquare(pieceSquare);
+        view->moveBuilder->setDestSquare(SpellChessLib::NoSquare);
+        view->updateLinter();
+    }
+}
+
+void GameSession::States::NoFocus::onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) {
+    
+    SpellChessLib::SpellChessMove moveSoFar = view->moveBuilder->build();
+    SpellChessLib::SquareIndex from = moveSoFar.from;
+    SpellChessLib::GameState state = view->model->getCurrentState();
+
+    SpellChessLib::Piece movedPiece = (from != SpellChessLib::NoSquare) ? 
+            state.getSquare(from).piece :
+            SpellChessLib::Piece({SpellChessLib::None, SpellChessLib::Nobody});
+
+    bool isPawnMove = movedPiece.type == SpellChessLib::Pawn;
+    // TODO: check if move would be a pawn promotion?
+
+    if (false) {
+        // todo: implement this path
+    } else {
+        view->moveBuilder->setDestSquare(targetSquare);
+        view->model->submitMove(view->moveBuilder->build());
+        view->moveBuilder->reset();
+        view->updateLinter();
+    }
+
+}
+
+void GameSession::States::NoFocus::onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) {
+   // TODO: implement
+}
+
+void GameSession::States::NoFocus::onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) {
+    // TODO: implement
+}
+
+void GameSession::States::NoFocus::onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget) {
+    // TODO: implement
+}
 
 #include <moc_GameSession.cpp>
 

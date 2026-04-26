@@ -145,7 +145,7 @@ void BoardWidget::paintEvent(QPaintEvent * event) {
 
 }
 
-unsigned int Board::BoardWidget::squareIndexFromMousePos(QPointF pos){
+unsigned int Board::BoardWidget::squareIndexFromBoardPos(QPointF pos){
     int x = qFloor(pos.x());
     int y = qFloor(pos.y());
 
@@ -222,7 +222,7 @@ BoardEntity *  Board::BoardWidget::DragHandleImpl::getEntity() {
     return context->entities.findByIdentifier(info->entityId);
 }
 
-QPointF BoardWidget::calculateDraggedPieceNormalisedLocation(QPointF rawMousePoint) {
+QPointF BoardWidget::calculateNormalisedLocation(QPointF rawMousePoint) {
     qreal x = 8.f * rawMousePoint.x() / width();
     qreal y = 8.f * rawMousePoint.y() / height();
 
@@ -293,7 +293,7 @@ void BoardWidget::onClickAction(QPointF rawMousePoint) {
 void BoardWidget::mouseMoveEvent(QMouseEvent * event) {
     BoardGridWidget::mouseMoveEvent(event);
     mouseDragDetector.mouseMoved(event->position());
-    DragArea::updateDragAnimation(calculateDraggedPieceNormalisedLocation(event->position()));
+    DragArea::updateDragAnimation(calculateNormalisedLocation(event->position()));
 
     if (promotionContextMenu)
         promotionContextMenu->onMouseMoved(event->position(), this->size());

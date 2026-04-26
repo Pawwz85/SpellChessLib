@@ -20,7 +20,9 @@ namespace GameSession {
         public:
         
         void setNextState(std::unique_ptr<UserInteractionState> && nextState);
-        UserInteractionManager(std::unique_ptr<UserInteractionState> && initialState);
+        void setCurrentState(std::unique_ptr<UserInteractionState> && state);
+
+        UserInteractionManager();
         virtual ~UserInteractionManager() = default;
         void onSpellSelected(SpellChessLib::SpellIdentifator spellId);
         void onSpellDiscarded();

@@ -78,7 +78,13 @@ namespace GameSession {
         void onGameRunnerIdChanged(int id);
     };
 
+    namespace States {
+        class NoFocus;
+    };
+
     class GameSessionView : public QWidget {
+        friend States::NoFocus;
+
         Q_OBJECT
         std::shared_ptr<GameSession::UserInteractionManager> interactionManager;
         std::shared_ptr<GameSession::SpellChessMoveBuilder> moveBuilder;
@@ -93,6 +99,8 @@ namespace GameSession {
 
         QPointF pointFromSquareIndex(unsigned int sqId) const;
 
+        void updateLinter();
+
         protected slots:
         void handleDrag(Board::DragHandle<Board::BoardWidget> & drag);
         void handleClick(Board::BoardWidget::ClickHandle & click);
@@ -104,6 +112,28 @@ namespace GameSession {
 
         GameSessionView(GameSessionModel * model, QWidget * parent = nullptr);
         ~GameSessionView();
+    };
+
+    namespace States {
+
+        class NoFocus : public UserInteractionState {
+            GameSessionView * view;
+
+            void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+            void onSpellDiscarded() override;
+            void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
+            void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
+            void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override;
+            void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
+            void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) override;
+            void onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget) override;
+
+            public:
+
+            NoFocus(GameSessionView * view, std::weak_ptr<UserInteractionManager> manager) : view(view), UserInteractionState(manager) {};
+        };
+
+
     };
 
 } // namespace GameSession

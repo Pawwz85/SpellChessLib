@@ -20,7 +20,6 @@ namespace SpellChessLib {
 
 	class PlayerTimer;
 
-	// todo: make this class singleton
 	class TimerService : public std::enable_shared_from_this<TimerService> {
 		unsigned int idSeq = 0;
 		bool running = true;

@@ -11,9 +11,11 @@ void UserInteractionManager::setNextState(std::unique_ptr<UserInteractionState> 
     this->nextState.reset(nextState.release());
 };
 
-UserInteractionManager::UserInteractionManager(std::unique_ptr<UserInteractionState> && initialState) {
-    this->currentState.reset(initialState.release());
+void UserInteractionManager::setCurrentState(std::unique_ptr<UserInteractionState> && state) {
+    this->currentState.reset(state.release());
 };
+
+UserInteractionManager::UserInteractionManager() {};
 
 void UserInteractionManager::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
     if (currentState){

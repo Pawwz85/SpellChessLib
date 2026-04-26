@@ -88,6 +88,7 @@ class GameRunnerConfigurationDialog : public QDialog {
     QPushButton * submitBtn;
 
     GameSession::OpenSessionRequestBuilder requestBuilder;
+    bool alreadySubmitted = false;
 
     PlayerSelectionWidget * playerForm;
     TimeSelectionWidget * timerForm;
