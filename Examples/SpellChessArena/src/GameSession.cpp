@@ -4,6 +4,20 @@
 
 #include <SpellChess/PlayerRegistry.h>
 
+SpellChessLib::PieceType typeFromAction(Board::PawnPromotionAction action) {
+    switch (action)
+    {
+        case Board::PromoteToBishop:
+            return SpellChessLib::Bishop;
+        case Board::PromoteToKnight:
+            return SpellChessLib::Knight;
+        case Board::PromoteToRook:
+            return SpellChessLib::Rook;
+        case Board::PromoteToQueen:
+            return SpellChessLib::Queen;    
+    };
+};
+
 bool GameSession::GameSessionModel::event(QEvent *e) {
 
     if(e->type() == gameSessionEvents.GameStateChanged) {
@@ -256,6 +270,31 @@ void GameSession::GameSessionView::updateLinter() {
     update();
 };
 
+void GameSession::GameSessionView::handlePromotionActionSelected(Board::PawnPromotionAction action) {
+    moveBuilder->setPromotion(typeFromAction(action));
+    model->submitMove(moveBuilder->build());
+    moveBuilder->reset();
+    board->closePromotionContextMenu();
+    updateLinter();
+    board->update();
+    interactionManager->setCurrentState(std::make_unique<States::NoFocus>(this, interactionManager));
+};
+
+bool GameSession::States::NoFocus::isPromotionMove(SpellChessLib::SquareIndex targetSquare) const {
+    SpellChessLib::SpellChessMove moveSoFar = view->moveBuilder->build();
+    SpellChessLib::SquareIndex from = moveSoFar.from;
+    SpellChessLib::GameState state = view->model->getCurrentState();
+
+    SpellChessLib::Piece movedPiece = (from != SpellChessLib::NoSquare) ? 
+            state.getSquare(from).piece :
+            SpellChessLib::Piece({SpellChessLib::None, SpellChessLib::Nobody});
+
+    bool isPawnMove = movedPiece.type == SpellChessLib::Pawn;
+    bool inPromotionZone = targetSquare != SpellChessLib::NoSquare && (targetSquare < 8 || targetSquare >= 56);
+    return isPawnMove && inPromotionZone;
+};
+
+
 void GameSession::States::NoFocus::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
     // TODO: implement
 }
@@ -285,27 +324,14 @@ void GameSession::States::NoFocus::onPieceClicked(SpellChessLib::SquareIndex pie
 }
 
 void GameSession::States::NoFocus::onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) {
-    
-    SpellChessLib::SpellChessMove moveSoFar = view->moveBuilder->build();
-    SpellChessLib::SquareIndex from = moveSoFar.from;
-    SpellChessLib::GameState state = view->model->getCurrentState();
-
-    SpellChessLib::Piece movedPiece = (from != SpellChessLib::NoSquare) ? 
-            state.getSquare(from).piece :
-            SpellChessLib::Piece({SpellChessLib::None, SpellChessLib::Nobody});
-
-    bool isPawnMove = movedPiece.type == SpellChessLib::Pawn;
-    // TODO: check if move would be a pawn promotion?
-
-    if (false) {
-        // todo: implement this path
+    if (isPromotionMove(targetSquare)) {
+        transistTo(std::make_unique<PromotionPicker>(targetSquare, view, manager));
     } else {
         view->moveBuilder->setDestSquare(targetSquare);
         view->model->submitMove(view->moveBuilder->build());
         view->moveBuilder->reset();
         view->updateLinter();
-    }
-
+    };
 }
 
 void GameSession::States::NoFocus::onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) {
@@ -316,9 +342,32 @@ void GameSession::States::NoFocus::onPieceDragEnded(SpellChessLib::SquareIndex t
     // TODO: implement
 }
 
-void GameSession::States::NoFocus::onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget) {
-    // TODO: implement
-}
+
+GameSession::States::PromotionPicker::PromotionPicker(SpellChessLib::SquareIndex anchorIndex, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager) :
+view(view), UserInteractionState(manager) {
+    auto & menu = view->board->openPromotionContextMenu();
+    int x = anchorIndex % 8;
+    int y = anchorIndex / 8;
+
+    if (y  + 4 >= 8)
+        y = 3;
+
+    view->moveBuilder->setDestSquare(anchorIndex);
+
+    menu.setPosition(QPointF(x, y));
+    auto viewPtr = view;
+
+    menu.connect(&menu, &Board::PromotionContextMenuOverlay::onActionSelected, view, &GameSessionView::handlePromotionActionSelected);
+    view->board->update();
+};
+
+void GameSession::States::PromotionPicker::discard() {
+    view->moveBuilder->reset();
+    view->board->closePromotionContextMenu();
+    view->updateLinter();
+    view->board->update();
+    transistTo(std::make_unique<NoFocus>(view, manager));
+};
 
 #include <moc_GameSession.cpp>
 

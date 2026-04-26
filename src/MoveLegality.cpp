@@ -269,7 +269,7 @@ bool SpellChessLib::isMoveLegal(const GameState& state, const SpellChessMove& mo
         return false;
 
     // also it is illegal to not promote a pawn
-    if (move.promoteTo == None && movedPiece.type == Pawn && (move.to < 7 || move.to >= 56))
+    if (move.promoteTo == None && movedPiece.type == Pawn && (move.to < 8 || move.to >= 56))
         return false;
 
     // todo: king safety checks

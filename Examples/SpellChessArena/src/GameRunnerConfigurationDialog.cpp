@@ -244,16 +244,12 @@ GameRunnerConfigurationDialog::GameRunnerConfigurationDialog(QWidget *parent) : 
 }
 
 void GameRunnerConfigurationDialog::trySubmit() {
-    if (alreadySubmitted)
-        return;
-
     playerForm->submit();
     timerForm->submit();
-
+    
     bool anyError = playerForm->resetErrorFlag() || timerForm->resetErrorFlag();
 
     if (!anyError) {
-        alreadySubmitted = true;
         QDialog::accept();
     }
 }

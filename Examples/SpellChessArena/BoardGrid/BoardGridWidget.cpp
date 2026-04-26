@@ -330,8 +330,10 @@ PromotionContextMenuOverlay & BoardWidget::openPromotionContextMenu() {
 };
 
 void BoardWidget::closePromotionContextMenu() {
-    if (promotionContextMenu)
+    if (promotionContextMenu) {
         delete promotionContextMenu;
+        promotionContextMenu = nullptr;
+    }
 };
 
 

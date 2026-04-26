@@ -31,12 +31,11 @@ namespace GameSession {
         void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare);
         void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece);
         void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare);
-        void onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget);
      };
 
       class UserInteractionState {
-        std::weak_ptr<UserInteractionManager> manager;
         protected:
+        std::weak_ptr<UserInteractionManager> manager;
 
         void transistTo(std::unique_ptr<UserInteractionState> && newState);
 
@@ -50,7 +49,6 @@ namespace GameSession {
         virtual void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) = 0;
         virtual void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) = 0;
         virtual void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) = 0;
-        virtual void onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget) = 0;
      };
      
 };

@@ -66,14 +66,6 @@ void UserInteractionManager::onPieceDragEnded(SpellChessLib::SquareIndex targetS
     };
 };
 
-void UserInteractionManager::onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget) {
-  if (currentState) {
-        currentState->onPromotionTargetSelected(promotionTarget);
-        tryAdvanceState();
-    };
-};
-
-
 void UserInteractionState::transistTo(std::unique_ptr<UserInteractionState> && newState) {
     if (auto man = manager.lock()) {
         man->setNextState(std::move(newState));

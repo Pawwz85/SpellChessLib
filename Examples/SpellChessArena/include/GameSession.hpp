@@ -80,10 +80,12 @@ namespace GameSession {
 
     namespace States {
         class NoFocus;
+        class PromotionPicker;
     };
 
     class GameSessionView : public QWidget {
         friend States::NoFocus;
+        friend States::PromotionPicker;
 
         Q_OBJECT
         std::shared_ptr<GameSession::UserInteractionManager> interactionManager;
@@ -107,6 +109,7 @@ namespace GameSession {
         void handleGamestateChange(const SpellChessLib::GameState & state);
         void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves) {};
         void handleGameRunnerIdChanged(int id) {};
+        void handlePromotionActionSelected(Board::PawnPromotionAction action);
 
         public:
 
@@ -126,13 +129,30 @@ namespace GameSession {
             void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override;
             void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
             void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) override;
-            void onPromotionTargetSelected(SpellChessLib::PieceType promotionTarget) override;
 
+            bool isPromotionMove(SpellChessLib::SquareIndex targetSquare) const;
+            void openPromotionContextMenu(SpellChessLib::SquareIndex ancorSquare);
             public:
 
             NoFocus(GameSessionView * view, std::weak_ptr<UserInteractionManager> manager) : view(view), UserInteractionState(manager) {};
         };
 
+        class PromotionPicker : public UserInteractionState {
+            GameSessionView * view;
+
+            void discard();
+
+            void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override {discard();};
+            void onSpellDiscarded() override {discard();};   
+            void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override {discard();};
+            void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {discard();}
+            void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override {discard();};
+            void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {discard();};
+            void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) override {discard();};
+
+            public:
+            PromotionPicker(SpellChessLib::SquareIndex anchorIndex, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager);
+        };
 
     };
 

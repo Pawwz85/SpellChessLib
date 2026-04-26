@@ -32,6 +32,7 @@ void SpellChessLib::GameRunner::stop() {
 void SpellChessLib::GameRunner::attachGameMonitor(std::shared_ptr<GameMonitor> monitor){
     monitor->onGameRunnerConnect();
     gameMonitor = monitor;
+    gameMonitor->onGameValueChanged(*game);
 }
 
 
