@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QPointF>
+#include "CoordinateSystem.h"
 
 namespace Board {
 
@@ -20,7 +21,7 @@ namespace Board {
         struct MouseInteractionInfo {
             unsigned int id;
             InteractionClassification classification;
-            QPointF startingLocation;
+            BoardWidgetPoint startingLocation;
         };
 
         MouseInteractionInfo currentInteraction;
@@ -29,14 +30,14 @@ namespace Board {
 
         MouseDragDetector();
 
-        void buttonPressed(QPointF where);
-        void buttonReleased(QPointF where);
-        void mouseMoved(QPointF where);
+        void buttonPressed(BoardWidgetPoint where);
+        void buttonReleased(BoardWidgetPoint where);
+        void mouseMoved(BoardWidgetPoint where);
 
         signals:
-        void onClick(QPointF where);
-        void onDragStarted(QPointF where);
-        void onDragEnded(QPointF where);
+        void onClick(BoardWidgetPoint where);
+        void onDragStarted(BoardWidgetPoint where);
+        void onDragEnded(BoardWidgetPoint where);
     };
 
 };

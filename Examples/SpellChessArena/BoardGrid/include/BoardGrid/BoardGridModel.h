@@ -2,6 +2,7 @@
 #include <QObject>
 #include <cstdint>
 #include <array>
+#include "CoordinateSystem.h"
 
  namespace Board {
 
@@ -43,6 +44,7 @@
         inline const Board::BoardGridConfig & getConfig() const;
         unsigned int getIndex(unsigned int column, unsigned int row) const;
         void setConfig(const Board::BoardGridConfig & config);
+        Perspective getPerspective() const;
 
         signals:
         void onReversed();

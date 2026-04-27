@@ -52,16 +52,9 @@ void UserInteractionManager::onPieceTargetSquareClicked(SpellChessLib::SquareInd
     };
 };
 
-void UserInteractionManager::onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) {
+void UserInteractionManager::onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) {
     if (currentState) {
-        currentState->onPieceDragStarted(pieceSquare, piece);
-        tryAdvanceState();
-    };
-};
-
-void UserInteractionManager::onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) {
-    if (currentState) {
-        currentState->onPieceDragEnded(targetSquare);
+        currentState->onPieceDrag(drag);
         tryAdvanceState();
     };
 };

@@ -3,6 +3,7 @@
 #include <map>
 
 #include <SpellChess/PlayerRegistry.h>
+#include <SpellChess/MoveGen.h>
 
 SpellChessLib::PieceType typeFromAction(Board::PawnPromotionAction action) {
     switch (action)
@@ -70,6 +71,10 @@ GameSession::GameSessionModel::~GameSessionModel(){
 }
 
 bool GameSession::GameSessionModel::submitMove(const SpellChessLib::SpellChessMove &move){
+
+    SpellChessLib::MoveGenerator gen(getCurrentState());
+    if(!gen.isMoveLegal(move))
+        return false;
 
     switch (userFunction) {
         case Observing: return false;
@@ -181,20 +186,11 @@ QPointF GameSession::GameSessionView::pointFromSquareIndex(unsigned int sqId) co
 }
 
 void GameSession::GameSessionView::handleDrag(Board::DragHandle<Board::BoardWidget> & drag) {
-        unsigned int finalSquareIndex = board->squareIndexFromBoardPos(drag.getFinalPosition());
-        interactionManager->onPieceDragEnded(finalSquareIndex);
-
-        bool shouldAccept = board->boardGridModel.getPropertyValue(finalSquareIndex, Board::HasMoveDot);
-
-        if (shouldAccept)
-            drag.accept();
-        else
-            drag.reject();
+    interactionManager->onPieceDrag(drag);
 };
 
 void GameSession::GameSessionView::handleClick(Board::BoardWidget::ClickHandle &click){
-    auto boardPos = board->calculateNormalisedLocation(click.getPosition());
-    unsigned int squareIndex = board->squareIndexFromBoardPos(boardPos);
+    unsigned int squareIndex = board->squareIndexFromBoardPos(click.getPosition());
 
     if (squareIndex > 63) {
         interactionManager->onSpellDiscarded();
@@ -336,14 +332,42 @@ void GameSession::States::NoFocus::onPieceTargetSquareClicked(SpellChessLib::Squ
     };
 }
 
-void GameSession::States::NoFocus::onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) {
-   // TODO: implement
-}
+void GameSession::States::NoFocus::onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) {
+    SpellChessLib::SquareIndex fromSq = view->board->squareIndexFromBoardPos(drag.getStartingPosition());
+    SpellChessLib::SquareIndex toSq = view->board->squareIndexFromBoardPos(drag.getFinalPosition());
 
-void GameSession::States::NoFocus::onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) {
-    // TODO: implement
-}
 
+    if (fromSq > 63 || toSq > 63) {
+        view->moveBuilder->reset();
+        view->updateLinter();
+        drag.reject();
+        view->board->update();
+        return;
+    };
+
+    view->moveBuilder->setFromSquare(fromSq);
+    view->moveBuilder->setDestSquare(toSq);
+    
+
+    SpellChessLib::MoveGenerator gen(view->model->getCurrentState());
+
+    if (isPromotionMove(toSq)) {
+        drag.reject();
+        transistTo(std::make_unique<PromotionPicker>(toSq, view, manager));
+    } else {
+        auto move = view->moveBuilder->build();
+        bool isLegal = gen.isMoveLegal(move);
+
+        if(!isLegal){
+            drag.reject();
+            view->board->update();
+            return;
+        }
+        view->model->submitMove(move);
+        view->moveBuilder->reset();
+        view->updateLinter();
+    };
+};
 
 GameSession::States::PromotionPicker::PromotionPicker(SpellChessLib::SquareIndex anchorIndex, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager) :
 view(view), UserInteractionState(manager) {

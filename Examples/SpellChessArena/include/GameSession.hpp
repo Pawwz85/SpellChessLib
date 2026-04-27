@@ -127,8 +127,7 @@ namespace GameSession {
             void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
             void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
             void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override;
-            void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
-            void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) override;
+            void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) override;
 
             bool isPromotionMove(SpellChessLib::SquareIndex targetSquare) const;
             void openPromotionContextMenu(SpellChessLib::SquareIndex ancorSquare);
@@ -147,8 +146,7 @@ namespace GameSession {
             void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override {discard();};
             void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {discard();}
             void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override {discard();};
-            void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {discard();};
-            void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) override {discard();};
+            void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) override {discard();};
 
             public:
             PromotionPicker(SpellChessLib::SquareIndex anchorIndex, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager);

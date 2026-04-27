@@ -4,10 +4,10 @@
 Board::MouseDragDetector::MouseDragDetector() {
     this->currentInteraction.id = 0;
     this->currentInteraction.classification = NotClassified;
-    this->currentInteraction.startingLocation = QPointF(0, 0);
+    this->currentInteraction.startingLocation = BoardWidgetPoint();
 };
 
-void Board::MouseDragDetector::buttonPressed(QPointF where) {
+void Board::MouseDragDetector::buttonPressed(BoardWidgetPoint where) {
 
     if (this->currentInteraction.id != 0) {
         // There is currently another interaction being proccessed right now,
@@ -22,7 +22,7 @@ void Board::MouseDragDetector::buttonPressed(QPointF where) {
     this->currentInteraction.startingLocation = where;
 };
 
-void Board::MouseDragDetector::buttonReleased(QPointF where) {
+void Board::MouseDragDetector::buttonReleased(BoardWidgetPoint where) {
 
     if (this->currentInteraction.id == 0) {
         /*
@@ -40,10 +40,10 @@ void Board::MouseDragDetector::buttonReleased(QPointF where) {
 
     this->currentInteraction.id = 0;
     this->currentInteraction.classification = NotClassified;
-    this->currentInteraction.startingLocation = QPointF(0, 0);
+    this->currentInteraction.startingLocation = BoardWidgetPoint();
 };
 
-void Board::MouseDragDetector::mouseMoved(QPointF where) {
+void Board::MouseDragDetector::mouseMoved(BoardWidgetPoint where) {
     if (this->currentInteraction.id == 0) 
         return; 
 

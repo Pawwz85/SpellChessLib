@@ -83,5 +83,10 @@ void BoardGridEditor::commit() {
     }
 };
 
+Board::Perspective BoardGridModel::getPerspective() const {
+    return m_reversed ? BlackPerspective : WhitePerspective;
+};
+
+
 
 #include <moc_BoardGridModel.cpp>

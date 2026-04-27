@@ -42,12 +42,12 @@ namespace Board {
 
         class ClickHandle {
             BoardWidget * context;
-            QPointF where;
+            LogicalBoardPoint where;
             public:
-            ClickHandle(BoardWidget * cntx, QPointF point) : context(cntx), where(point) {};
+            ClickHandle(BoardWidget * cntx, LogicalBoardPoint point) : context(cntx), where(point) {};
             BoardWidget & getContext() {return *context;};
             const BoardWidget & getContext() const {return *context;};
-            const QPointF getPosition() const {return where;};
+            const LogicalBoardPoint getPosition() const {return where;};
         };
 
         private:    
@@ -69,14 +69,14 @@ namespace Board {
             DragHandleImpl(BoardWidget & context, std::shared_ptr<Internal::DragInfo> dragInfo);
         };
         DragHandle<BoardWidget> * startDrag(unsigned int EntityId) override;
-        BoardEntity * trySelectDraggedEntity(QPointF rawMousePoint);
+        BoardEntity * trySelectDraggedEntity(BoardWidgetPoint rawMousePoint);
 
         PromotionContextMenuOverlay * promotionContextMenu = nullptr;
 
         private slots: 
-        void tryStartDragAction(QPointF rawMousePoint);
-        void tryHandleDragActionEnd(QPointF rawMousePoint);
-        void onClickAction(QPointF rawMousePoint);
+        void tryStartDragAction(BoardWidgetPoint rawMousePoint);
+        void tryHandleDragActionEnd(BoardWidgetPoint rawMousePoint);
+        void onClickAction(BoardWidgetPoint rawMousePoint);
 
         protected:
         // inherited from BoardGridWidget
@@ -96,8 +96,10 @@ namespace Board {
         void mouseMoveEvent(QMouseEvent * event) override;
         void paintEvent(QPaintEvent * event) override;
         
-        unsigned int squareIndexFromBoardPos(QPointF pos);
+        unsigned int squareIndexFromBoardPos(LogicalBoardPoint pos) const;
         QPointF calculateNormalisedLocation(QPointF rawMousePoint);
+
+        BoardWidgetSize getBoardSize() const;
 
         BoardEntityList entities;
 

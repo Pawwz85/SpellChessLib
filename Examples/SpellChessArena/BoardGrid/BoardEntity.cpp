@@ -45,6 +45,16 @@ void BoardEntity::setLocationAnimation(std::unique_ptr<QPropertyAnimation> && an
     locationAnimation->start();
 };
 
+void BoardEntity::setLocation(const LogicalBoardPoint & point) {
+    m_location.setX(point.x());
+    m_location.setY(point.y());
+};
+
+void BoardEntity::setSize(const LogicalBoardSize & size) {
+    m_size.setWidth(size.width());
+    m_size.setHeight(size.height());
+};
+
 void BoardEntity::stopSizeAnimation() {
     if( sizeAnimation )
         sizeAnimation->stop();

@@ -8,6 +8,7 @@
 #include <atomic>
 #include <QPropertyAnimation>
 #include <SpriteSet/SpriteSet.hpp> // for SpriteReference
+#include "CoordinateSystem.h"
 
 namespace Board {
 
@@ -47,6 +48,8 @@ namespace Board {
         void stopSizeAnimation();
         void stopLocationAnimation();
 
+        void setLocation(const LogicalBoardPoint & point);
+        void setSize(const LogicalBoardSize & size);
 
         unsigned int getIdentifier() const;
         const QPixmap * getSpritePointer() const;

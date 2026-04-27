@@ -149,7 +149,7 @@ void BoardWidget::paintEvent(QPaintEvent * event) {
 
 }
 
-unsigned int Board::BoardWidget::squareIndexFromBoardPos(QPointF pos){
+unsigned int Board::BoardWidget::squareIndexFromBoardPos(LogicalBoardPoint pos) const{
     int x = qFloor(pos.x());
     int y = qFloor(pos.y());
 
@@ -196,14 +196,16 @@ void BoardWidget::drawExtras(QPainter & painter) {
 
 void BoardWidget::mousePressEvent(QMouseEvent * event) {
     QPointF pos = event->position();
-    mouseDragDetector.buttonPressed(pos);
+    auto boardPoint = BoardWidgetPoint(boardGridModel.getPerspective(), pos.x(), pos.y());
+    mouseDragDetector.buttonPressed(boardPoint);
     if (promotionContextMenu)
         promotionContextMenu->onMousePressed(event->position(), this->size());
 };
 
 void BoardWidget::mouseReleaseEvent(QMouseEvent * event) {
     QPointF pos = event->position();
-    mouseDragDetector.buttonReleased(pos);
+    auto boardPoint = BoardWidgetPoint(boardGridModel.getPerspective(), pos.x(), pos.y());
+    mouseDragDetector.buttonReleased(boardPoint);
 };
 
 Board::BoardWidget::DragHandleImpl::DragHandleImpl(BoardWidget & context, std::shared_ptr<Internal::DragInfo> dragInfo) :
@@ -248,9 +250,10 @@ QPointF BoardWidget::calculateNormalisedLocation(QPointF rawMousePoint) {
     return QPointF(x, y);
 };
 
-BoardEntity * BoardWidget::trySelectDraggedEntity(QPointF rawMousePoint) {
-    qreal x = 8.f * rawMousePoint.x() / width();
-    qreal y = 8.f * rawMousePoint.y() / height();
+BoardEntity * BoardWidget::trySelectDraggedEntity(BoardWidgetPoint rawMousePoint) {
+    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
+    float x = point.x();
+    float y = point.y();
 
     for (Board::BoardEntity & e : entities) {
         qreal eX = e.property("location").toPointF().x();
@@ -264,7 +267,7 @@ BoardEntity * BoardWidget::trySelectDraggedEntity(QPointF rawMousePoint) {
     return nullptr;
 };
 
-void BoardWidget::tryStartDragAction(QPointF rawMousePoint) {
+void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
     BoardEntity * draggedEntity = trySelectDraggedEntity(rawMousePoint);
 
     if(draggedEntity == nullptr)
@@ -274,9 +277,13 @@ void BoardWidget::tryStartDragAction(QPointF rawMousePoint) {
     draggedEntity->setProperty("z_level", 100);
 };
 
- void BoardWidget::tryHandleDragActionEnd(QPointF rawMousePoint) {
+ void BoardWidget::tryHandleDragActionEnd(BoardWidgetPoint rawMousePoint) {
     if (currentlyDraggedPiece == nullptr) 
         return;
+
+    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
+    currentlyDraggedPiece->currentLocation = QPointF(point.x(), point.y());
+    
     DragHandle<BoardWidget> * dragHandle = new DragHandleImpl(*this,currentlyDraggedPiece);
     BoardEntity * draggedEntity = dragHandle->getEntity(); 
     if (draggedEntity ) 
@@ -288,15 +295,17 @@ void BoardWidget::tryStartDragAction(QPointF rawMousePoint) {
     delete dragHandle;
  };
 
-void BoardWidget::onClickAction(QPointF rawMousePoint) {
-    ClickHandle click(this, rawMousePoint);
+void BoardWidget::onClickAction(BoardWidgetPoint rawMousePoint) {
+    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
+    ClickHandle click(this, point);
     onClick(click);
 };
 
 
 void BoardWidget::mouseMoveEvent(QMouseEvent * event) {
     BoardGridWidget::mouseMoveEvent(event);
-    mouseDragDetector.mouseMoved(event->position());
+    auto boardPoint = BoardWidgetPoint(boardGridModel.getPerspective(), event->pos().x(), event->pos().y());
+    mouseDragDetector.mouseMoved(boardPoint);
     DragArea::updateDragAnimation(calculateNormalisedLocation(event->position()));
 
     if (promotionContextMenu)
@@ -339,6 +348,11 @@ void BoardWidget::closePromotionContextMenu() {
         promotionContextMenu = nullptr;
     }
 };
+
+BoardWidgetSize BoardWidget::getBoardSize() const {
+    return BoardWidgetSize(size().width(), size().height());
+};
+
 
 
 #include <moc_BoardGridWidget.cpp>

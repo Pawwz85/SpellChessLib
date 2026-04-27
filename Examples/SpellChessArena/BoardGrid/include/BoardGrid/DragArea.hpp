@@ -1,5 +1,6 @@
 #pragma once
 #include "BoardEntity.h"
+#include "CoordinateSystem.h"
 #include <memory>
 #include <functional>
 #include <list>
@@ -48,8 +49,8 @@ namespace Board {
             Context & getContext();
             const Context & getContext() const;
 
-            QPointF getStartingPosition() const;
-            QPointF getFinalPosition() const;
+            LogicalBoardPoint getStartingPosition() const;
+            LogicalBoardPoint getFinalPosition() const;
 
             bool isClosed() const;
     };
@@ -104,23 +105,21 @@ const Context & Board::DragHandle<Context>::getContext() const {
 }
 
 template <class Context>
-inline QPointF Board::DragHandle<Context>::getStartingPosition() const{
-    QPointF result;
+inline Board::LogicalBoardPoint Board::DragHandle<Context>::getStartingPosition() const{
     if(info != nullptr) {
         std::lock_guard<std::mutex> guard(info->lock);
-        result = info->startingLocation;
+        return LogicalBoardPoint(info->startingLocation.x(), info->startingLocation.y());
     }
-    return result;
+    return LogicalBoardPoint();
 }
 
 template <class Context>
-inline QPointF Board::DragHandle<Context>::getFinalPosition() const{
-    QPointF result;
-    if(info != nullptr) {
+inline Board::LogicalBoardPoint Board::DragHandle<Context>::getFinalPosition() const{
+      if(info != nullptr) {
         std::lock_guard<std::mutex> guard(info->lock);
-        result = info->currentLocation;
+        return LogicalBoardPoint(info->currentLocation.x(), info->currentLocation.y());
     }
-    return result;
+    return LogicalBoardPoint();
 };
 
 template <class Context>

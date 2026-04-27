@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SpellChess/SpellChessGame.h>
+#include <BoardGrid/BoardGridWidget.h>
 #include <memory>
 
 namespace GameSession {
@@ -29,8 +30,7 @@ namespace GameSession {
         void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex);
         void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece);
         void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare);
-        void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece);
-        void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare);
+        void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag);
      };
 
       class UserInteractionState {
@@ -47,8 +47,7 @@ namespace GameSession {
         virtual void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) = 0;
         virtual void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) = 0;
         virtual void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) = 0;
-        virtual void onPieceDragStarted(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) = 0;
-        virtual void onPieceDragEnded(SpellChessLib::SquareIndex targetSquare) = 0;
+        virtual void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) = 0;
      };
      
 };
