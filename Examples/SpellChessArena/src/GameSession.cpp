@@ -214,12 +214,12 @@ void GameSession::GameSessionView::handleGamestateChange(const SpellChessLib::Ga
     board->entities.clear();
 
     static std::map<SpellChessLib::PieceType, Board::PieceType> libTypeToBoardTypeMap = {
-        {SpellChessLib::Pawn, Board::Pawn},
+        {SpellChessLib::Pawn,   Board::Pawn},
         {SpellChessLib::Knight, Board::Knight},
         {SpellChessLib::Bishop, Board::Bishop},
-        {SpellChessLib::Rook, Board::Rook},
-        {SpellChessLib::Queen, Board::Queen},
-        {SpellChessLib::King, Board::King}
+        {SpellChessLib::Rook,   Board::Rook},
+        {SpellChessLib::Queen,  Board::Queen},
+        {SpellChessLib::King,   Board::King}
     };
 
     auto linterInput = prepareInfoForLinter();

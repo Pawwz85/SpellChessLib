@@ -1,6 +1,7 @@
 #include <BoardGridWidget.h>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPen>
 #include <map>
 #include <vector>
 #include <mutex>
@@ -41,6 +42,9 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
     int step_y = height() / 8;
     int step_x = width() / 8;
     
+    QPen pen = painter.pen();
+    painter.setPen(Qt::transparent); // disable white outlines
+
     // step 1. Draw the base board
     for(unsigned int col = 0; col < 8; ++col) 
         for (unsigned int row = 0; row < 8; ++row) {
@@ -53,7 +57,7 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
             painter.drawRect(x, y, step_x, step_y);
 
         }
-
+    
     // step 2. Draw pieces or other stuff suppossed to be affected visually by spell (noop unless defined by subclass)
     drawPieces(painter);    
     
@@ -84,6 +88,8 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
 
     // step 4. Allow subclasses draw things unaffected by spell effects
     drawExtras(painter);
+
+    painter.setPen(pen);
 }
 
 void BoardGridWidget::resetHiglight() {
@@ -164,6 +170,8 @@ void BoardWidget::boardEntityDrawingRoutine( QPainter & painter,
                                 float scalingFactorX,
                                 float scalingFactorY) {
     const QPixmap * sprite;
+    painter.save();
+    painter.setRenderHint(QPainter::Antialiasing, true);
     for (const auto & piece : renderQueue) {
         if ((sprite = piece->getSpritePointer())) {
             QSizeF size = piece->property("size").toSizeF();
@@ -177,6 +185,7 @@ void BoardWidget::boardEntityDrawingRoutine( QPainter & painter,
 
         };
     };
+    painter.restore();
 }
 
 void BoardWidget::drawPieces(QPainter & painter) {
