@@ -147,6 +147,11 @@ void GameSession::GameSessionView::connectSlots() {
     connect(model, &GameSessionModel::onGameStateChanged,   this, &GameSessionView::handleGamestateChange);
     connect(model, &GameSessionModel::onMoveListChanged,    this, &GameSessionView::handleMoveListChanged);
     connect(model, &GameSessionModel::onGameRunnerIdChanged,this, &GameSessionView::handleGameRunnerIdChanged);
+
+    connect(&whiteSpellPanel, &SpellPanelModel::spellSelected, this, &GameSessionView::handleSpellSelect);
+    connect(&whiteSpellPanel, &SpellPanelModel::spellDiscarded, this, &GameSessionView::handleSpellDiscarded);
+    connect(&blackSpellPanel, &SpellPanelModel::spellSelected, this, &GameSessionView::handleSpellSelect);
+    connect(&blackSpellPanel, &SpellPanelModel::spellDiscarded, this, &GameSessionView::handleSpellDiscarded);
 }
 
 GameSession::LinterInput GameSession::GameSessionView::prepareInfoForLinter() const {
@@ -236,6 +241,11 @@ void GameSession::GameSessionView::handleGamestateChange(const SpellChessLib::Ga
         };
     }
 
+    whiteSpellPanel.setSpell(state.getSpell(SpellChessLib::White, SpellChessLib::FreezeSpell));
+    whiteSpellPanel.setSpell(state.getSpell(SpellChessLib::White, SpellChessLib::JumpSpell));
+    blackSpellPanel.setSpell(state.getSpell(SpellChessLib::Black, SpellChessLib::FreezeSpell));
+    blackSpellPanel.setSpell(state.getSpell(SpellChessLib::Black, SpellChessLib::JumpSpell));
+
     lintBoard(board->boardGridModel, linterInput);
     moveBuilder->reset();
     board->update();
@@ -249,7 +259,15 @@ GameSession::GameSessionView::GameSessionView(GameSessionModel *model, QWidget *
     board = new Board::BoardWidget(this);
     layout = new QGridLayout(this);
 
+    
+    SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
+    SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
+
+    layout->addWidget(blPanel, 0, 6, 1, 2);
+    layout->addWidget(whPanel, 9, 6, 1, 2);
+
     layout->addWidget(board, 1, 1, 8, 8);
+
 
     setLayout(layout);
 
@@ -274,6 +292,14 @@ void GameSession::GameSessionView::handlePromotionActionSelected(Board::PawnProm
     updateLinter();
     board->update();
     interactionManager->setCurrentState(std::make_unique<States::NoFocus>(this, interactionManager));
+}
+
+void GameSession::GameSessionView::handleSpellSelect(SpellChessLib::SpellIdentifator spell) {
+    interactionManager->setCurrentState(std::make_unique<States::SpellSquarePicker>(spell, this, interactionManager));
+}
+
+void GameSession::GameSessionView::handleSpellDiscarded() {
+    interactionManager->setCurrentState(std::make_unique<States::NoFocus>(this, interactionManager));
 };
 
 bool GameSession::States::NoFocus::isPromotionMove(SpellChessLib::SquareIndex targetSquare) const {
@@ -292,15 +318,14 @@ bool GameSession::States::NoFocus::isPromotionMove(SpellChessLib::SquareIndex ta
 
 
 void GameSession::States::NoFocus::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
-    // TODO: implement
-}
+    transistTo(std::make_unique<SpellSquarePicker>(spellId, view, manager));
+};
 
 void GameSession::States::NoFocus::onSpellDiscarded() {
     // ignored
 }
 
 void GameSession::States::NoFocus::onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) {
-    // todo: 
     view->moveBuilder->reset();
     view->updateLinter();
 }
@@ -395,6 +420,36 @@ void GameSession::States::PromotionPicker::discard() {
     view->board->update();
     transistTo(std::make_unique<NoFocus>(view, manager));
 };
+
+void GameSession::States::SpellSquarePicker::discard(){
+    view->moveBuilder->reset();
+    view->updateLinter();
+    view->board->update();
+    transistTo(std::make_unique<NoFocus>(view, manager));
+}
+
+void GameSession::States::SpellSquarePicker::onSpellSelected(SpellChessLib::SpellIdentifator spellId)
+{
+    if (spellId !=  this->spellId ) {
+        transistTo(std::make_unique<SpellSquarePicker>(spellId, view, manager));
+    };
+}
+
+void GameSession::States::SpellSquarePicker::onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex)
+{
+    if(spellId == SpellChessLib::FreezeSpell) {
+        view->moveBuilder->setFreezeSquare(squareIndex);
+    } else {
+        view->moveBuilder->setJumpSquare(squareIndex);
+    }
+    view->updateLinter();
+    view->board->update();
+    transistTo(std::make_unique<NoFocus>(view, manager));
+}
+
+GameSession::States::SpellSquarePicker::SpellSquarePicker(SpellChessLib::SpellIdentifator spell, GameSessionView *view, std::weak_ptr<UserInteractionManager> manager) :
+    UserInteractionState(manager), view(view), spellId(spell) {
+}
 
 #include <moc_GameSession.cpp>
 

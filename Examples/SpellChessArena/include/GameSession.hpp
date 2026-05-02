@@ -21,6 +21,9 @@
 #include <GameSession/BoardLinter.hpp>
 #include <GameSession/OpenSessionRequest.hpp>
 
+#include <SpellPanel.hpp> 
+
+
 namespace GameSession {
     
 
@@ -81,11 +84,13 @@ namespace GameSession {
     namespace States {
         class NoFocus;
         class PromotionPicker;
+        class SpellSquarePicker;
     };
 
     class GameSessionView : public QWidget {
         friend States::NoFocus;
         friend States::PromotionPicker;
+        friend States::SpellSquarePicker;
 
         Q_OBJECT
         std::shared_ptr<GameSession::UserInteractionManager> interactionManager;
@@ -95,6 +100,9 @@ namespace GameSession {
         GameSessionModel * model;
 
         QGridLayout * layout;
+
+        SpellPanelModel whiteSpellPanel;
+        SpellPanelModel blackSpellPanel;
 
         void connectSlots();
         GameSession::LinterInput prepareInfoForLinter() const;
@@ -110,6 +118,9 @@ namespace GameSession {
         void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves) {};
         void handleGameRunnerIdChanged(int id) {};
         void handlePromotionActionSelected(Board::PawnPromotionAction action);
+        void handleSpellSelect(SpellChessLib::SpellIdentifator spell);
+        void handleSpellDiscarded();
+
 
         public:
 
@@ -152,6 +163,23 @@ namespace GameSession {
             PromotionPicker(SpellChessLib::SquareIndex anchorIndex, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager);
         };
 
+        class SpellSquarePicker : public UserInteractionState {
+            GameSessionView * view;
+            SpellChessLib::SpellIdentifator spellId;
+
+            void discard();
+
+            void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+            void onSpellDiscarded() override {discard();};   
+            void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
+            void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {onEmptySquareClicked(pieceSquare);}
+            void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override {discard();};
+            void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) override {discard();};
+
+            public:
+            SpellSquarePicker(SpellChessLib::SpellIdentifator spell, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager);
+
+        };
     };
 
 } // namespace GameSession

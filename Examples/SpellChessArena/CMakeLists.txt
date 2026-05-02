@@ -22,6 +22,7 @@ set ( src_files
     "src/EmptyBoardWidget.cpp"
     "src/App.cpp"
     "src/main.cpp"
+    "src/SpellPanel.cpp"
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Gui  Concurrent)
@@ -51,7 +52,7 @@ FetchContent_MakeAvailable(cereal)
 
 target_compile_definitions( arena PRIVATE QT_NO_EMIT) # Disable QT's emit keyword to avoid name conflict with UCI Loader
 target_link_libraries( arena PRIVATE Qt6::Widgets Qt6::Gui Qt6::Concurrent)
-target_link_libraries( arena PRIVATE BoardGrid SpellButton SpriteSet spellchess cereal::cereal)
+target_link_libraries( arena PRIVATE BoardGrid SpellButton SpriteSet spellchess cereal::cereal Misc)
 target_include_directories( arena PRIVATE include )
 
 enable_testing()
