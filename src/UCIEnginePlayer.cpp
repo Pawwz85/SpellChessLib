@@ -43,8 +43,7 @@ void SpellChessLib::UCIEnginePlayer::interrupt(){
 }
 
 void SpellChessLib::UCIEnginePlayer::kill(){
-    // TODO: killing engine like this is no longer possible using UCILoader 1.1.0 release
-    // instance.reset();
+    instance->quit();
 }
 
 void SpellChessLib::UCIEnginePlayer::onNewGame()

@@ -74,7 +74,7 @@ include(FetchContent)
 
 FetchContent_Declare(
 		UCILoader
-		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.1.0.zip
+		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.1.1.zip
 )
 
 FetchContent_MakeAvailable(UCILoader)
