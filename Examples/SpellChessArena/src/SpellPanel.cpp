@@ -90,7 +90,12 @@ SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifato
     layout = new QVBoxLayout(this);
     btn = new QPushButton(this);
     cancelBtn = new QPushButton(tr("cancel", "Cancel spell casting"));
-
+    cooldownBar = new QProgressBar(this);
+    
+    cooldownBar->setMaximum(2);
+    cooldownBar->setMinimum(0);
+    cooldownBar->setTextVisible(false);
+    
     connect(btn, &QPushButton::clicked, this, &SpellButton::onClick);
     connect(cancelBtn, &QPushButton::clicked, this, &SpellButton::onCancel);
 
@@ -98,6 +103,7 @@ SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifato
     connect(&SpellSpriteSet::getInstance(), &SpriteSet::SpriteSet::onSpriteSetReloaded, this, &SpellButton::onModelChanged);
 
     layout->setContentsMargins(QMargins(0,0,0,0));
+    layout->addWidget(cooldownBar);
     layout->addWidget(btn);
     layout->addWidget(cancelBtn);
     setLayout(layout);
@@ -117,10 +123,20 @@ void SpellButton::onModelChanged () {
         btn->setIcon(*gray_icon);
     }
 
+    btn->setText(QString(char('0' + model->getSpell(id).usagesLeft)));
+
     if (model->isSelected(id))
         cancelBtn->show();
     else
         cancelBtn->hide();
+
+    cooldownBar->setValue(model->getSpell(id).cooldown);
+    
+    /*if (model->getSpell(id).canCastNow()) 
+        cooldownBar->hide();
+    else
+        cooldownBar->show();
+    */
 
     update();
 };

@@ -10,6 +10,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QPushButton>
+#include <QProgressBar>
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -61,6 +62,8 @@ class SpellButton : public QWidget {
     QPushButton * btn;
     QPushButton * cancelBtn;
     QLayout * layout;
+
+    QProgressBar * cooldownBar;
 
     public: 
 
