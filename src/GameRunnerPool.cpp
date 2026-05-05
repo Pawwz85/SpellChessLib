@@ -17,12 +17,11 @@ std::function<void()> SpellChessLib::GameRunnerPool::jobFromScheduler()
 				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		} while (scheduledGameEntry == nullptr);
 		
-
-		Scheduler::ResourcePointer<Player> whPlayer = schedulerPointer->getPlayerInstance(scheduledGameEntry->whitePlayerId);
-		Scheduler::ResourcePointer<Player> blPlayer = schedulerPointer->getPlayerInstance(scheduledGameEntry->blackPlayerId);
 		GameRunRequest* request = (GameRunRequest*)scheduledGameEntry->context;
 		
 		try {
+			Scheduler::ResourcePointer<Player> whPlayer = schedulerPointer->getPlayerInstance(scheduledGameEntry->whitePlayerId);
+			Scheduler::ResourcePointer<Player> blPlayer = schedulerPointer->getPlayerInstance(scheduledGameEntry->blackPlayerId);
 			GameRunner runner(timerServicePointer, request->runnerConfiguration, std::move(whPlayer), std::move(blPlayer));
 			updateSevenTagRooster(runner, *request);
 			if (request->monitor != nullptr)

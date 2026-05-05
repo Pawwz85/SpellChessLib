@@ -243,7 +243,7 @@ std::string SpellChessLib::spellChessMoveToString(const SpellChessMove& move)
 SpellChessMove SpellChessLib::parseMove(const char* str)
 {
     
-    // Grammar {freeze@[sq]%, jump@, }[sq][sq]
+    // Grammar {freeze@[sq]&, jump@[sq]&}[sq][sq]
     SpellChessMove result = {NoSquare, NoSquare, NoSquare, NoSquare, None};
     size_t len = strlen(str);
     size_t spellSepPos = 0;

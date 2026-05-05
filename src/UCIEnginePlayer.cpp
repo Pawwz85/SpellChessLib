@@ -59,9 +59,7 @@ bool SpellChessLib::UCIEnginePlayer::isAlive()
 std::unique_ptr<SpellChessLib::Player> SpellChessLib::UCIPlayerFactory::makeObject()
 {
     auto process = UCILoader::openProcess({ pathToExecutable }, "/");
-
     std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance(SpellChessEngineInstanceBuilder->build(process));
-
     instance->sync();
     return std::make_unique<SpellChessLib::UCIEnginePlayer>(instance);
 }

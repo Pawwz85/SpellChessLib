@@ -62,6 +62,7 @@ set(source_files
 	"src/ThreadPool.cpp"
 	"src/TimerService.cpp"
 	"src/UCIEnginePlayer.cpp"
+	"src/ZobristHash.cpp"
 )
 
 set(all_files
@@ -74,7 +75,7 @@ include(FetchContent)
 
 FetchContent_Declare(
 		UCILoader
-		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.1.1.zip
+		URL https://github.com/Pawwz85/UCILoader/archive/refs/heads/master.zip
 )
 
 FetchContent_MakeAvailable(UCILoader)
@@ -86,4 +87,5 @@ target_link_libraries(spellchess PUBLIC uciloader)
 
 add_subdirectory("Examples/TournamentRunner")
 add_subdirectory("Examples/SpellChessArena")
+add_subdirectory("Examples/Grimoire")
 add_subdirectory("UnitTests")

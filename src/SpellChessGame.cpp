@@ -1,5 +1,6 @@
 #include <SpellChess/SpellChessGame.h>
 #include <SpellChess/MoveLegality.h>
+#include <cassert>
 
 void SpellChessLib::Game::notifyResultObservers(){
 	for(auto & weakPointer : resultObservers)
@@ -69,6 +70,13 @@ std::chrono::milliseconds SpellChessLib::Game::getRemainingTime(const PlayerColo
 	return color == White ? whTimer->getValue() : blTimer->getValue();
 }
 
+bool SpellChessLib::Game::has3FoldRepetition() const {
+	assert(!posHistory.empty());
+	uint64_t pos = posHistory.back();
+	return std::count(posHistory.begin(), posHistory.end(), pos) >= 3;
+}
+
+
 void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	auto movingSide = state.getSideToMove();
 	if (!MoveGenerator(state).isMoveLegal(move)) {
@@ -83,7 +91,12 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	
 	Piece capturedPiece = state.getSquare(move.to).piece;
 	state.makeMove(move);
+
+	if (state.getHalfMoveCounter() == 0)
+		posHistory.clear(); // clear pos history
+
 	movesSinceRoot.push_back(move);
+	posHistory.push_back(calculateHash(state));
 	annotations.annotatedSequence.pushBack(move);
 
 	if (capturedPiece.owner != Nobody && capturedPiece.type == King) {
@@ -95,6 +108,11 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 		setOutcome(Nobody, InsufficientMaterial);
 		return;
 	}
+
+	if (has3FoldRepetition()) {
+		setOutcome(Nobody, DrawBy3FoldRepetition);
+		return;
+	};
 
 	MoveGenerator gen(state);
 	auto moves = gen.generateMoves();
@@ -113,7 +131,6 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	}
 
 	opponentTimer->resume();
-	// todo: 3-fold repetition 
 }
 
 void SpellChessLib::Game::startCurrentPlayerTimer(){

@@ -4,6 +4,7 @@
 #include "MoveGen.h"
 #include "TimerService.h"
 #include "GameAnnotations.h"
+#include "ZobristHash.h"
 #include <mutex>
 #include <memory>
 #include <functional>
@@ -23,6 +24,7 @@ namespace SpellChessLib {
 		OpponentTimedOutWithoutSufficientMatingMaterial,
 		OpponentTimedOut,
 		DrawBy50MoveRule,
+		DrawBy3FoldRepetition,
 		OpponentDisconnected,
 		KingCaptured,
 		PlayerCrashed,
@@ -43,6 +45,7 @@ namespace SpellChessLib {
 		mutable UCILoader::GoParamsBuilder<SpellChessMove> goParamsBuilder;
 
 		std::vector<SpellChessMove> movesSinceRoot;
+		std::vector<uint64_t> posHistory;
 		std::unique_ptr<TimerController> whTimer;
 		std::unique_ptr<TimerController> blTimer;
 		std::vector<std::weak_ptr<ResultObserver>> resultObservers;
@@ -53,6 +56,7 @@ namespace SpellChessLib {
 		void notifyResultObservers();
 		virtual void exportGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& target) const;
 
+		bool has3FoldRepetition() const;
 	protected:
 		mutable std::mutex lock;
 		void setOutcome(const PlayerColor & winner, const GameStatusCode & outcome);
@@ -70,6 +74,7 @@ namespace SpellChessLib {
 			annotations.root = root;
 			this->whTimer->setExpirationClb([this]() {this->timeOutPlayer(White); });
 			this->blTimer->setExpirationClb([this]() {this->timeOutPlayer(Black); });
+			posHistory.push_back(calculateHash(state));
 		};
 		virtual ~Game() {};
 		virtual GameState getRoot() const;

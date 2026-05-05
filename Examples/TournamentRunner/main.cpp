@@ -97,7 +97,7 @@ class GameLogger {
 	public:
 		MoveConsumer(GameLogger* parent) : parent(parent) {};
 
-		// Odziedziczono za poœrednictwem elementu Observer
+		// Odziedziczono za poï¿½rednictwem elementu Observer
 		void onObservedStateUpdate(const std::vector<SpellChessMove>& state) override {
 			if(!state.empty())
 				parent->file << spellChessMoveToString(state.back()) << "\n";
@@ -109,7 +109,7 @@ class GameLogger {
 	public:
 		StateConsumer(GameLogger* parent) : parent(parent) {};
 
-		// Odziedziczono za poœrednictwem elementu Observer
+		// Odziedziczono za poï¿½rednictwem elementu Observer
 	
 		void onObservedStateUpdate(GameState* const& state) override {
 			if (state)
@@ -148,7 +148,7 @@ class TournamentStatus {
 	mutable std::mutex lock;
 	std::condition_variable con_var;
 
-	int endingReason[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	int endingReason[GamesStatusCode_membersCount] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 	std::vector<std::shared_ptr<GameMonitor>> monitors;
 	std::string score(const PlayerColor& c) {
@@ -212,6 +212,7 @@ public:
 		SHOW_REASON(OpponentDisconnected);
 		SHOW_REASON(KingCaptured);
 		SHOW_REASON(PlayerCrashed);
+		SHOW_REASON(DrawBy3FoldRepetition);
 	}
 };
 
