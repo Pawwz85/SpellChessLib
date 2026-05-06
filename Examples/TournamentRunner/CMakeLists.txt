@@ -8,3 +8,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable( runner main.cpp )
 
 target_link_libraries( runner spellchess)
+
+# install(FILES book.spell DESTINATION "/Examples/TournamentRunner")

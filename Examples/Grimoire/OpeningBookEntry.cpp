@@ -8,7 +8,7 @@
 void Grimoire::sort_opening_book(std::vector<OpeningBookEntry> &book)
 {
     std::sort(book.begin(), book.end(), [](const OpeningBookEntry & a1, const OpeningBookEntry & a2){
-        return a1.hash > a2.hash;
+        return a1.hash < a2.hash;
     });
 }
 
@@ -29,7 +29,7 @@ char encodePromotionTarget(SpellChessLib::PieceType type) {
 };
 
 void Grimoire::write_to_file(const std::vector<OpeningBookEntry> &book, const std::string &filename){
-        /*
+    /*
         Each entries ihas dedicated 192 bits (24 bytes):
             - 64 bits for hash   (little endian)
             - 16 bits for weight (little endian)

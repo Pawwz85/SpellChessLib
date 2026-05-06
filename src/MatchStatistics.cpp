@@ -84,7 +84,8 @@ void SpellChessLib::Stats::PlayerOutcomeTable::display() const
 	std::cout << "Stalemate: " << draws[GameStatusCode::Stalemate] << "\n";
 	std::cout << "50 moves rule: " << draws[GameStatusCode::DrawBy50MoveRule] << "\n";
 	std::cout << "Insufficient material: " << draws[GameStatusCode::InsufficientMaterial] << "\n";
-	std::cout << "Draws on timeout" << draws[GameStatusCode::OpponentTimedOutWithoutSufficientMatingMaterial] << "\n";
+	std::cout << "Draws on timeout: " << draws[GameStatusCode::OpponentTimedOutWithoutSufficientMatingMaterial] << "\n";
+	std::cout << "Draws by repetition: " << draws[GameStatusCode::DrawBy3FoldRepetition] << "\n";
 
 	std::cout << std::endl << label << " - loses:\n";
 	std::cout << "Got checkmated: " << loses[GameStatusCode::CheckMate] << "\n";
