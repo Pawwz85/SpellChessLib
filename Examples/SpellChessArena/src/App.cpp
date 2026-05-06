@@ -6,6 +6,8 @@
 
 #include <EmptyBoardWidget.hpp>
 
+#include <EngineRepository.hpp>
+
 #include <QMenuBar>
 #include <QMenu>
 
@@ -26,6 +28,12 @@ void App::showNewSessionBuilder() {
     });
 };
 
+void App::showEngineManager() {
+    EnginePlayerRepositoryView * view = new EnginePlayerRepositoryView();
+    mainWindow->setCentralWidget(view);
+};
+
+
 App::App(QCoreApplication * coreApp) {
     coreQApp = coreApp;
     timerService = std::make_shared<SpellChessLib::TimerService>();
@@ -40,10 +48,17 @@ App::App(QCoreApplication * coreApp) {
     
     QAction * newGameAction = playMenu->addAction(tr("New game", "Play new game"));
 
+    connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
+
+    QMenu * settingsMenu = menuBar->addMenu(tr("Settings"));
+
+    QAction * manageEnginesAction = settingsMenu->addAction(tr("Manage engines"));
+
+    connect(manageEnginesAction, &QAction::triggered, this, &App::showEngineManager);
+
     mainWindow->setMenuBar(menuBar);
     
     
-    connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
     // todo: addd toolbar and set default central widget
 };
 

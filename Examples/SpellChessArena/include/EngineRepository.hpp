@@ -122,7 +122,7 @@ class EngineIdentificationTask {
 };
 
 class AddNewEngineDialog;
-class EditEngineDialog;
+// class EditEngineDialog;
 
 class EnginePlayerRepositoryView : public QWidget {
     Q_OBJECT

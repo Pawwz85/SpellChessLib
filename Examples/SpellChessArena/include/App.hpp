@@ -27,6 +27,7 @@ class App : public QObject {
     QMainWindow * mainWindow;
     QCoreApplication * coreQApp;
 
+
     public:
 
     App(QCoreApplication * coreApp);
@@ -40,4 +41,5 @@ class App : public QObject {
 
     public slots:
     void showNewSessionBuilder();  
+    void showEngineManager();
 };
