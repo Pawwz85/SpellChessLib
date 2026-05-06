@@ -71,7 +71,6 @@ class TimeSelectionWidget : public Form {
 
 class EngineOptionsWidget : public QWidget {
     std::shared_ptr<SpellChessLib::GameRunnerConfigurationBuilder> builder;
-    QLineEdit* startingFen; 
     QSpinBox * moveTimeLimit;
     QSpinBox * depthLimit;
     QSpinBox * nodeLimit; 
@@ -79,6 +78,24 @@ class EngineOptionsWidget : public QWidget {
 
     public:
     EngineOptionsWidget(std::shared_ptr<SpellChessLib::GameRunnerConfigurationBuilder> builder, QWidget * parent = nullptr);
+};
+
+class OpeningSuiteWidget : public Form {
+    GameSession::OpenSessionRequestBuilder * builder;
+    QLineEdit   *   startingFen; 
+    QLineEdit   *   grimoireFilePath;
+    QPushButton *   browse;
+
+    struct Data {
+        QString fen;
+        QString grimoireFile;
+    };
+    Data data;
+
+    void post() override;
+    public:
+    OpeningSuiteWidget(GameSession::OpenSessionRequestBuilder * builder, QWidget * parent = nullptr);
+
 };
 
 class GameRunnerConfigurationDialog : public QDialog {
@@ -93,6 +110,7 @@ class GameRunnerConfigurationDialog : public QDialog {
     PlayerSelectionWidget * playerForm;
     TimeSelectionWidget * timerForm;
     EngineOptionsWidget * engineOptionsForm;
+    OpeningSuiteWidget  * openingSuiteForm;
 
     private slots:
 

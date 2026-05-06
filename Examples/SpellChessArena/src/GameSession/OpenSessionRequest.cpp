@@ -39,10 +39,11 @@ uint32_t GameSession::CPUPlayerDefinition::getPlayerId() const{
     return entry.id;
 }
 
-GameSession::OpenSessionRequest::OpenSessionRequest(SpellChessLib::GameRunnerConfiguration gameRunnerConfig, std::shared_ptr<PlayerDefinition> whitePlayer, std::shared_ptr<PlayerDefinition> blackPlayer) :
+GameSession::OpenSessionRequest::OpenSessionRequest(SpellChessLib::GameRunnerConfiguration gameRunnerConfig, std::shared_ptr<PlayerDefinition> whitePlayer, std::shared_ptr<PlayerDefinition> blackPlayer, std::shared_ptr<SpellChessLib::OpeningBook> book) :
     gameRunnerConfig(gameRunnerConfig), 
     whitePlayer(whitePlayer),
-    blackPlayer(blackPlayer) {
+    blackPlayer(blackPlayer),
+    openingBook(book) {
 }
 
 const GameSession::PlayerDefinition & GameSession::OpenSessionRequest::getWhitePlayer() const{
@@ -71,10 +72,15 @@ GameSession::OpenSessionRequestBuilder &GameSession::OpenSessionRequestBuilder::
     return *this;
 }
 
+GameSession::OpenSessionRequestBuilder &GameSession::OpenSessionRequestBuilder::withOpeningBook(std::shared_ptr<SpellChessLib::OpeningBook> book){
+    this->openingBook = book;
+    return *this;
+}
+
 std::shared_ptr<SpellChessLib::GameRunnerConfigurationBuilder> &GameSession::OpenSessionRequestBuilder::getGameRunnerConfigBuilder(){
     return this->gameRunnerConfigBuilder;
 }
 
 GameSession::OpenSessionRequest GameSession::OpenSessionRequestBuilder::build() const{
-    return OpenSessionRequest(gameRunnerConfigBuilder->build(), whitePlayer, blackPlayer);
+    return OpenSessionRequest(gameRunnerConfigBuilder->build(), whitePlayer, blackPlayer, openingBook);
 }

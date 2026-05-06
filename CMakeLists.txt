@@ -51,6 +51,7 @@ set(source_files
 	"src/MatchStatistics.cpp"
 	"src/MoveGen.cpp"
 	"src/MoveLegality.cpp"
+	"src/OpeningBookPlayerWrapper.cpp"
 	"src/OpeningBookPositionSupplier.cpp"
 	"src/PGNExporter.cpp"
 	"src/PGN4Exporter.cpp"

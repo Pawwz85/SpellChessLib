@@ -1,9 +1,11 @@
 #include <SpellChess/PlayerRegistry.h>
+#include <SpellChess/GrimoireOpeningBook.h>
 #include <GameRunnerConfigurationDialog.hpp>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QRadioButton>
+#include <QFileDialog>
 
 PlayerSelectionWidget::PlayerSelectionWidget(GameSession::OpenSessionRequestBuilder * reqBuilder, QWidget *parent) : Form(parent),
  requestBuilder(reqBuilder) {
@@ -155,15 +157,11 @@ EngineOptionsWidget::EngineOptionsWidget(std::shared_ptr<SpellChessLib::GameRunn
     QWidget(parent) {
     QVBoxLayout* layout = new QVBoxLayout(this);
     
-    startingFen = new QLineEdit();
     moveTimeLimit = new QSpinBox();
     nodeLimit = new QSpinBox();
     depthLimit = new QSpinBox();
     allowPondering = new QCheckBox();
     this->builder = builder;
-    connect(startingFen, &QLineEdit::textChanged, [builder](const QString & str) {
-        builder->withPosition(str.toStdString());});
-    startingFen->setText("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 - - F50/f50/J20/j20");
   
     connect(moveTimeLimit, &QSpinBox::valueChanged, [builder](int v){
         builder->withMoveTimeLimit((uint32_t)v);});
@@ -196,8 +194,6 @@ EngineOptionsWidget::EngineOptionsWidget(std::shared_ptr<SpellChessLib::GameRunn
     allowPondering->setText("think on opponent turn");
     allowPondering->setChecked(false);
     
-    layout->addWidget(new QLabel("Starting position"));
-    layout->addWidget(startingFen);
     layout->addWidget(new QLabel("Move time limit"));
     layout->addWidget(moveTimeLimit);
     layout->addWidget(new QLabel("Node searched limit"));
@@ -205,6 +201,71 @@ EngineOptionsWidget::EngineOptionsWidget(std::shared_ptr<SpellChessLib::GameRunn
     layout->addWidget(new QLabel("Depth reached limit"));
     layout->addWidget(depthLimit);
     layout->addWidget(allowPondering);
+
+    setLayout(layout);
+}
+
+void OpeningSuiteWidget::post(){
+
+    SpellChessLib::SpellChessFenValidator spellValidator;
+    SpellChessLib::StandardChessFenValidator standardValidator;
+
+    if (!spellValidator.isValidFen(data.fen.toStdString().c_str()) &&
+        !standardValidator.isValidFen(data.fen.toStdString().c_str())) {
+            raiseError(tr("Invalid FEN String"));
+            return;
+    };
+
+    builder->getGameRunnerConfigBuilder()->withPosition(data.fen.toStdString()); 
+
+    if (data.grimoireFile.isEmpty()) {
+        builder->withOpeningBook(nullptr);
+        
+    } else {
+        try {
+            SpellChessLib::GrimoireOpeningBookLoader loader;
+            builder->withOpeningBook(loader.loadOpeningBook(data.grimoireFile.toStdString()));
+        } catch (SpellChessLib::OpeningBookLoader::BookNotFoundError error) {
+            raiseError(QString(error.what()));
+        };
+    }
+
+}
+
+
+OpeningSuiteWidget::OpeningSuiteWidget(GameSession::OpenSessionRequestBuilder * builder, QWidget *parent) : Form(parent), builder(builder){
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    QHBoxLayout* grimoirePathBox;
+
+    data.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 - - F50/f50/J20/j20";
+    data.grimoireFile = "";
+
+    startingFen = new QLineEdit(this);
+    grimoireFilePath = new QLineEdit(this);
+    browse = new QPushButton(tr("Browse", "select file"), this);
+
+    startingFen->setText(data.fen);
+    connect(startingFen, &QLineEdit::textChanged, this, [this](const QString & text){
+        this->data.fen = text;
+     });
+
+    connect(grimoireFilePath, &QLineEdit::textChanged, this, [this](const QString & text){
+        this->data.grimoireFile = text;
+     });
+
+    connect(browse, &QPushButton::clicked, this, [this](){
+        QString path = QFileDialog::getOpenFileName(this, tr("Select opening book"), QString(), tr("(*.spell)"));
+        this->grimoireFilePath->setText(path);
+    });
+
+    layout->addWidget(new QLabel("Starting position"));
+    layout->addWidget(startingFen);
+    layout->addWidget(new QLabel("Grimoire opening file"));
+
+    grimoirePathBox = new QHBoxLayout();
+    grimoirePathBox->addWidget(grimoireFilePath);
+    grimoirePathBox->addWidget(browse);
+    layout->addLayout(grimoirePathBox);
 
     setLayout(layout);
 }
@@ -219,12 +280,14 @@ GameRunnerConfigurationDialog::GameRunnerConfigurationDialog(QWidget *parent) : 
     playerForm = new PlayerSelectionWidget(&requestBuilder, this);
     timerForm = new TimeSelectionWidget(gameRunnerConfigBuilder, this);
     engineOptionsForm = new EngineOptionsWidget(gameRunnerConfigBuilder, this);
+    openingSuiteForm = new OpeningSuiteWidget (&requestBuilder, this);
 
     tabs = new QTabWidget();
     
     tabs->addTab(playerForm, "Players");
     tabs->addTab(timerForm, "Time Format");
     tabs->addTab(engineOptionsForm, "Engine Settings");
+    tabs->addTab(openingSuiteForm, "Opening");
 
     cancelBtn = new QPushButton;
     cancelBtn->setText("cancel");
@@ -246,8 +309,11 @@ GameRunnerConfigurationDialog::GameRunnerConfigurationDialog(QWidget *parent) : 
 void GameRunnerConfigurationDialog::trySubmit() {
     playerForm->submit();
     timerForm->submit();
-    
-    bool anyError = playerForm->resetErrorFlag() || timerForm->resetErrorFlag();
+    openingSuiteForm->submit();
+
+    QString errorMsg;
+
+    bool anyError = playerForm->resetErrorFlag() || timerForm->resetErrorFlag() || openingSuiteForm->resetErrorFlag();
 
     if (!anyError) {
         QDialog::accept();
@@ -260,3 +326,5 @@ GameSession::OpenSessionRequest GameRunnerConfigurationDialog::buildRequest() {
 
 
 #include <moc_GameRunnerConfigurationDialog.cpp>
+
+

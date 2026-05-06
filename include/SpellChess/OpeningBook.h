@@ -24,13 +24,12 @@ namespace SpellChessLib {
 
          class BookNotFoundError : public std::exception {
             std::string msg;
+            public:
+            BookNotFoundError(const std::filesystem::path & path) : msg(std::string("Couldn't open opening book:" + path.string())) {};
 
             const char * what() const noexcept override {
                 return msg.c_str();
             };
-            public:
-            BookNotFoundError(const std::filesystem::path & path) : msg(std::string("Couldn't open opening book:" + path.string())) {};
-
         };
     };
 

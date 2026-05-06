@@ -4,6 +4,7 @@
 
 #include <SpellChess/PlayerRegistry.h>
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/OpeningBookPlayerWrapper.h>
 
 SpellChessLib::PieceType typeFromAction(Board::PawnPromotionAction action) {
     switch (action)
@@ -49,8 +50,8 @@ GameSession::GameSessionModel::GameSessionModel(std::shared_ptr<SpellChessLib::T
     
     using PlayerPointer = typename SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player>;
     
-    PlayerPointer whitePlayer = playerFromDef(request.getWhitePlayer());
-    PlayerPointer blackPlayer = playerFromDef(request.getBlackPlayer());
+    PlayerPointer whitePlayer = playerFromDef(request.getWhitePlayer(), request);
+    PlayerPointer blackPlayer = playerFromDef(request.getBlackPlayer(), request);
 
     gameRunner.reset(new SpellChessLib::GameRunner(timeServ, request.getGameRunnerConfig(),
      std::move(whitePlayer), std::move(blackPlayer)));
@@ -127,17 +128,26 @@ GameSession::GameSessionModel::UserFunction GameSession::GameSessionModel::userF
     return userRole;
 }
 
-GameSession::GameSessionModel::PlayerPointer GameSession::GameSessionModel::playerFromDef(const GameSession::PlayerDefinition &def) {
+using PlayerAlloc = typename SpellChessLib::Scheduler::DefaultObjectAllocator<SpellChessLib::Player>;
+
+SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player> makeCPUPlayer(const GameSession::PlayerDefinition &def, const GameSession::OpenSessionRequest & request) {
+    const auto & playerEntry = SpellChessLib::PlayerRegistry->get(def.getPlayerId());
+    auto playerAllocator = std::make_shared<PlayerAlloc>(playerEntry.instanceFactory);
+    if (request.openingBook == nullptr)
+        return playerAllocator->retrieve(); 
+    else {
+        auto wrapperAlloc = std::make_shared<SpellChessLib::PlayerWithOpeningBookAllocator>(playerAllocator, request.openingBook);
+        return wrapperAlloc->retrieve();
+    }
+};
+
+
+GameSession::GameSessionModel::PlayerPointer GameSession::GameSessionModel::playerFromDef(const GameSession::PlayerDefinition &def, const OpenSessionRequest & request) {
     if (def.isHuman()) {
         return this->runnerBridge.makePlayerFromSession();
     };
-    
-    using PlayerAlloc = typename SpellChessLib::Scheduler::DefaultObjectAllocator<SpellChessLib::Player>;
-    // todo: Make this function request simoultanos game policies of engine players
-    // todo: If we implement application wide scheduler, refactor this method to work with it
-    const auto & playerEntry = SpellChessLib::PlayerRegistry->get(def.getPlayerId());
-    auto playerAllocator = std::make_shared<PlayerAlloc>(playerEntry.instanceFactory);
-    return playerAllocator->retrieve();
+
+    return makeCPUPlayer(def, request);
 }
 
 void GameSession::GameSessionView::connectSlots() {

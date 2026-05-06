@@ -6,6 +6,7 @@
 #include <SpellChess/GameRunnerConfiguration.h>
 #include <SpellChess/PlayerEntry.h>
 #include <SpellChess/Player.h>
+#include <SpellChess/OpeningBook.h>
 
 namespace GameSession {
 
@@ -35,7 +36,7 @@ namespace GameSession {
         bool isHuman() const override;
         bool isEngine() const override;
         const QString & getName() const override;
-        uint32_t getPlayerId() const; 
+        uint32_t getPlayerId() const override; 
 
     };
 
@@ -43,9 +44,11 @@ namespace GameSession {
         std::shared_ptr<PlayerDefinition> whitePlayer;
         std::shared_ptr<PlayerDefinition> blackPlayer;      
         SpellChessLib::GameRunnerConfiguration gameRunnerConfig;
-
         public:
-        OpenSessionRequest(SpellChessLib::GameRunnerConfiguration gameRunnerConfig, std::shared_ptr<PlayerDefinition> whitePlayer, std::shared_ptr<PlayerDefinition> blackPlayer);
+        std::shared_ptr<SpellChessLib::OpeningBook> openingBook;
+
+        OpenSessionRequest(SpellChessLib::GameRunnerConfiguration gameRunnerConfig, std::shared_ptr<PlayerDefinition> whitePlayer,
+             std::shared_ptr<PlayerDefinition> blackPlayer, std::shared_ptr<SpellChessLib::OpeningBook> book);
         const PlayerDefinition & getWhitePlayer() const;
         const PlayerDefinition & getBlackPlayer() const;
         const SpellChessLib::GameRunnerConfiguration & getGameRunnerConfig() const;
@@ -57,11 +60,13 @@ namespace GameSession {
         std::shared_ptr<PlayerDefinition> whitePlayer;
         std::shared_ptr<PlayerDefinition> blackPlayer;
         std::shared_ptr<SpellChessLib::GameRunnerConfigurationBuilder> gameRunnerConfigBuilder;
+        std::shared_ptr<SpellChessLib::OpeningBook> openingBook;
 
         public:
         OpenSessionRequestBuilder();
         OpenSessionRequestBuilder & withWhitePlayer(std::shared_ptr<PlayerDefinition> player);
         OpenSessionRequestBuilder & withBlackPlayer(std::shared_ptr<PlayerDefinition> player);
+        OpenSessionRequestBuilder & withOpeningBook(std::shared_ptr<SpellChessLib::OpeningBook> book);
         std::shared_ptr<SpellChessLib::GameRunnerConfigurationBuilder> & getGameRunnerConfigBuilder();
         OpenSessionRequest build() const;
     };

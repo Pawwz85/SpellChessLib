@@ -61,7 +61,7 @@ namespace GameSession {
         bool event(QEvent * e) override;
 
         static UserFunction userFunctionFromRequest(const OpenSessionRequest & request);
-        PlayerPointer playerFromDef(const GameSession::PlayerDefinition & def);
+        PlayerPointer playerFromDef(const GameSession::PlayerDefinition & def, const OpenSessionRequest & request);
 
         public:
         GameSessionModel(std::shared_ptr<SpellChessLib::TimerService> timeServ, const OpenSessionRequest & request,  QCoreApplication * app);
