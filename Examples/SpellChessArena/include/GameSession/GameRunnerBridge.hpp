@@ -6,10 +6,12 @@
 #include <SpellChess/GameMonitor.h>
 #include <SpellChess/Observer.h>
 #include <SpellChess/Player.h>
+#include <SpellChess/GameAnnotations.h>
 #include <SpellChess/Scheduler/ObjectAllocator.h> // for resource pointer
 #include <SpellChess/Factory.h> // for resource pointer
 
 #include <memory>
+#include <vector>
 #include <future>
 
 namespace GameSession {

@@ -29,7 +29,7 @@ namespace SpellChessLib {
 			Unknown
 		};
 
-		// used by gui project, currently not integrated with game annotation system 
+		// planned to used by gui project, currently not integrated with game annotation system 
 		enum MoveClassification {
 			BookMove,
 			Blunder,
@@ -91,8 +91,10 @@ namespace SpellChessLib {
 			using const_iterator = typename std::list<AnnotatedSequenceNode>::const_iterator;
 		private:
 			std::list<AnnotatedSequenceNode> nodes;
+			void deepcopy(const AnnotatedSequence & other);
 		public:
-		
+			AnnotatedSequence();
+			AnnotatedSequence(const AnnotatedSequence & other); // deepcopy
 
 			iterator begin();
 			iterator end();
@@ -109,6 +111,8 @@ namespace SpellChessLib {
 			void pushBack(const NumericAnnotationGlyph& glyph);
 			void pushBack(const SpellChessMove& move);
 			void pushBack(const std::string& comment);
+
+			AnnotatedSequence & operator=(const AnnotatedSequence & other);
 		};
 
 		struct GameAnnotations {
@@ -138,7 +142,6 @@ namespace SpellChessLib {
 
 		extern std::string makeIllegalMoveComment(const PlayerColor& color, const SpellChessMove & move);
 		extern void exportAnnotatedGame(const std::string& filePath, const GameAnnotations& annotations);
-		
 	}
 
 }

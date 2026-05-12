@@ -22,6 +22,7 @@ set ( src_files
     "src/EmptyBoardWidget.cpp"
     "src/App.cpp"
     "src/main.cpp"
+    "src/MoveList.cpp"
     "src/SpellPanel.cpp"
 )
 

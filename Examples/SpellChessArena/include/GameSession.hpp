@@ -11,6 +11,7 @@
 
 #include <SpellChess/Board.h>
 #include <SpellChess/GameRunner.h>
+#include <SpellChess/GameAnnotations.h>
 
 #include <BoardGrid/BoardGridWidget.h>
 
@@ -22,7 +23,7 @@
 #include <GameSession/OpenSessionRequest.hpp>
 
 #include <SpellPanel.hpp> 
-
+#include <MoveList.hpp>
 
 namespace GameSession {
     
@@ -49,6 +50,8 @@ namespace GameSession {
         GameRunnerBridge runnerBridge;
         
         SpellChessLib::GameState gameState;
+        SpellChessLib::GameState rootState;
+
         std::vector<SpellChessLib::SpellChessMove> moveList;
         
         std::shared_ptr<SpellChessLib::GameRunner> gameRunner;
@@ -70,6 +73,8 @@ namespace GameSession {
         bool submitMove(const SpellChessLib::SpellChessMove & move);
 
         const SpellChessLib::GameState & getCurrentState() const;
+        const SpellChessLib::GameState & getInitialState() const;
+
         const std::vector<SpellChessLib::SpellChessMove> & getMoveList() const;        
         int getGameRunnerId() const;
 
@@ -95,9 +100,11 @@ namespace GameSession {
         Q_OBJECT
         std::shared_ptr<GameSession::UserInteractionManager> interactionManager;
         std::shared_ptr<GameSession::SpellChessMoveBuilder> moveBuilder;
+        std::shared_ptr<MoveListModel> moveListModel;
 
         Board::BoardWidget * board;
         GameSessionModel * model;
+        MoveListView * moveList;
 
         QGridLayout * layout;
 
@@ -115,7 +122,7 @@ namespace GameSession {
         void handleDrag(Board::DragHandle<Board::BoardWidget> & drag);
         void handleClick(Board::BoardWidget::ClickHandle & click);
         void handleGamestateChange(const SpellChessLib::GameState & state);
-        void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves) {};
+        void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves);
         void handleGameRunnerIdChanged(int id) {};
         void handlePromotionActionSelected(Board::PawnPromotionAction action);
         void handleSpellSelect(SpellChessLib::SpellIdentifator spell);
@@ -141,7 +148,7 @@ namespace GameSession {
             void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) override;
 
             bool isPromotionMove(SpellChessLib::SquareIndex targetSquare) const;
-            void openPromotionContextMenu(SpellChessLib::SquareIndex ancorSquare);
+            void openPromotionContextMenu(SpellChessLib::SquareIndex anchorSquare);
             public:
 
             NoFocus(GameSessionView * view, std::weak_ptr<UserInteractionManager> manager) : view(view), UserInteractionState(manager) {};

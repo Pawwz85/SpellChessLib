@@ -47,7 +47,6 @@ GameSession::GameSessionModel::GameSessionModel(std::shared_ptr<SpellChessLib::T
      QCoreApplication *app) : runnerBridge(app, this), 
     userFunction(GameSessionModel::userFunctionFromRequest(request)), 
     qApplication(app){
-    
     using PlayerPointer = typename SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player>;
     
     PlayerPointer whitePlayer = playerFromDef(request.getWhitePlayer(), request);
@@ -62,6 +61,7 @@ GameSession::GameSessionModel::GameSessionModel(std::shared_ptr<SpellChessLib::T
         this->gameRunner->run();
     });
 
+    rootState = gameRunner->getGame().getRoot();
 }
 
 GameSession::GameSessionModel::~GameSessionModel(){
@@ -101,6 +101,10 @@ bool GameSession::GameSessionModel::submitMove(const SpellChessLib::SpellChessMo
 
 const SpellChessLib::GameState &GameSession::GameSessionModel::getCurrentState() const{
     return gameState;
+}
+
+const SpellChessLib::GameState & GameSession::GameSessionModel::getInitialState() const{
+    return rootState;
 }
 
 const std::vector<SpellChessLib::SpellChessMove> &GameSession::GameSessionModel::getMoveList() const{
@@ -261,23 +265,31 @@ void GameSession::GameSessionView::handleGamestateChange(const SpellChessLib::Ga
     board->update();
 }
 
+void GameSession::GameSessionView::handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> &moves){
+    SpellChessLib::Annotation::AnnotatedSequence seq;
+    for(const auto & m : moves)
+        seq.pushBack(m);
+    moveListModel->set(model->getInitialState(), seq);
+}
+
 GameSession::GameSessionView::GameSessionView(GameSessionModel *model, QWidget *parent) : QWidget(parent), model(model){
     interactionManager = std::make_shared<GameSession::UserInteractionManager>();
     moveBuilder = std::make_shared<GameSession::SpellChessMoveBuilder>();
+    moveListModel = std::make_shared<MoveListModel>();
     interactionManager->setCurrentState(std::make_unique<States::NoFocus>(this, interactionManager));
     
     board = new Board::BoardWidget(this);
     layout = new QGridLayout(this);
+    moveList = new MoveListView(moveListModel, this);
 
-    
     SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
     SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
+    
 
     layout->addWidget(blPanel, 0, 6, 1, 2);
     layout->addWidget(whPanel, 9, 6, 1, 2);
-
     layout->addWidget(board, 1, 1, 8, 8);
-
+    layout->addWidget(moveList, 1, 9, 8, 3);
 
     setLayout(layout);
 

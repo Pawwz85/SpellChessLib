@@ -94,6 +94,33 @@ std::string& SpellChessLib::Annotation::TagSection::operator[](const std::string
     return tagPairs.back().value;
 }
 
+SpellChessLib::Annotation::AnnotatedSequence::AnnotatedSequence() {};
+
+void SpellChessLib::Annotation::AnnotatedSequence::deepcopy(const AnnotatedSequence & other) {
+    nodes.clear();
+    for(auto & node : other.nodes) {
+        switch (node.index())
+        {
+        case 0:
+            this->nodes.push_back(AnnotatedSequence(std::get<Annotation::AnnotatedSequence>(node)));
+            break;
+        case 1:
+            this->nodes.push_back(std::get<Annotation::AnnotatedSequenceElement>(node));
+        default:
+            break;
+        }
+    };
+};
+
+SpellChessLib::Annotation::AnnotatedSequence::AnnotatedSequence(const AnnotatedSequence & other) {
+    deepcopy(other);
+};
+
+SpellChessLib::Annotation::AnnotatedSequence & SpellChessLib::Annotation::AnnotatedSequence::operator=(const AnnotatedSequence & other) {
+    deepcopy(other);
+    return *this;
+};
+
 void SpellChessLib::Annotation::AnnotatedSequence::insertVariationAfter(iterator pos, AnnotatedSequence&& variation){
     ++pos;
     this->nodes.insert(pos, variation);

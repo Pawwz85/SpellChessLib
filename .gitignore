@@ -1,3 +1,4 @@
 .vscode/**
 build/**
 Examples/TournamentRunner/Games/**
+specs/**
