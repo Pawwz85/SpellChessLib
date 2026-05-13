@@ -37,6 +37,7 @@ void SpellChessLib::Game::setOutcome(const PlayerColor& winner, const GameStatus
 	else
 		annotations.terminationReason = Annotation::Draw;
 
+	annotations.annotatedSequence.pushBack(make_result_comment(winner, outcome));
 	notifyResultObservers();
 }
 
@@ -76,6 +77,32 @@ bool SpellChessLib::Game::has3FoldRepetition() const {
 	return std::count(posHistory.begin(), posHistory.end(), pos) >= 3;
 }
 
+std::string SpellChessLib::Game::make_result_comment(const PlayerColor &winner, const GameStatusCode &outcome){
+
+	static std::map<PlayerColor, std::string> prefix = {
+		{Nobody, "Draw "},
+		{White,  "White won "},
+		{Black,  "Black won "},
+	};
+
+	static std::map<GameStatusCode, std::string> reason = {
+		{StillOngoing, "by cheating or miracle"},	// illegal reason
+		{IllegalMovePlayed, "because opponent tried playing illegal move"},
+		{CheckMate, "by checkmate"},
+		{Stalemate, "by stalemate"},
+		{InsufficientMaterial, "by insufficient material"},
+		{OpponentTimedOutWithoutSufficientMatingMaterial, "by timeout"},
+		{OpponentTimedOut, "by timeout"},
+		{DrawBy50MoveRule, "because of 50 move rule"},
+		{DrawBy3FoldRepetition, "by threefold repetition"},
+		{OpponentDisconnected, "bacause opponent disconected"},
+		{KingCaptured, "because opponent king was captured"},
+		{PlayerCrashed, "because opponent threw an error"},
+		{GamesStatusCode_membersCount, "by cheating or miracle"} // illegal reason
+	};
+
+    return prefix[winner] + reason[outcome];
+}
 
 void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	auto movingSide = state.getSideToMove();

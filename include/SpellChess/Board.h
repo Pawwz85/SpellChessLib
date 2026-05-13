@@ -84,6 +84,14 @@ namespace SpellChessLib {
 		uint8_t freezeSquare;
 		uint8_t jumpSquare;
 		PieceType promoteTo;
+
+		inline bool operator==(const SpellChessMove & other) const {
+			return  this->from == other.from &&
+					this->to  == other.to &&
+					this->freezeSquare == other.freezeSquare &&
+					this->jumpSquare == other.jumpSquare &&
+					this->promoteTo == other.promoteTo;
+		};
 	};
 	
 

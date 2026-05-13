@@ -203,7 +203,7 @@ TEST(frozen_attackers, case2) {
 	for (const auto& reqMove : requiredMoves) { \
 		reqMoveFound = false;\
 		for (const auto& move : moves)\
-			if (memcmp(&move.move, &reqMove, sizeof(SpellChessMove)) == 0) {\
+			if (move.move == reqMove) {\
 			reqMoveFound = true; \
 			matchingMoves.push_back(move); }\
 		ASSERT_TRUE(reqMoveFound);	}
@@ -213,7 +213,7 @@ TEST(frozen_attackers, case2) {
 		 moveWasExpected = false; \
 		if (move.move.from == Parsing::parseSquareIndex(sq)) { \
 			for (const auto & expMove : expectedMoves) \
-				if (memcmp(&move.move, &expMove, sizeof(SpellChessMove)) == 0)\
+				if (move.move == expMove)\
 					{moveWasExpected = true;  break;} \
 			if (!moveWasExpected) FAIL();\
 		 }\
@@ -222,7 +222,7 @@ TEST(frozen_attackers, case2) {
 #define ASSERT_MOVE_IS_ILLEGAL(forbiden_move) bool forbiddenMoveFound = false; \
 	SpellChessMove forbiden_move_obj = parseMove(forbiden_move);	\
 	for (const auto & move : moves) \
-		if  (memcmp(&move.move, & forbiden_move_obj, sizeof(SpellChessMove)) == 0) \
+		if  (move.move == forbiden_move_obj) \
 			forbiddenMoveFound = true; \
 	ASSERT_FALSE(forbiddenMoveFound)
 
@@ -403,6 +403,11 @@ TEST(move_gen, castling_is_illegal_in_check) {
 	std::vector<MoveCandidate> matchingMoves;
 	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
 	ASSERT_NO_EXTRA_MOVES("e1", requiredMoves);
+}
+
+TEST(move_gen, castling_is_illegal_another_example) {
+	SPELL_CHESS_MOVE_GEN_SETUP("r1b1kbn1/pppp1p1p/2n5/4p3/4P3/2N2N2/PPPP1PqP/R1B1KR2 w KQk - 0 1 d6 - F32/J20/f40/j20");
+	ASSERT_MOVE_IS_ILLEGAL("e1g1");
 }
 
 TEST(move_gen, castling_is_illegal_if_path_is_unsafe) {

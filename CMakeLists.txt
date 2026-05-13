@@ -86,6 +86,8 @@ FetchContent_MakeAvailable(UCILoader)
 
 # find_package(UCILoader REQUIRED)
 
+enable_testing()
+
 target_include_directories( spellchess PUBLIC include )
 target_link_libraries(spellchess PUBLIC uciloader)
 

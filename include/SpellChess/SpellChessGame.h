@@ -30,7 +30,7 @@ namespace SpellChessLib {
 		PlayerCrashed,
 		GamesStatusCode_membersCount
 	};
-	
+
 	enum ResignReason {
 		ExceptionThrownByAPlayer
 	};
@@ -57,6 +57,8 @@ namespace SpellChessLib {
 		virtual void exportGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& target) const;
 
 		bool has3FoldRepetition() const;
+
+		std::string make_result_comment(const PlayerColor & winner, const GameStatusCode & outcome);
 	protected:
 		mutable std::mutex lock;
 		void setOutcome(const PlayerColor & winner, const GameStatusCode & outcome);
