@@ -42,11 +42,10 @@ std::function<void()> SpellChessLib::GameRunnerPool::jobFromScheduler()
 std::function<void()> SpellChessLib::GameRunnerPool::jobFromRequest(GameRunRequest&& request)
 {
 	auto timerServicePointer = this->timerService;
-	return [request = std::move(request), timerServicePointer]() {
-		auto whPlayerAlloc = std::make_shared<Scheduler::DefaultObjectAllocator<Player>>(request.whPlayer.instanceFactory);
-		auto blPlayerAlloc = std::make_shared<Scheduler::DefaultObjectAllocator<Player>>(request.blPlayer.instanceFactory);
-		
+	return [request = std::move(request), timerServicePointer]() {		
 		try {
+			auto whPlayerAlloc = std::make_shared<Scheduler::DefaultObjectAllocator<Player>>(request.whPlayer.instanceFactory);
+			auto blPlayerAlloc = std::make_shared<Scheduler::DefaultObjectAllocator<Player>>(request.blPlayer.instanceFactory);
 			GameRunner runner(timerServicePointer, request.runnerConfiguration, whPlayerAlloc->retrieve(), blPlayerAlloc->retrieve());
 			updateSevenTagRooster(runner, request);
 			if (request.monitor != nullptr)

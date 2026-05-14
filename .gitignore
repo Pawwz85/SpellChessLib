@@ -2,3 +2,4 @@
 build/**
 Examples/TournamentRunner/Games/**
 specs/**
+Examples/SpellChessArena/engines.json

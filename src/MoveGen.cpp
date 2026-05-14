@@ -392,6 +392,7 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 	SpellChessMove base = { protoMove.from, protoMove.to, NoSquare, NoSquare, None };
 	SquareIndex sqToNeutralize = kingPos;
 	auto& pieceType = currentState->getSquare(base.from).piece.type;
+	bool capturesKing = currentState->getSquare(base.to).piece.type == King;
 
 	for (auto it = protoMove.cbegin(); it != protoMove.cend(); ++it) {
 		sqToNeutralize = kingPos;
@@ -424,6 +425,10 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 		}
 	}
 
+	// using freeze is irrevelant if we can simply capture enemy king
+	if (capturesKing)
+		attackersToBeNeutralizedByFreeze = 0;
+
 	// using both spell in single move is illegal
 	if (attackersToBeNeutralizedByFreeze != 0 && usesJump)
 		return; 
@@ -435,7 +440,6 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 	std::vector<SquareIndex> freezeSquares;
 
 	if (attackersToBeNeutralizedByFreeze != 0) {
-
 		if (!currentState->canUseSpell(currentState->getSideToMove(), FreezeSpell))
 			return;
 

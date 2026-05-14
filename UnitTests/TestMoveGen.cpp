@@ -500,12 +500,14 @@ TEST(move_gen, pawn_capture) {
 	SPELL_CHESS_MOVE_GEN_SETUP("8/8/3k2K1/1n3R2/2P2p1P/5r2/P3P3/8 w - - 1 1 - - F00/J10/f00/j00");
 	std::vector<SpellChessMove> requiredMoves = parseMoveList({ "c4b5" });
 	std::vector<MoveCandidate> matchingMoves;
+	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
 }
 
 TEST(move_gen, can_ignore_check_to_deliver_checkmate) {
 	SPELL_CHESS_MOVE_GEN_SETUP("r1b1r1k1/pp3p1p/2p2np1/8/2P3R1/8/PP1P1n1P/R1BK4 w - - 1 1 e2 - F00/J20/f12/j20");
 	std::vector<SpellChessMove> requiredMoves = parseMoveList({ "jump@g6&g4g8" });
 	std::vector<MoveCandidate> matchingMoves;
+	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
 }
 
 TEST(move_gen, can_not_cast_freeze_on_current_freeze_sq) {
