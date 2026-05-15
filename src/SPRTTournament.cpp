@@ -114,10 +114,15 @@ void SpellChessLib::SPRTPTournament::startTest(int measuredPlayer, int opponent)
         this->spawnNewGameRequest();
 }
 
+bool SpellChessLib::SPRTPTournament::allGameCompleted() const{
+    return runners->countGamesBeingRunned() == 0;
+};
+
+
 SpellChessLib::Stats::TrinomialModel SpellChessLib::SPRTPTournament::waitForCompletion() {
     {
         std::unique_lock<std::mutex> guard(lock);
-        con_var.wait(guard, [this]() {return this->SPRTCompleted; });
+        con_var.wait(guard, [this]() {return this->SPRTCompleted && this->allGameCompleted(); });
         
         displayStats();
         outcomeTables.display();

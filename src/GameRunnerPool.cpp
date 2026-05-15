@@ -77,3 +77,7 @@ void SpellChessLib::GameRunnerPool::setConcurrentGamesValue(size_t value) {
 size_t SpellChessLib::GameRunnerPool::getConcurrentGamesValue() const {
 	return executorPool.getDesiredSize();
 }
+
+size_t SpellChessLib::GameRunnerPool::countGamesBeingRunned() const{
+	return executorPool.countBusyWorkers();
+}

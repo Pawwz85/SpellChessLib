@@ -30,6 +30,7 @@ namespace SpellChessLib {
 		void onGameCrashed(const GameRunnerPool::GameRunRequest& request);
 		void spawnNewGameRequest();
 
+		bool allGameCompleted() const;
 
 	protected:
 		mutable std::mutex lock;
@@ -51,6 +52,9 @@ namespace SpellChessLib {
 
 		Stats::TrinomialModel waitForCompletion();
 
+		const Stats::MatchOutcomeTables & getOutcomeTables() {
+			return outcomeTables;
+		};
 	};
 
 }

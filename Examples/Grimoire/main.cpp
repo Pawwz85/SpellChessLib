@@ -1,7 +1,7 @@
 #include "Configuration.h"
 #include "GameNode.h"
 #include "OpeningBookEntry.h"
-#include "cxxopts.hpp"
+#include <cxxopts.hpp>
 
 #include <iostream>
 

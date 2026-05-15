@@ -3,7 +3,7 @@
 #include <UCILoader/EngineConnection.h>
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <cstdint>
-#include "cxxopts.hpp"
+#include <cxxopts.hpp>
 
 namespace Grimoire {
 

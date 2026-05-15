@@ -37,6 +37,7 @@ namespace SpellChessLib {
 		void addRequest(GameRunRequest && request);
 		void setConcurrentGamesValue(size_t value);
 		size_t getConcurrentGamesValue() const;
+		size_t countGamesBeingRunned() const;
 	};
 
 }
