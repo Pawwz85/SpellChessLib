@@ -12,6 +12,9 @@ Runner::Configuration Runner::parseConfig(cxxopts::ParseResult & parsedArguments
     result.jobs = parsedArguments.as_optional<int>("jobs").value_or(std::thread::hardware_concurrency());
     result.alpha = parsedArguments.as_optional<double>("alpha").value_or(0.05);
     result.beta = parsedArguments.as_optional<double>("beta").value_or(0.05);
+    result.baseTime =   1000 * parsedArguments.as_optional<double>("time").value_or(10.f);
+    result.increment =  1000 * parsedArguments.as_optional<double>("increment").value_or(0.1f);
+    result.moveTime =   1000 * parsedArguments.as_optional<double>("move_time").value_or(0.f);
     return result;
 };
 
@@ -34,5 +37,17 @@ std::optional<std::string> Runner::validateConfig(const Configuration & config) 
     if (config.beta < 0 || config.beta > 1)
         return std::optional<std::string>("beta parameter not in (0, 1)");
     
+    if (config.baseTime == 0 && config.moveTime == 0)
+        return std::optional<std::string>("base time and move_time are both zero");
+
+    if(config.baseTime < 0)
+        return std::optional<std::string>("base time is less than 0");
+
+    if(config.increment < 0)
+        return std::optional<std::string>("increment is less than 0");
+
+    if(config.moveTime < 0)
+        return std::optional<std::string>("move time is less than 0");
+
     return std::nullopt;
 };

@@ -119,6 +119,14 @@ bool SpellChessLib::SPRTPTournament::allGameCompleted() const{
 };
 
 
+void SpellChessLib::SPRTPTournament::setMoveTime(unsigned int moveTimeMs) {
+    configBuilder.withMoveTimeLimit(moveTimeMs);
+}
+
+void SpellChessLib::SPRTPTournament::setTimeFormat(unsigned int baseTimeMs, unsigned int incMs) {
+    configBuilder.withClassicalTimer(baseTimeMs, incMs);
+}
+
 SpellChessLib::Stats::TrinomialModel SpellChessLib::SPRTPTournament::waitForCompletion() {
     {
         std::unique_lock<std::mutex> guard(lock);

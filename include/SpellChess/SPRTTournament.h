@@ -50,6 +50,9 @@ namespace SpellChessLib {
 			this->supplier = supplier;
 		};
 
+		void setMoveTime(unsigned int moveTimeMs);
+		void setTimeFormat(unsigned int baseTimeMs, unsigned int incMs);
+
 		Stats::TrinomialModel waitForCompletion();
 
 		const Stats::MatchOutcomeTables & getOutcomeTables() {

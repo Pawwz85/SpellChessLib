@@ -1,9 +1,6 @@
 #include <SpellChess/GameRunnerPool.h>
-#include <SpellChess/RandomPlayer.h>
 #include <SpellChess/UCIEnginePlayer.h>
 #include <SpellChess/Scheduler/GameScheduler.h>
-#include <SpellChess/PGNExporter.h>
-#include <SpellChess/PGN4Exporter.h>
 #include <SpellChess/MatchStatistics.h>
 #include <SpellChess/SPRTTournament.h>
 #include <SpellChess/GrimoireOpeningBook.h>
@@ -31,7 +28,7 @@ PlayerEntry makeEngineEntry(const std::string& path) {
 int main(int argc, char ** argv) {
 	srand(time(0));
 
-	cxxopts::Options option("Runner", "A spell chess SPRT runner");
+	cxxopts::Options option("Runner", "A spellchess SPRT runner");
 
 	option.add_options()
 		("old", "Path to baseline engine", cxxopts::value<std::string>())
@@ -43,6 +40,9 @@ int main(int argc, char ** argv) {
 		("elo0", "Elo difference null hypothesis", cxxopts::value<int>())
 		("elo1", "Elo difference alternative hypothesis", cxxopts::value<int>())
 		("j,jobs", "Amount of games being run simoultanously", cxxopts::value<int>())
+		("t,time", "base time allocated for whole game (in seconds)", cxxopts::value<double>()->default_value("10"))
+		("i,increment", "increment to time added after every move (in seconds)", cxxopts::value<double>()->default_value("0.1"))
+		("T,move_time", "time allocated for engine to move (in seconds)", cxxopts::value<double>())
 	;
 	option.parse_positional({"old", "new", "elo0", "elo1"});
 	auto parsedOptions = option.parse(argc, argv);
@@ -78,8 +78,15 @@ int main(int argc, char ** argv) {
 		};
 	}
 
+	if(config.baseTime > 0)
+		tournament.setTimeFormat(config.baseTime, config.increment);
+
+	if (config.moveTime > 0)
+		tournament.setMoveTime(config.moveTime);
+
 	tournament.startTest(new_.id, old.id);
 	auto result =	tournament.waitForCompletion();
 	Runner::Report raport = Runner::makeReport(result, config);
 	Runner::exportReport(raport, config.outputPath);
+	return EXIT_SUCCESS;
 }
