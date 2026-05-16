@@ -5,7 +5,7 @@ Runner::Configuration Runner::parseConfig(cxxopts::ParseResult & parsedArguments
     Configuration result;
     result.oldEnginePath = parsedArguments.as_optional<std::string>("old").value_or("");
     result.newEnginePath = parsedArguments.as_optional<std::string>("new").value_or("");
-    result.newEnginePath = parsedArguments.as_optional<std::string>("opening_suite").value_or("book.spell");
+    result.openingBook = parsedArguments.as_optional<std::string>("opening_suite").value_or("book.spell");
     result.outputPath = parsedArguments.as_optional<std::string>("output").value_or("SPRT_REPORT.json");
     result.elo0 = parsedArguments.as_optional<int>("elo0").value_or(0);
     result.elo1 = parsedArguments.as_optional<int>("elo1").value_or(10);
