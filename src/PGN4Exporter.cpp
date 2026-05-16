@@ -17,12 +17,18 @@ void SpellChessLib::PGN4Exporter::writeAnnotationSequenceElement(const Annotatio
 		// not supported yet
 		break;
 	case 2:
-		/*if (currentState.getSideToMove() == White || !firstMoveWritten)
-			writeNumberIdentification(Annotation::MoveIndication(currentState.getFullMoveCounter()), out);
 
-		if (!firstMoveWritten && currentState.getSideToMove() == Black)
-			writeToken(" ... ", out);
-		*/
+		if (!firstMoveWritten && currentState.getSideToMove() == Black) {
+			out << std::endl << currentState.getFullMoveCounter() << ". ";
+		};
+
+		if (currentState.getSideToMove() == White) {
+			out << std::endl << currentState.getFullMoveCounter() << ". ";
+		}
+
+		if (currentState.getSideToMove() == Black && firstMoveWritten) {
+			out << ".. ";
+		};
 
 		firstMoveWritten = true;
 		token = makeTokenFromMoveAndAdvance(std::get<SpellChessMove>(element));
@@ -135,6 +141,9 @@ std::string SpellChessLib::PGN4Exporter::makeTokenFromMoveAndAdvance(const Spell
 		}
 	}
 
+	if (currentState.getSquare(move.from).piece.type > Pawn)
+		result.push_back(pieceSymbols[currentState.getSquare(move.from).piece.type]);
+	
 	result += SquareIndexToToken(move.from);
 	result += (!currentState.getSquare(move.to).isEmpty() || move.to == currentState.getEnppassantSquare()) ? 'x' : '-';
 	result += SquareIndexToToken(move.to);

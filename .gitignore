@@ -3,3 +3,4 @@ build/**
 Examples/TournamentRunner/Games/**
 specs/**
 Examples/SpellChessArena/engines.json
+Examples/Pgn4Generator/output.pgn4
