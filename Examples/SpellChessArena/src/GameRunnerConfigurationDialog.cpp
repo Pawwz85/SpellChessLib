@@ -107,12 +107,15 @@ TimeSelectionWidget::TimeSelectionWidget(std::shared_ptr<SpellChessLib::GameRunn
         connect(baseTime[i], &QSpinBox::valueChanged, [this, i](int v){
             this->forms[i].baseTime = v;
         });
-        
+        baseTime[i]->setMinimum(1);
+        baseTime[i]->setMaximum(120);
+        baseTime[i]->setValue(1);
         
         increment[i]->setDisabled(true);
         connect(increment[i], &QSpinBox::valueChanged, [this, i](int v){
             this->forms[i].increment = v;
         });
+        increment[i]->setMaximum(60);
 
         layout->addWidget(playerLabel[i]);
         layout->addWidget(timeControlType[i]->button(0));
@@ -146,7 +149,7 @@ void TimeSelectionWidget::post(){
         if (forms[i].infiniteMode) 
             builder->withInfiniteTime(currentColor);
         else {
-            builder->withClassicalTimer(forms[i].baseTime, forms[i].increment, currentColor);
+            builder->withClassicalTimer(forms[i].baseTime * 1000 * 60, forms[i].increment * 1000, currentColor);
         }
 
     };

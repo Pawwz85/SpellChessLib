@@ -13,8 +13,7 @@ void SpellChessLib::Game::addResultObserver(std::weak_ptr<ResultObserver> observ
 }
 
 void SpellChessLib::Game::timeOutPlayer(const PlayerColor& color){
-
-	if (state.hasSufficientMatingMaterial(flipColor(color)))
+    if (state.hasSufficientMatingMaterial(flipColor(color)))
 		setOutcome(flipColor(color), OpponentTimedOut);
 	else
 		setOutcome(Nobody, OpponentTimedOutWithoutSufficientMatingMaterial);
@@ -224,4 +223,8 @@ const SpellChessLib::Annotation::GameAnnotations& SpellChessLib::Game::getAnnota
 void SpellChessLib::Game::exportGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& target) const{
 	whTimer->exportAsGoParams(target, White);
 	blTimer->exportAsGoParams(target, Black);
+}
+
+SpellChessLib::TimerPairState SpellChessLib::Game::getTimerPair() const {
+	return TimerPairState{whTimer->exportState(), blTimer->exportState()};
 }

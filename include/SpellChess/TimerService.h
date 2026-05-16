@@ -18,6 +18,12 @@ namespace SpellChessLib {
 		PlayerTimer_data(unsigned int id, time_t value, std::function<void()> clb) : id(id), value(value), expirationCallback(clb), stopped(true), deleteLater(false) {};
 	};
 
+	struct PlayerTimerState {
+		bool running;		// Should GUI decrement timeLeft value on its own? 
+		bool showValue;		// Should GUI should show value left?
+		std::chrono::milliseconds timeLeft;	// Value to show to user
+	};
+
 	class PlayerTimer;
 
 	class TimerService : public std::enable_shared_from_this<TimerService> {
@@ -68,7 +74,8 @@ namespace SpellChessLib {
 		virtual void pause() = 0;
 		virtual void setExpirationClb(std::function<void()> clb) = 0;
 		virtual void exportAsGoParams(UCILoader::GoParamsBuilder<SpellChessMove> & builder, const PlayerColor & perspective) const = 0;
-		virtual std::chrono::milliseconds getValue() = 0;
+		virtual std::chrono::milliseconds getValue() const = 0;
+		virtual PlayerTimerState exportState() const = 0;
 	};
 
 	// noop controller for infinite time
@@ -79,8 +86,8 @@ namespace SpellChessLib {
 		void pause() override {};
 		void setExpirationClb(std::function<void()> clb) override {};
 		void exportAsGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& builder, const PlayerColor& perspective) const override;
-		std::chrono::milliseconds getValue() override { return std::chrono::milliseconds(0); }
-
+		std::chrono::milliseconds getValue() const override { return std::chrono::milliseconds(0); }
+		PlayerTimerState exportState() const override {	return PlayerTimerState{false, false, getValue()};}
 	};
 
 	class ClassicTimeController : public TimerController {
@@ -93,8 +100,8 @@ namespace SpellChessLib {
 		void pause() override;
 		void setExpirationClb(std::function<void()> clb) override;
 		void exportAsGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& builder, const PlayerColor& perspective) const override;
-		std::chrono::milliseconds getValue() override;
-
+		std::chrono::milliseconds getValue() const override;
+		PlayerTimerState exportState() const override;
 	};
 
 	class TimerControllerFactory {

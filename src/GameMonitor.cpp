@@ -4,6 +4,7 @@
 void SpellChessLib::GameMonitor::onGameValueChanged(const Game& game){
 	observableState->set(game.getGameState());
 	observableMoves->set(game.getMovesSinceRoot());
+	timerPairObserver->set(game.getTimerPair());
 }
 
 int GameRunnerSessionIdService() {

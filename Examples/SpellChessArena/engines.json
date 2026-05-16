@@ -9,6 +9,11 @@
             "name": "Icecream (old)",
             "executable": "C:/Users/Pawwz/source/repos/SpellChessEngine/legacy_version/Ice_Cream_13_05_2026.exe",
             "simoultanousGamePolicy": 0
+        },
+        {
+            "name": "Stockfish 17.1",
+            "executable": "D:/Programs/stockfish/stockfish-windows-x86-64-avx2.exe",
+            "simoultanousGamePolicy": 0
         }
     ]
 }

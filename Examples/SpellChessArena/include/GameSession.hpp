@@ -24,9 +24,9 @@
 
 #include <SpellPanel.hpp> 
 #include <MoveList.hpp>
+#include <PlayerTimer.hpp>
 
 namespace GameSession {
-    
 
     class GameSessionModel : public QObject {
         Q_OBJECT
@@ -51,6 +51,7 @@ namespace GameSession {
         
         SpellChessLib::GameState gameState;
         SpellChessLib::GameState rootState;
+        SpellChessLib::TimerPairState pairState;
 
         std::vector<SpellChessLib::SpellChessMove> moveList;
         
@@ -74,6 +75,7 @@ namespace GameSession {
 
         const SpellChessLib::GameState & getCurrentState() const;
         const SpellChessLib::GameState & getInitialState() const;
+        const SpellChessLib::TimerPairState & getTimerPairState() const;
 
         const std::vector<SpellChessLib::SpellChessMove> & getMoveList() const;        
         int getGameRunnerId() const;
@@ -84,6 +86,8 @@ namespace GameSession {
         void onGameStateChanged(const SpellChessLib::GameState & state);
         void onMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves);
         void onGameRunnerIdChanged(int id);
+        void onTimerPairChanged(const SpellChessLib::TimerPairState & state);
+
     };
 
     namespace States {
@@ -106,10 +110,15 @@ namespace GameSession {
         GameSessionModel * model;
         MoveListView * moveList;
 
+        PlayerTimer * whiteTimer;
+        PlayerTimer * blackTimer;
+
+
         QGridLayout * layout;
 
         SpellPanelModel whiteSpellPanel;
         SpellPanelModel blackSpellPanel;
+
 
         void connectSlots();
         GameSession::LinterInput prepareInfoForLinter() const;
@@ -123,6 +132,7 @@ namespace GameSession {
         void handleClick(Board::BoardWidget::ClickHandle & click);
         void handleGamestateChange(const SpellChessLib::GameState & state);
         void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves);
+        void handleTimePairChanged(const SpellChessLib::TimerPairState & state);
         void handleGameRunnerIdChanged(int id) {};
         void handlePromotionActionSelected(Board::PawnPromotionAction action);
         void handleSpellSelect(SpellChessLib::SpellIdentifator spell);

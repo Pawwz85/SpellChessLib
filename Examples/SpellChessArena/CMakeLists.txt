@@ -23,6 +23,7 @@ set ( src_files
     "src/App.cpp"
     "src/main.cpp"
     "src/MoveList.cpp"
+    "src/PlayerTimer.cpp"
     "src/SpellPanel.cpp"
 )
 

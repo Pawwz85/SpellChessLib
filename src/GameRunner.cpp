@@ -89,6 +89,10 @@ void SpellChessLib::GameRunner::run(){
     game->addResultObserver(stop_clb);
     game->startCurrentPlayerTimer();
     PlayerColor movingSide;
+
+    if (gameMonitor) 
+        gameMonitor->onGameValueChanged(*game);
+
     while (!game->isFinished() && running) {
         movingSide = game->getGameState().getSideToMove();
         auto& currentPlayer = movingSide == White ? whPlayer : blPlayer;
@@ -99,7 +103,7 @@ void SpellChessLib::GameRunner::run(){
             setCurrentPlayer(nullptr);
             game->makeMove(result.getBestMove());
        
-            if (gameMonitor)
+            if (gameMonitor) 
                 gameMonitor->onGameValueChanged(*game);
 
             if (game->isFinished())

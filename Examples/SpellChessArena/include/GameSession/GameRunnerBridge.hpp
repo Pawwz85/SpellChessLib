@@ -25,6 +25,7 @@ namespace GameSession {
         const int GameStateChanged;
         const int MovesSinceRootChanged;
         const int GameRunnerIdChanged;
+        const int TimerPairStateChanged;
         };
 
         class GameStateChangedEvent : public QEvent {
@@ -43,6 +44,12 @@ namespace GameSession {
             public:
             MoveListEvent(const std::vector<SpellChessLib::SpellChessMove> & moves);
             const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot() const;
+        };
+
+        class TimerPairEvent : public QEvent {
+            public:
+            TimerPairEvent(const SpellChessLib::TimerPairState & state);
+            const SpellChessLib::TimerPairState state;
         };
 
         class GameRunnerEvent : public QEvent {
@@ -79,6 +86,7 @@ namespace GameSession {
 
         EVENT_EMITTER_DECL(GameStateChangedEvent, SpellChessLib::GameState *);
         EVENT_EMITTER_DECL(MoveListEvent, std::vector<SpellChessLib::SpellChessMove>);
+        EVENT_EMITTER_DECL(TimerPairEvent, SpellChessLib::TimerPairState);
         EVENT_EMITTER_DECL(GameRunnerEvent, int);
 
         std::shared_ptr<SpellChessLib::GameMonitor> gameMonitor;

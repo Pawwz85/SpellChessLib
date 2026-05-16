@@ -37,7 +37,12 @@ bool GameSession::GameSessionModel::event(QEvent *e) {
         gameRunnerId = event->getGameRunnerId();
         onGameRunnerIdChanged(gameRunnerId);
         return true;
-    };
+    } else if (e->type() == gameSessionEvents.TimerPairStateChanged) {
+        auto event = (Internal::TimerPairEvent *) e;
+        pairState = event->state;
+        onTimerPairChanged(pairState);
+        return true;
+    }
 
     return QObject::event(e);
 }
@@ -107,6 +112,10 @@ const SpellChessLib::GameState & GameSession::GameSessionModel::getInitialState(
     return rootState;
 }
 
+const SpellChessLib::TimerPairState & GameSession::GameSessionModel::getTimerPairState() const{
+    return pairState;
+}
+
 const std::vector<SpellChessLib::SpellChessMove> &GameSession::GameSessionModel::getMoveList() const{
     return moveList;
 }
@@ -160,6 +169,7 @@ void GameSession::GameSessionView::connectSlots() {
 
     connect(model, &GameSessionModel::onGameStateChanged,   this, &GameSessionView::handleGamestateChange);
     connect(model, &GameSessionModel::onMoveListChanged,    this, &GameSessionView::handleMoveListChanged);
+    connect(model, &GameSessionModel::onTimerPairChanged,   this, &GameSessionView::handleTimePairChanged);
     connect(model, &GameSessionModel::onGameRunnerIdChanged,this, &GameSessionView::handleGameRunnerIdChanged);
 
     connect(&whiteSpellPanel, &SpellPanelModel::spellSelected, this, &GameSessionView::handleSpellSelect);
@@ -272,6 +282,11 @@ void GameSession::GameSessionView::handleMoveListChanged(const std::vector<Spell
     moveListModel->set(model->getInitialState(), seq);
 }
 
+void GameSession::GameSessionView::handleTimePairChanged(const SpellChessLib::TimerPairState & state) {
+    whiteTimer->setState(state.whiteTimer);
+    blackTimer->setState(state.blackTimer);
+}
+
 GameSession::GameSessionView::GameSessionView(GameSessionModel *model, QWidget *parent) : QWidget(parent), model(model){
     interactionManager = std::make_shared<GameSession::UserInteractionManager>();
     moveBuilder = std::make_shared<GameSession::SpellChessMoveBuilder>();
@@ -282,14 +297,18 @@ GameSession::GameSessionView::GameSessionView(GameSessionModel *model, QWidget *
     layout = new QGridLayout(this);
     moveList = new MoveListView(moveListModel, this);
 
+    whiteTimer = new PlayerTimer(this);
+    blackTimer = new PlayerTimer(this);
+
     SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
     SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
     
-
-    layout->addWidget(blPanel, 0, 6, 1, 2);
-    layout->addWidget(whPanel, 9, 6, 1, 2);
     layout->addWidget(board, 1, 1, 8, 8);
     layout->addWidget(moveList, 1, 9, 8, 3);
+    layout->addWidget(blPanel, 0, 6, 1, 2);
+    layout->addWidget(whPanel, 9, 6, 1, 2);
+    layout->addWidget(blackTimer, 0, 1, 1, 2);
+    layout->addWidget(whiteTimer, 9, 1, 1, 2);
 
     setLayout(layout);
 

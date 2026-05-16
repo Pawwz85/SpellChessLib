@@ -145,9 +145,13 @@ void SpellChessLib::ClassicTimeController::exportAsGoParams(UCILoader::GoParamsB
 		builder.withBlackTime(base, inc);
 }
 
-std::chrono::milliseconds SpellChessLib::ClassicTimeController::getValue() {
+std::chrono::milliseconds SpellChessLib::ClassicTimeController::getValue() const {
 	return std::chrono::milliseconds(timer->getValue());
 }
+
+SpellChessLib::PlayerTimerState SpellChessLib::ClassicTimeController::exportState() const {
+	return PlayerTimerState {!timer->isStopped(), true, getValue()};
+};
 
 void SpellChessLib::InfiniteTimeTimerController::exportAsGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& builder, const PlayerColor& perspective) const {
 	/*
@@ -157,3 +161,4 @@ void SpellChessLib::InfiniteTimeTimerController::exportAsGoParams(UCILoader::GoP
 	*/
 	builder.withInfiniteMode(false);
 }
+

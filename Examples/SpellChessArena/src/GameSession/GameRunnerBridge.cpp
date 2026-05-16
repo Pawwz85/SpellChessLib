@@ -5,7 +5,8 @@
 GameSession::Internal::GameRunnerEvents::GameRunnerEvents(): 
     GameStateChanged(QEvent::registerEventType()),
     MovesSinceRootChanged(QEvent::registerEventType()),
-    GameRunnerIdChanged(QEvent::registerEventType())
+    GameRunnerIdChanged(QEvent::registerEventType()),
+    TimerPairStateChanged(QEvent::registerEventType())
     {};
 
 GameSession::Internal::GameRunnerEvents GameSession::gameSessionEvents;
@@ -38,6 +39,10 @@ const std::vector<SpellChessLib::SpellChessMove> &GameSession::Internal::MoveLis
     return moves;
 };
 
+GameSession::Internal::TimerPairEvent::TimerPairEvent(const SpellChessLib::TimerPairState & state) :
+    QEvent((QEvent::Type)gameSessionEvents.TimerPairStateChanged),
+    state(state) {};
+
 GameSession::Internal::GameRunnerEvent::GameRunnerEvent(int id) : 
     QEvent((QEvent::Type)gameSessionEvents.GameRunnerIdChanged) , gameRunnerId(id) {}
 
@@ -64,10 +69,12 @@ class GameSessionPlayerFactory : public SpellChessLib::Factory<SpellChessLib::Pl
 GameSession::GameRunnerBridge::GameRunnerBridge(QCoreApplication *app, QObject *owner) : gameMonitor(std::make_shared<SpellChessLib::GameMonitor>()),
                                                                                EVENT_EMITTER_INIT(GameStateChangedEvent, SpellChessLib::GameState *),
                                                                                EVENT_EMITTER_INIT(MoveListEvent, std::vector<SpellChessLib::SpellChessMove>),
-                                                                               EVENT_EMITTER_INIT(GameRunnerEvent, int)
+                                                                               EVENT_EMITTER_INIT(GameRunnerEvent, int),
+                                                                               EVENT_EMITTER_INIT(TimerPairEvent, SpellChessLib::TimerPairState)
 {
     gameMonitor->getObservableGame().addObserver(emitterGameStateChangedEvent);
     gameMonitor->getObservableMoves().addObserver(emitterMoveListEvent);
+    gameMonitor->getTimerPairObserver().addObserver(emitterTimerPairEvent);
     gameMonitor->getGameRunnerIdObserver().addObserver(emitterGameRunnerEvent);
 
     using PlayerFactory = typename SpellChessLib::Factory<SpellChessLib::Player>; 

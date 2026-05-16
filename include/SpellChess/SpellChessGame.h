@@ -35,6 +35,11 @@ namespace SpellChessLib {
 		ExceptionThrownByAPlayer
 	};
 
+	struct TimerPairState {
+		PlayerTimerState whiteTimer;
+		PlayerTimerState blackTimer;
+	};
+
 	class Game {
 	public:
 		class ResultObserver;
@@ -96,5 +101,6 @@ namespace SpellChessLib {
 		UCILoader::GoParams<SpellChessMove> getGoParams() const;
 		void setSevenTagRooster(const Annotation::SevenTagRoster& roster);
 		const Annotation::GameAnnotations& getAnnotations() const;
+		TimerPairState getTimerPair() const;
 	};
 }

@@ -45,12 +45,12 @@ int main(int argc, char ** argv) {
 		("T,move_time", "time allocated for engine to move (in seconds)", cxxopts::value<double>())
 	;
 	option.parse_positional({"old", "new", "elo0", "elo1"});
-	auto parsedOptions = option.parse(argc, argv);
+	cxxopts::ParseResult parsedOptions = option.parse(argc, argv);
 	
 	Runner::Configuration config = Runner::parseConfig(parsedOptions);
-	auto validationResult = Runner::validateConfig(config);
-	if (validationResult.has_value()) {
-		std::cerr << validationResult.value();
+	std::optional<std::string> validationErrorMsg = Runner::validateConfig(config);
+	if (validationErrorMsg.has_value()) {
+		std::cerr << validationErrorMsg.value();
 		return EXIT_FAILURE;
 	}
 
@@ -86,7 +86,7 @@ int main(int argc, char ** argv) {
 
 	tournament.startTest(new_.id, old.id);
 	auto result =	tournament.waitForCompletion();
-	Runner::Report raport = Runner::makeReport(result, config);
-	Runner::exportReport(raport, config.outputPath);
+	Runner::Report report = Runner::makeReport(result, config);
+	Runner::exportReport(report, config.outputPath);
 	return EXIT_SUCCESS;
 }
