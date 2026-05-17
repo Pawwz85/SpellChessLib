@@ -38,9 +38,12 @@ namespace SpellChessLib {
         // check whatever given position exists within the book
         bool containsPosition(const GameState & state) const override;
 
-        // pick move using weighs stored in te book
+        // pick move using weighs stored in the book
         std::optional<SpellChessMove> pickRandomMove(const GameState & state) const override;
         
+        // pick random move ignoring weighrs stored in the book
+        std::optional<SpellChessMove> pickRandomUniformMove(const GameState & state) const override;
+
         // count entries in the book
         long count() const override;
 

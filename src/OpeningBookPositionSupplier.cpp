@@ -5,7 +5,7 @@ SpellChessLib::GameState SpellChessLib::OpeningBookPositionSupplier::produce() {
     GameState result = startPos;
     while (true)
     {
-        auto move = book->pickRandomMove(result);
+        auto move = book->pickRandomUniformMove(result);
         if(!move.has_value())
             return result;
         

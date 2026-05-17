@@ -102,6 +102,7 @@ void SpellChessLib::SPRTPTournament::spawnNewGameRequest(){
 
     runners->addRequest(std::move(makeRequest(whitePlayer, blackPlayer, supplier->produce())));
     ++gameCounter;
+    ++gamesIssued;
 }
 
 void SpellChessLib::SPRTPTournament::startTest(int measuredPlayer, int opponent){
@@ -114,11 +115,6 @@ void SpellChessLib::SPRTPTournament::startTest(int measuredPlayer, int opponent)
         this->spawnNewGameRequest();
 }
 
-bool SpellChessLib::SPRTPTournament::allGameCompleted() const{
-    return runners->countGamesBeingRunned() == 0;
-};
-
-
 void SpellChessLib::SPRTPTournament::setMoveTime(unsigned int moveTimeMs) {
     configBuilder.withMoveTimeLimit(moveTimeMs);
 }
@@ -130,7 +126,7 @@ void SpellChessLib::SPRTPTournament::setTimeFormat(unsigned int baseTimeMs, unsi
 SpellChessLib::Stats::TrinomialModel SpellChessLib::SPRTPTournament::waitForCompletion() {
     {
         std::unique_lock<std::mutex> guard(lock);
-        con_var.wait(guard, [this]() {return this->SPRTCompleted && this->allGameCompleted(); });
+        con_var.wait(guard, [this]() {return this->SPRTCompleted;});
         
         displayStats();
         outcomeTables.display();

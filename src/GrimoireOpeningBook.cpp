@@ -157,6 +157,22 @@ std::optional<SpellChessLib::SpellChessMove> SpellChessLib::GrimoireOpeningBook:
     return std::nullopt;
 };
 
+std::optional<SpellChessLib::SpellChessMove> SpellChessLib::GrimoireOpeningBook::pickRandomUniformMove(const GameState & state) const {
+    static std::random_device rand_device;
+    std::lock_guard<std::mutex> guard(mtx);
+
+    uint64_t hash = calculateHash(state);
+    auto entries = loadAllEntries(hash);
+
+    if (entries.empty())
+        return std::nullopt;
+
+    std::uniform_int_distribution<uint64_t> dist(0, entries.size() -1);
+    uint64_t r = dist(rand_device);
+    
+    return entries[r].move;
+};
+
 SpellChessLib::GrimoireOpeningBook::~GrimoireOpeningBook() {
     (void)fclose(file);
 }

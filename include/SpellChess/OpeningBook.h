@@ -14,6 +14,7 @@ namespace SpellChessLib {
         virtual ~OpeningBook() = default;
         virtual bool containsPosition(const GameState & state) const = 0;
         virtual std::optional<SpellChessMove> pickRandomMove(const GameState & state) const = 0;
+        virtual std::optional<SpellChessMove> pickRandomUniformMove(const GameState & state) const = 0;
         virtual long count() const = 0;
     };
 
