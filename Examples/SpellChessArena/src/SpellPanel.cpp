@@ -1,6 +1,9 @@
 #include <SpellPanel.hpp>
 #include <QVBoxLayout>
 
+#include <QPainter>
+#include <QBrush>
+
 SpellPanelModel::SpellPanelModel(): spells({
                                         {SpellChessLib::FreezeSpell, {}},
                                         {SpellChessLib::JumpSpell, {}}
@@ -49,6 +52,43 @@ bool SpellPanelModel::isSelected(SpellChessLib::SpellIdentifator spell) const{
     return isSpellSelected.at(spell);
 };
 
+SpellCoolDownBar::SpellCoolDownBar(int m, QWidget * parent) : QWidget(parent), maximum(m), value(0),
+    emptyContainerColor(Qt::lightGray), fullContainerColor(Qt::yellow) {};
+
+void SpellCoolDownBar::setMaximum(int maximum) {
+    this->maximum = maximum;
+}
+
+void SpellCoolDownBar::setValue(int val) {
+    this->value = val;
+    update();
+}
+
+void SpellCoolDownBar::paintEvent(QPaintEvent * event) {
+    QPainter painter(this);
+
+    const auto & r = rect();
+
+    int w = r.width();
+    int gapSize = w / 20; 
+    int rectSize = w - gapSize;
+    if (maximum) {
+        gapSize  /= (maximum - 1);
+        rectSize /= maximum;
+    }
+
+    int begin = r.left();
+    
+    for (size_t i = 0; i < maximum; ++i) {
+        QColor fill = (maximum - value <= i) ? emptyContainerColor : fullContainerColor;
+        painter.setBrush(fill);
+        painter.drawRect(begin, r.top(), rectSize, r.height());
+        begin += rectSize + gapSize;    
+    };
+    
+};
+
+
 SpriteSet::SpriteSetScheme makeSpellSetSchemeFromFolder(const QString & folderPath) {
         QString prefix = QString("file:") + folderPath + QString("/");
 
@@ -90,11 +130,9 @@ SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifato
     layout = new QVBoxLayout(this);
     btn = new QPushButton(this);
     cancelBtn = new QPushButton(tr("cancel", "Cancel spell casting"));
-    cooldownBar = new QProgressBar(this);
+    cooldownBar = new SpellCoolDownBar(2, this);
     
     cooldownBar->setMaximum(2);
-    cooldownBar->setMinimum(0);
-    cooldownBar->setTextVisible(false);
     
     connect(btn, &QPushButton::clicked, this, &SpellButton::onClick);
     connect(cancelBtn, &QPushButton::clicked, this, &SpellButton::onCancel);
@@ -130,8 +168,7 @@ void SpellButton::onModelChanged () {
     else
         cancelBtn->hide();
 
-    cooldownBar->setValue(model->getSpell(id).cooldown);
-    
+    cooldownBar->setValue(model->getSpell(id).cooldown);    
     /*if (model->getSpell(id).canCastNow()) 
         cooldownBar->hide();
     else

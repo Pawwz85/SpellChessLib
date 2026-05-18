@@ -11,6 +11,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QProgressBar>
+#include <QColor>
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -49,6 +50,20 @@ class SpellSpriteSet : public SpriteSet::SpriteSet, public Misc::Singleton<Spell
     SpellSpriteSet();
 };
 
+class SpellCoolDownBar : public QWidget {
+    int maximum;
+    int value;
+
+    QColor emptyContainerColor;
+    QColor fullContainerColor;
+    QColor outlineColor;
+
+    public:
+    SpellCoolDownBar(int max = 2, QWidget * parent = nullptr);
+    void setMaximum(int maximum);
+    void setValue(int val);
+    void paintEvent(QPaintEvent * event) override;
+};
 
 class SpellButton : public QWidget {
     Q_OBJECT
@@ -63,7 +78,7 @@ class SpellButton : public QWidget {
     QPushButton * cancelBtn;
     QLayout * layout;
 
-    QProgressBar * cooldownBar;
+    SpellCoolDownBar * cooldownBar;
 
     public: 
 
@@ -76,6 +91,7 @@ class SpellButton : public QWidget {
     void onClick();
     void onCancel();
 };
+
 
 class SpellPanel : public QWidget {
     Q_OBJECT
