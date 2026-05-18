@@ -7,14 +7,24 @@ Runner::Configuration Runner::parseConfig(cxxopts::ParseResult & parsedArguments
     result.newEnginePath = parsedArguments.as_optional<std::string>("new").value_or("");
     result.openingBook = parsedArguments.as_optional<std::string>("opening_suite").value_or("book.spell");
     result.outputPath = parsedArguments.as_optional<std::string>("output").value_or("SPRT_REPORT.json");
-    result.elo0 = parsedArguments.as_optional<int>("elo0").value_or(0);
-    result.elo1 = parsedArguments.as_optional<int>("elo1").value_or(10);
     result.jobs = parsedArguments.as_optional<int>("jobs").value_or(std::thread::hardware_concurrency());
     result.alpha = parsedArguments.as_optional<double>("alpha").value_or(0.05);
     result.beta = parsedArguments.as_optional<double>("beta").value_or(0.05);
     result.baseTime =   1000 * parsedArguments.as_optional<double>("time").value_or(10.f);
     result.increment =  1000 * parsedArguments.as_optional<double>("increment").value_or(0.1f);
     result.moveTime =   1000 * parsedArguments.as_optional<double>("move_time").value_or(0.f);
+
+    int elo = parsedArguments.as_optional<int>("elo").value_or(10);
+    bool regression_bound = parsedArguments.contains("regression");
+
+    if (!regression_bound) {
+        result.elo0 = 0;
+        result.elo1 = elo;
+    } else {
+        result.elo0 = -elo;
+        result.elo1 = 0;
+    }
+
     return result;
 };
 

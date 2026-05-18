@@ -37,14 +37,14 @@ int main(int argc, char ** argv) {
 		("o,output", "Path to output json file", cxxopts::value<std::string>())
 		("a,alpha", "Desired probability of incorrently accepting null hypothesis", cxxopts::value<double>())
 		("b,beta", "Desired probability of incorrently accepting alternative hypothesis", cxxopts::value<double>())
-		("elo0", "Elo difference null hypothesis", cxxopts::value<int>())
-		("elo1", "Elo difference alternative hypothesis", cxxopts::value<int>())
+		("elo", "Expected elo gain or maximum regression allowed", cxxopts::value<int>())
 		("j,jobs", "Amount of games being run simoultanously", cxxopts::value<int>())
 		("t,time", "base time allocated for whole game (in seconds)", cxxopts::value<double>()->default_value("10"))
 		("i,increment", "increment to time added after every move (in seconds)", cxxopts::value<double>()->default_value("0.1"))
 		("T,move_time", "time allocated for engine to move (in seconds)", cxxopts::value<double>())
+		("r,regression", "test for regression", cxxopts::value<bool>())
 	;
-	option.parse_positional({"old", "new", "elo0", "elo1"});
+	option.parse_positional({"old", "new", "elo"});
 	cxxopts::ParseResult parsedOptions = option.parse(argc, argv);
 	
 	Runner::Configuration config = Runner::parseConfig(parsedOptions);
