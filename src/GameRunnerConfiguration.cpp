@@ -25,17 +25,19 @@ SpellChessLib::GameRunnerConfigurationBuilder& SpellChessLib::GameRunnerConfigur
     return *this;
 }
 
-SpellChessLib::GameRunnerConfigurationBuilder& SpellChessLib::GameRunnerConfigurationBuilder::withClassicalTimer(const uint32_t& base, const uint32_t& inc, GameRunnerConfigurationBuilder::PlayerColor color)
+SpellChessLib::GameRunnerConfigurationBuilder& SpellChessLib::GameRunnerConfigurationBuilder::withClassicalTimer(const uint32_t& base, const uint32_t& inc, const uint32_t & margin, GameRunnerConfigurationBuilder::PlayerColor color)
 {
     if (color != GameRunnerConfigurationBuilder::Black) {
         config.whPlayerTimerInfo.type = GameRunnerConfiguration::CLASSICAL;
         config.whPlayerTimerInfo.data.classicalTimerData.base = base;
         config.whPlayerTimerInfo.data.classicalTimerData.inc = inc;
+        config.whPlayerTimerInfo.data.classicalTimerData.margin = margin;
     }
     if (color != GameRunnerConfigurationBuilder::White) {
         config.blPlayerTimerInfo.type = GameRunnerConfiguration::CLASSICAL;
         config.blPlayerTimerInfo.data.classicalTimerData.base = base;
         config.blPlayerTimerInfo.data.classicalTimerData.inc = inc;
+        config.blPlayerTimerInfo.data.classicalTimerData.margin = margin;
     }
     return *this;
 }
@@ -78,7 +80,7 @@ std::unique_ptr<SpellChessLib::TimerController> SpellChessLib::GameRunnerConfigu
     case INFINITE:
         return factory.makeInfiniteTimerController();
     case CLASSICAL:
-        return factory.makeClassicTimerController(info.data.classicalTimerData.base, info.data.classicalTimerData.inc);
+        return factory.makeClassicTimerController(info.data.classicalTimerData.base, info.data.classicalTimerData.inc, info.data.classicalTimerData.margin);
     default:
         return nullptr;
     }

@@ -29,7 +29,7 @@ public:
 TEST(timer_service, expiration_callback_working) {
 	std::shared_ptr<TimerService> timerService = std::make_shared<TimerService>();
 	bool clb_called = false;
-	auto timer = timerService->createTimer(1000, [&clb_called]() {clb_called = true; });
+	auto timer = timerService->createTimer(1000, 0, [&clb_called]() {clb_called = true; });
 	timer->resume();
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	ASSERT_FALSE(clb_called);
@@ -40,7 +40,7 @@ TEST(timer_service, expiration_callback_working) {
 
 TEST(timer_service, stop_resume_commands) {
 	std::shared_ptr<TimerService> timerService = std::make_shared<TimerService>();
-	auto timer = timerService->createTimer(500, [](){});
+	auto timer = timerService->createTimer(500, 0, [](){});
 	timer->resume();
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	timer->stop();
@@ -55,7 +55,7 @@ TEST(timer_service, stop_resume_commands) {
 TEST(timer_service, RAII) {
 	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
 	bool clb_called = false;
-	auto timer = timerService->createTimer(200, [&clb_called]() {clb_called = true; });
+	auto timer = timerService->createTimer(200, 0, [&clb_called]() {clb_called = true; });
 	ASSERT_EQ(timerService->countActiveTimers(), 1);
 	timer->resume();
 	timer.reset();
@@ -68,7 +68,7 @@ TEST(timer_service, RAII) {
 TEST(timer_service, set_timer) {
 	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
 	bool clb_called = false;
-	timerService->setTimer(200, [&clb_called]() {clb_called = true; });
+	timerService->setTimer(200, 0, [&clb_called]() {clb_called = true; });
 	ASSERT_EQ(timerService->countActiveTimers(), 1);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(210));
@@ -88,7 +88,7 @@ TEST(timer_factory, classic) {
 	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
 	TimerControllerFactory factory(timerService);
 
-	auto classicTimerController = factory.makeClassicTimerController(1000, 100);
+	auto classicTimerController = factory.makeClassicTimerController(1000, 100, 0);
 	auto exposed_timer_data = timerService->getTimerDataById(0);
 	ASSERT_NE(exposed_timer_data, nullptr);
 
@@ -117,6 +117,66 @@ TEST(timer_factory, classic) {
 TEST(ClassicTimeController, exportingToParams) {
 	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
 	TimerControllerFactory factory(timerService);
-	auto classicTimerController = factory.makeClassicTimerController(1000, 100);
+	auto classicTimerController = factory.makeClassicTimerController(1000, 100, 0);
+}
+
+TEST(ClassicTimeController, margin) {
+	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
+	TimerControllerFactory factory(timerService);
+
+	auto classicTimerController = factory.makeClassicTimerController(1000, 0, 100);
+	auto exposed_timer_data = timerService->getTimerDataById(0);
+	ASSERT_NE(exposed_timer_data, nullptr);
+
+
+	classicTimerController->resume();
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	
+	exposed_timer_data->lock.lock();
+		exposed_timer_data->stopped = true;
+		time_t value = exposed_timer_data->value;
+	exposed_timer_data->lock.unlock();
+
+	ASSERT_TRUE(value >= 500 && value <= 600);
+
+	classicTimerController.reset();	
+}
+
+TEST(ClassicTimeController, margin_runs_out) {
+	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
+	TimerControllerFactory factory(timerService);
+
+	auto classicTimerController = factory.makeClassicTimerController(1000, 0, 100);
+	auto exposed_timer_data = timerService->getTimerDataById(0);
+	ASSERT_NE(exposed_timer_data, nullptr);
+
+	classicTimerController->resume();
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	
+	exposed_timer_data->lock.lock();
+		ASSERT_EQ(exposed_timer_data->latencyMarginRemaining, 0);
+		exposed_timer_data->stopped = true;
+	exposed_timer_data->lock.unlock();
+	classicTimerController.reset();	
+}
+
+TEST(ClassicTimeController, resume_regenerates_margin) {
+	std::shared_ptr<TimerServiceWithDebugging> timerService = std::make_shared<TimerServiceWithDebugging>();
+	TimerControllerFactory factory(timerService);
+
+	auto classicTimerController = factory.makeClassicTimerController(1000, 0, 1000);
+	auto exposed_timer_data = timerService->getTimerDataById(0);
+	ASSERT_NE(exposed_timer_data, nullptr);
+
+	exposed_timer_data->lock.lock();
+		exposed_timer_data->latencyMarginRemaining = 0;
+	exposed_timer_data->lock.unlock();
+
+	classicTimerController->resume();
+	
+	exposed_timer_data->lock.lock();
+		ASSERT_NE(exposed_timer_data->latencyMarginRemaining, 0);
+		exposed_timer_data->stopped = true;
+	exposed_timer_data->lock.unlock();
+	classicTimerController.reset();	
 }

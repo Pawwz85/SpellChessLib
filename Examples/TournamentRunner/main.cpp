@@ -38,6 +38,7 @@ int main(int argc, char ** argv) {
 		("a,alpha", "Desired probability of incorrently accepting null hypothesis", cxxopts::value<double>())
 		("b,beta", "Desired probability of incorrently accepting alternative hypothesis", cxxopts::value<double>())
 		("elo", "Expected elo gain or maximum regression allowed", cxxopts::value<int>())
+		("m,margin", "Latency margin to be used (in millisecons)", cxxopts::value<int>())
 		("j,jobs", "Amount of games being run simoultanously", cxxopts::value<int>())
 		("t,time", "base time allocated for whole game (in seconds)", cxxopts::value<double>()->default_value("10"))
 		("i,increment", "increment to time added after every move (in seconds)", cxxopts::value<double>()->default_value("0.1"))
@@ -79,7 +80,7 @@ int main(int argc, char ** argv) {
 	}
 
 	if(config.baseTime > 0)
-		tournament.setTimeFormat(config.baseTime, config.increment);
+		tournament.setTimeFormat(config.baseTime, config.increment, config.latencyMargin);
 
 	if (config.moveTime > 0)
 		tournament.setMoveTime(config.moveTime);

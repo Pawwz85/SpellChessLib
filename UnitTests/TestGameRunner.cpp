@@ -33,7 +33,7 @@ public:
 
 	UnRespondingPlayer(bool allowInterrupts) : respectInterrupts(allowInterrupts) {};
 
-	// Odziedziczono za poœrednictwem elementu Player
+	// Odziedziczono za poï¿½rednictwem elementu Player
 	Result makeResult(const Game& game, const std::chrono::milliseconds& timeOut) override {
 		hangForever();
 		return { {} };
@@ -82,7 +82,7 @@ public:
 class SimpleAllocator : public Scheduler::ObjectAllocator<Player>, public std::enable_shared_from_this<SimpleAllocator> {
 	std::list<Player*> queue;
 
-	// Odziedziczono za poœrednictwem elementu ObjectAllocator
+	// Odziedziczono za poï¿½rednictwem elementu ObjectAllocator
 	void release(Player* p) override
 	{
 		delete p;
@@ -117,7 +117,7 @@ TEST(GameRunner, TimedOut) {
 	Scheduler::ResourcePointer<Player> whPlayer = simpleAllocator->retrieve();
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 
 	auto whPlayerRaw = (UnRespondingPlayer*)whPlayer.get();
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer));
@@ -142,7 +142,7 @@ TEST(GameRunner, Kill) {
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 	auto whPlayerRaw = (UnRespondingPlayer*)whPlayer.get();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer));
 	runner.run();
 
@@ -166,7 +166,7 @@ TEST(GameRunner, ucinewgame) {
 	auto whPlayerRaw = (UnRespondingPlayer*)whPlayer.get();
 	auto blPlayerRaw = (UnRespondingPlayer*)blPlayer.get();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer));
 	runner.run();
 
@@ -199,7 +199,7 @@ public:
 		for (auto c : moves)
 			this->moves.push_back(parseMove(c));
 	}
-	// Odziedziczono za poœrednictwem elementu Player
+	// Odziedziczono za poï¿½rednictwem elementu Player
 	Result makeResult(const Game& game, const std::chrono::milliseconds& timeOut) override{
 		return {getNextMove()};
 	}
@@ -212,7 +212,7 @@ public:
 	void interrupt() override{}
 	void kill() override{}
 
-	// Odziedziczono za poœrednictwem elementu Player
+	// Odziedziczono za poï¿½rednictwem elementu Player
 	void onNewGame() override{}
 };
 
@@ -251,7 +251,7 @@ TEST(GameRunner, TurnSwitch) {
 	Scheduler::ResourcePointer<Player> whPlayer = simpleAllocator->retrieve();
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer));
 	runner.run();
 
@@ -316,7 +316,7 @@ TEST(GameRunner, PonderingOn) {
 	Scheduler::ResourcePointer<Player> whPlayer = simpleAllocator->retrieve();
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 
 	auto whPlayerRaw = (RecordedPlayerWithPondering*)whPlayer.get();
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer), true);
@@ -337,7 +337,7 @@ TEST(GameRunner, PonderingOff) {
 	Scheduler::ResourcePointer<Player> whPlayer = simpleAllocator->retrieve();
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 	
 	auto whPlayerRaw = (RecordedPlayerWithPondering*)whPlayer.get();
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer), false);
@@ -358,7 +358,7 @@ TEST(GameRunner, Ponderhit) {
 	Scheduler::ResourcePointer<Player> whPlayer = simpleAllocator->retrieve();
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 
 	auto whPlayerRaw = (RecordedPlayerWithPondering*)whPlayer.get();
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer), true);
@@ -380,7 +380,7 @@ TEST(GameRunner, Pondermiss) {
 	Scheduler::ResourcePointer<Player> whPlayer = simpleAllocator->retrieve();
 	Scheduler::ResourcePointer<Player> blPlayer = simpleAllocator->retrieve();
 
-	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0)), std::move(factory.makeClassicTimerController(100, 0)));
+	std::unique_ptr<Game> game = std::make_unique<Game>(state, std::move(factory.makeClassicTimerController(100, 0, 0)), std::move(factory.makeClassicTimerController(100, 0, 0)));
 	auto whPlayerRaw = (RecordedPlayerWithPondering*)whPlayer.get();
 	GameRunner runner(timerService, std::move(game), std::move(whPlayer), std::move(blPlayer), true);
 	runner.run();
@@ -393,7 +393,7 @@ TEST(GameRunner, fromConfig) {
 	auto timerService = std::make_shared<TimerService>();
 
 	GameRunnerConfigurationBuilder builder;
-	auto config = builder.withClassicalTimer(100, 10).build();
+	auto config = builder.withClassicalTimer(100, 10, 0).build();
 
 	std::shared_ptr<SimpleAllocator> simpleAllocator = std::make_shared<SimpleAllocator>();
 	simpleAllocator->addPointer(new UnRespondingPlayer(false));
@@ -408,7 +408,7 @@ TEST(GameRunner, invalidFenThrowsException) {
 	auto timerService = std::make_shared<TimerService>();
 
 	GameRunnerConfigurationBuilder builder;
-	auto config = builder.withClassicalTimer(100, 10).withPosition("test").build();
+	auto config = builder.withClassicalTimer(100, 10, 0).withPosition("test").build();
 
 	std::shared_ptr<SimpleAllocator> simpleAllocator = std::make_shared<SimpleAllocator>();
 	simpleAllocator->addPointer(new UnRespondingPlayer(false));

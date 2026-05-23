@@ -17,6 +17,7 @@ namespace Runner {
         int moveTime;               // move time in ms per move; can be zero only if baseTime is set
         int baseTime;               // base time in ms per move; can be zero only if moveTime is set
         int increment;              // increment time in ms per move; can be zero
+        int latencyMargin;
         int jobs;
     };
 

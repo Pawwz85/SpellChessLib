@@ -119,8 +119,8 @@ void SpellChessLib::SPRTPTournament::setMoveTime(unsigned int moveTimeMs) {
     configBuilder.withMoveTimeLimit(moveTimeMs);
 }
 
-void SpellChessLib::SPRTPTournament::setTimeFormat(unsigned int baseTimeMs, unsigned int incMs) {
-    configBuilder.withClassicalTimer(baseTimeMs, incMs);
+void SpellChessLib::SPRTPTournament::setTimeFormat(unsigned int baseTimeMs, unsigned int incMs, unsigned int margin) {
+    configBuilder.withClassicalTimer(baseTimeMs, incMs, margin);
 }
 
 SpellChessLib::Stats::TrinomialModel SpellChessLib::SPRTPTournament::waitForCompletion() {

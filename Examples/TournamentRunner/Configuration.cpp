@@ -13,6 +13,7 @@ Runner::Configuration Runner::parseConfig(cxxopts::ParseResult & parsedArguments
     result.baseTime =   1000 * parsedArguments.as_optional<double>("time").value_or(10.f);
     result.increment =  1000 * parsedArguments.as_optional<double>("increment").value_or(0.1f);
     result.moveTime =   1000 * parsedArguments.as_optional<double>("move_time").value_or(0.f);
+    result.latencyMargin = parsedArguments.as_optional<int>("margin").value_or(0);
 
     int elo = parsedArguments.as_optional<int>("elo").value_or(10);
     bool regression_bound = parsedArguments.contains("regression");

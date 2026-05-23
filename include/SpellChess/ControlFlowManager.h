@@ -22,6 +22,7 @@ namespace SpellChessLib {
 		static std::atomic<int> taskIdSeq;
 
 		std::chrono::milliseconds timeBeforeKilled = std::chrono::milliseconds(1000);
+		std::chrono::milliseconds latencyMargin = std::chrono::milliseconds(50);
 
 		int allocTaskId() {
 			return taskIdSeq++;

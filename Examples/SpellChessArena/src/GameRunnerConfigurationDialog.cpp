@@ -89,9 +89,10 @@ TimeSelectionWidget::TimeSelectionWidget(std::shared_ptr<SpellChessLib::GameRunn
     for(size_t i = 0; i < 2; ++i) {
         playerLabel[i] = new QLabel( (i == 0) ? "White player" : "Black player");
         timeControlType[i] = new QButtonGroup(this);
-        baseTime[i] = new QSpinBox();
-        increment[i] = new QSpinBox();
-        forms[i] = {true, 0, 0};
+        baseTime[i] = new QSpinBox(this);
+        increment[i] = new QSpinBox(this);
+        margin[i] = new QSpinBox(this);
+        forms[i] = {true, 0, 0, 0};
         
         timeControlType[i]->addButton(new QRadioButton("Infinite"), 0);
         timeControlType[i]->addButton(new QRadioButton("Simple"),   1);
@@ -100,6 +101,7 @@ TimeSelectionWidget::TimeSelectionWidget(std::shared_ptr<SpellChessLib::GameRunn
             bool isInfinite = id == 0;
             this->baseTime[i]->setDisabled(isInfinite);
             this->increment[i]->setDisabled(isInfinite);
+            this->margin[i]->setDisabled(isInfinite);
             this->forms[i].infiniteMode = isInfinite;
         });
 
@@ -116,6 +118,12 @@ TimeSelectionWidget::TimeSelectionWidget(std::shared_ptr<SpellChessLib::GameRunn
             this->forms[i].increment = v;
         });
         increment[i]->setMaximum(60);
+        
+        margin[i]->setDisabled(true);
+        connect(margin[i], &QSpinBox::valueChanged, [this, i](int v){
+            this->forms[i].margin = v;
+        });
+        margin[i]->setMaximum(999);
 
         layout->addWidget(playerLabel[i]);
         layout->addWidget(timeControlType[i]->button(0));
@@ -133,6 +141,11 @@ TimeSelectionWidget::TimeSelectionWidget(std::shared_ptr<SpellChessLib::GameRunn
         incrementCard->addWidget(increment[i]);
         timeFieldsContainer->addLayout(incrementCard);
 
+        QVBoxLayout * marginCard = new QVBoxLayout(this);
+        marginCard->addWidget(new QLabel("Margin"));
+        marginCard->addWidget(margin[i]);
+        timeFieldsContainer->addLayout(marginCard);
+
         layout->addLayout(timeFieldsContainer);
 
     };
@@ -149,7 +162,7 @@ void TimeSelectionWidget::post(){
         if (forms[i].infiniteMode) 
             builder->withInfiniteTime(currentColor);
         else {
-            builder->withClassicalTimer(forms[i].baseTime * 1000 * 60, forms[i].increment * 1000, currentColor);
+            builder->withClassicalTimer(forms[i].baseTime * 1000 * 60, forms[i].increment * 1000, forms[i].margin, currentColor);
         }
 
     };

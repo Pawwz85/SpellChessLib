@@ -51,7 +51,7 @@ namespace SpellChessLib {
 		};
 
 		void setMoveTime(unsigned int moveTimeMs);
-		void setTimeFormat(unsigned int baseTimeMs, unsigned int incMs);
+		void setTimeFormat(unsigned int baseTimeMs, unsigned int incMs, unsigned int margin);
 
 		Stats::TrinomialModel waitForCompletion();
 

@@ -11,11 +11,14 @@ namespace SpellChessLib {
 		mutable std::mutex lock;
 		unsigned int id;
 		time_t value;
+		time_t latencyMarginRemaining; 
+		time_t margin;
 		std::function<void()> expirationCallback;
 		bool stopped;
 		bool deleteLater;
 
-		PlayerTimer_data(unsigned int id, time_t value, std::function<void()> clb) : id(id), value(value), expirationCallback(clb), stopped(true), deleteLater(false) {};
+		PlayerTimer_data(unsigned int id, time_t value, time_t margin, std::function<void()> clb) : id(id), value(value), expirationCallback(clb),
+		 stopped(true), deleteLater(false), latencyMarginRemaining(0), margin(margin) {};
 	};
 
 	struct PlayerTimerState {
@@ -45,8 +48,8 @@ namespace SpellChessLib {
 	public:
 		TimerService();
 		~TimerService();
-		std::unique_ptr<SpellChessLib::PlayerTimer> createTimer(const time_t& initialValue, const std::function<void()>& expirationCallback);
-		void setTimer(const time_t& initialValue, const std::function<void()>& expirationCallback);
+		std::unique_ptr<SpellChessLib::PlayerTimer> createTimer(const time_t& initialValue, const time_t & margin, const std::function<void()>& expirationCallback);
+		void setTimer(const time_t& initialValue, const time_t & margin, const std::function<void()>& expirationCallback);
 	};
 
 
@@ -94,7 +97,7 @@ namespace SpellChessLib {
 		time_t inc;
 		std::unique_ptr<PlayerTimer> timer;
 	public:
-		ClassicTimeController(std::shared_ptr<TimerService> serv, const time_t& base, const time_t& inc) : inc(inc), timer(serv->createTimer(base, []() {})) {};
+		ClassicTimeController(std::shared_ptr<TimerService> serv, const time_t& base, const time_t& inc, const time_t & margin) : inc(inc), timer(serv->createTimer(base, margin, []() {})) {};
 		void onMovePlayed() override;
 		void resume() override;
 		void pause() override;
@@ -109,8 +112,8 @@ namespace SpellChessLib {
 	public:
 		TimerControllerFactory(std::shared_ptr<TimerService> service) : timerService(service) {};
 		std::unique_ptr<TimerController> makeInfiniteTimerController() { return std::make_unique<InfiniteTimeTimerController>(); }
-		std::unique_ptr<TimerController> makeClassicTimerController(const time_t& base, const time_t& inc) {
-			return std::make_unique<ClassicTimeController>(timerService, base, inc);
+		std::unique_ptr<TimerController> makeClassicTimerController(const time_t& base, const time_t& inc, const time_t &margin) {
+			return std::make_unique<ClassicTimeController>(timerService, base, inc, margin);
 		}
 
 	};

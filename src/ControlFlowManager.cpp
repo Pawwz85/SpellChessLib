@@ -21,7 +21,7 @@ void SpellChessLib::ControlFlowManager::askBlockingTaskToReturnControlToParentTh
 	if (blockingTask != nullptr) {
 		blockingTask->interrupt();
 		auto This = this->shared_from_this();
-		timerService->setTimer(1000, [This, taskId]() {
+		timerService->setTimer(timeBeforeKilled.count(), latencyMargin.count(), [This, taskId]() {
 			std::lock_guard<std::mutex> guard(This->lock);
 			if (This->currTaskId == taskId) {
 				This->blockingTask->terminate();

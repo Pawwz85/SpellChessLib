@@ -15,6 +15,7 @@ namespace SpellChessLib {
 		struct ClassicalTimerData {
 			uint32_t base;
 			uint32_t inc;
+			uint32_t margin;
 		};
 
 		union TimerData {
@@ -64,7 +65,7 @@ namespace SpellChessLib {
 		GameRunnerConfigurationBuilder& withPosition(const std::string& fen, const std::vector<SpellChessMove>& moves = {});
 		GameRunnerConfigurationBuilder& withPondering(bool allowPondering = true);
 		GameRunnerConfigurationBuilder& withInfiniteTime(GameRunnerConfigurationBuilder::PlayerColor color = All);
-		GameRunnerConfigurationBuilder& withClassicalTimer( const uint32_t& base, const uint32_t& inc, GameRunnerConfigurationBuilder::PlayerColor color = All);
+		GameRunnerConfigurationBuilder& withClassicalTimer( const uint32_t& base, const uint32_t& inc, const uint32_t & margin, GameRunnerConfigurationBuilder::PlayerColor color = All);
 		GameRunnerConfigurationBuilder& withNodeLimit(const uint32_t& value);
 		GameRunnerConfigurationBuilder& withDepthLimit(const uint32_t& value);
 		GameRunnerConfigurationBuilder& withMoveTimeLimit(const uint32_t& value);

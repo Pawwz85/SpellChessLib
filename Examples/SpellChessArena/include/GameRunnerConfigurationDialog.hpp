@@ -53,11 +53,13 @@ class TimeSelectionWidget : public Form {
     QButtonGroup*   timeControlType[2];
     QSpinBox    *   baseTime[2];
     QSpinBox    *   increment[2];
+    QSpinBox    *   margin[2];
 
     struct TimeModeForm {
         bool infiniteMode;
         uint32_t baseTime;
         uint32_t increment;
+        uint32_t margin;
     };
 
     TimeModeForm forms[2];

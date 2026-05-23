@@ -31,29 +31,33 @@ TEST(GameRunnerConfigurationBuilder, settingStartPosAndPondering) {
 
 TEST(GameRunnerConfigurationBuilder, setClassicalTimeControlForWhite) {
 	GameRunnerConfigurationBuilder builder;
-	auto config = builder.withClassicalTimer(100, 10, GameRunnerConfigurationBuilder::White).build();
+	auto config = builder.withClassicalTimer(100, 10, 5, GameRunnerConfigurationBuilder::White).build();
 	ASSERT_EQ(config.whPlayerTimerInfo.type, GameRunnerConfiguration::CLASSICAL);
 	ASSERT_EQ(config.whPlayerTimerInfo.data.classicalTimerData.base, 100);
 	ASSERT_EQ(config.whPlayerTimerInfo.data.classicalTimerData.inc, 10);
+	ASSERT_EQ(config.whPlayerTimerInfo.data.classicalTimerData.margin, 5);
 	ASSERT_EQ(config.blPlayerTimerInfo.type, GameRunnerConfiguration::INFINITE);
 }
 
 TEST(GameRunnerConfigurationBuilder, setClassicalTimeControlForBlack) {
 	GameRunnerConfigurationBuilder builder;
-	auto config = builder.withClassicalTimer(100, 10, GameRunnerConfigurationBuilder::Black).build();
+	auto config = builder.withClassicalTimer(100, 10, 5, GameRunnerConfigurationBuilder::Black).build();
 	ASSERT_EQ(config.blPlayerTimerInfo.type, GameRunnerConfiguration::CLASSICAL);
 	ASSERT_EQ(config.blPlayerTimerInfo.data.classicalTimerData.base, 100);
 	ASSERT_EQ(config.blPlayerTimerInfo.data.classicalTimerData.inc, 10);
+	ASSERT_EQ(config.blPlayerTimerInfo.data.classicalTimerData.margin, 5);
 	ASSERT_EQ(config.whPlayerTimerInfo.type, GameRunnerConfiguration::INFINITE);
 }
 
 TEST(GameRunnerConfigurationBuilder, setClassicalTimeControlForAll) {
 	GameRunnerConfigurationBuilder builder;
-	auto config = builder.withClassicalTimer(100, 10).build();
+	auto config = builder.withClassicalTimer(100, 10, 5).build();
 	ASSERT_EQ(config.whPlayerTimerInfo.type, GameRunnerConfiguration::CLASSICAL);
 	ASSERT_EQ(config.blPlayerTimerInfo.type, GameRunnerConfiguration::CLASSICAL);
 	ASSERT_EQ(config.whPlayerTimerInfo.data.classicalTimerData.base, 100);
 	ASSERT_EQ(config.whPlayerTimerInfo.data.classicalTimerData.inc, 10);
+	ASSERT_EQ(config.whPlayerTimerInfo.data.classicalTimerData.margin, 5);
 	ASSERT_EQ(config.blPlayerTimerInfo.data.classicalTimerData.base, 100);
 	ASSERT_EQ(config.blPlayerTimerInfo.data.classicalTimerData.inc, 10);
+	ASSERT_EQ(config.blPlayerTimerInfo.data.classicalTimerData.margin, 5);
 }

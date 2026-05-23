@@ -18,10 +18,20 @@ void SpellChessLib::TimerService::refreshTimers(time_t delta_t)
 	std::lock_guard<std::recursive_mutex> guard(lock);
 	std::vector<PlayerTimer_data *> garbage;
 
+	if (timers.empty())
+		return;
+
 	for (auto& timer : timers) {
 		std::lock_guard<std::mutex> guard(timer.lock);
-		if (!timer.stopped && timer.value > 0) {
+		if (!timer.stopped && timer.value > 0 && !timer.deleteLater) {
+
+			if (timer.latencyMarginRemaining >= delta_t) {
+				timer.latencyMarginRemaining -= delta_t;
+				continue;
+			}
+			timer.value += timer.latencyMarginRemaining;
 			timer.value -= delta_t;
+			timer.latencyMarginRemaining = 0;
 			if (timer.value <= 0) {
 				timer.expirationCallback();
 				timer.value = 0;
@@ -64,17 +74,17 @@ SpellChessLib::TimerService::~TimerService() {
 	worker->join();
 }
 
-std::unique_ptr<SpellChessLib::PlayerTimer> SpellChessLib::TimerService::createTimer(const time_t& initialValue, const std::function<void()>& expirationCallback) {
+std::unique_ptr<SpellChessLib::PlayerTimer> SpellChessLib::TimerService::createTimer(const time_t& initialValue, const time_t & margin, const std::function<void()>& expirationCallback) {
 	std::lock_guard<std::recursive_mutex> guard(lock);
 	unsigned int id = idSeq++;
-	timers.emplace_back(id, initialValue, expirationCallback);
+	timers.emplace_back(id, initialValue, margin, expirationCallback);
 	return std::make_unique<SpellChessLib::PlayerTimer>(&timers.back(), shared_from_this());
 }
 
-void SpellChessLib::TimerService::setTimer(const time_t& initialValue, const std::function<void()>& expirationCallback){
+void SpellChessLib::TimerService::setTimer(const time_t& initialValue, const time_t & margin, const std::function<void()>& expirationCallback){
 	std::lock_guard<std::recursive_mutex> guard(lock);
 	unsigned int id = idSeq++;
-	timers.emplace_back(id, initialValue, [this, expirationCallback, id]() {
+	timers.emplace_back(id, initialValue, margin, [this, expirationCallback, id]() {
 		expirationCallback();
 		this->deleteLater(id);
 	});
@@ -88,6 +98,7 @@ void SpellChessLib::PlayerTimer::stop() {
 
 void SpellChessLib::PlayerTimer::resume() {
 	std::lock_guard<std::mutex> guard(data->lock);
+	data->latencyMarginRemaining = data->margin;
 	data->stopped = false;
 }
 
