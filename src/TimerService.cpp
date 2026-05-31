@@ -3,6 +3,7 @@
 
 void SpellChessLib::TimerService::destroyTimer(PlayerTimer_data* timer)
 {
+	std::lock_guard<std::recursive_mutex> guard(lock);
 	auto it = timers.begin();
 	while (it != timers.end())
 		if (it->id == timer->id) {
@@ -47,7 +48,7 @@ void SpellChessLib::TimerService::refreshTimers(time_t delta_t)
 }
 
 void SpellChessLib::TimerService::deleteLater(int id){
-
+	std::lock_guard<std::recursive_mutex> guard(lock);
 	for (auto& t : timers) 
 	if (t.id == id)
 		t.deleteLater = true;
