@@ -68,11 +68,19 @@ namespace SpellChessLib {
 		*/
 		extern unsigned int getNumberOfGames(const TrinomialModel& model);
 
+		
+
 		/*!
 			Returns the elo difference to an average opponent. The resulting difference is clipped to [-2000; 2000] elo range to prevent nan results 
 			Throws EmptyModelError if empty model was given
 		*/
 		extern double eloDiff(const TrinomialModel& model);
+
+		/* 
+			Assuming elo_diff is elo difference calculated by eloDiff function, this function will return such k
+			that interval [elo_diff - k, elo_diff + k] will contain real elo difference with the probability 1 - alpha
+		*/
+		extern double eloDiffConfidenceInterval(const TrinomialModel& model, double alpha = 0.05);
 
 		/*!
 			Returns the expected win probability based on the elo difference to an opponent

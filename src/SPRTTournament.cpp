@@ -27,7 +27,7 @@ void SpellChessLib::SPRTPTournament::displayStats() const
     std::cout << "Total games = " << Stats::getNumberOfGames(tournamentModel) << '\n';
     std::cout << "Win ratio = " << Stats::winRatio(tournamentModel) << '\n';
     std::cout << "Draw ratio = " << Stats::drawRatio(tournamentModel) << '\n';
-    std::cout << "Elo difference = " << Stats::eloDiff(tournamentModel) << "\n";
+    std::cout << "Elo difference = " << Stats::eloDiff(tournamentModel) << " +- " << Stats::eloDiffConfidenceInterval(tournamentModel) <<"\n";
     std::cout << "LLR  = " << Stats::calculateLLR(tournamentModel, elo0, elo1) << "\n";
 }
 
