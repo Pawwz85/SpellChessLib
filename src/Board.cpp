@@ -385,7 +385,7 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
     PieceType type = board[move.from].piece.type, capturedType = board[move.to].piece.type;
     int colorIndex = sideToMove - 1;
 
-    bool isEnpassant = move.to == enpassantSquare;
+    bool isEnpassant = move.to == enpassantSquare && type == Pawn;
     bool resetHalfMoveCounter = (!board[move.to].isEmpty()) || type == Pawn;
     bool isCastling = type == King && internal_isKingMoveCastling(move.from, move.to);
     

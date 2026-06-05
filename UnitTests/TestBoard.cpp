@@ -457,3 +457,14 @@ TEST(MoveParser, usesSpellButSquareIsEmpty) {
 	SpellChessMove move;
 	ASSERT_THROW(move = parseMove("freeze@-&e2e4"), Parsing::ParsingError);
 }
+
+TEST(make_move, non_pawn_piece_can_not_take_enpassant) {
+	FenParser parser;
+	GameState s = parser.fromStandardChessFen("rnb1k1nr/ppp1bppp/8/3p4/3PN3/4PN2/PPP1KPPP/R1BQ1B2 w kq d6 0 1");
+	s.makeMove(parseMove("e4d6"));
+
+	auto enpassant_pawn = s.getSquare(Parsing::parseSquareIndex("d5")).piece;
+	
+	ASSERT_EQ(enpassant_pawn.owner, Black);
+	ASSERT_EQ(enpassant_pawn.type, Pawn);
+};
