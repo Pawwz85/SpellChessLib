@@ -8,6 +8,8 @@ namespace SpellChessLib {
 	class PGN4Exporter {
 		std::ostream* out_ptr;
 		GameState currentState;
+		uint16_t moveCounterOffset;
+
 		bool firstMoveWritten = false;
 
 		void writeTagLine(const Annotation::TagPair& pair, std::ostream & out);

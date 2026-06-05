@@ -19,11 +19,11 @@ void SpellChessLib::PGN4Exporter::writeAnnotationSequenceElement(const Annotatio
 	case 2:
 
 		if (!firstMoveWritten && currentState.getSideToMove() == Black) {
-			out << std::endl << currentState.getFullMoveCounter() << ". ";
+			out << std::endl << currentState.getFullMoveCounter() - moveCounterOffset << ". ";
 		};
 
 		if (currentState.getSideToMove() == White) {
-			out << std::endl << currentState.getFullMoveCounter() << ". ";
+			out << std::endl << currentState.getFullMoveCounter() - moveCounterOffset << ". ";
 		}
 
 		if (currentState.getSideToMove() == Black && firstMoveWritten) {
@@ -198,6 +198,7 @@ SpellChessLib::Annotation::TagPair SpellChessLib::PGN4Exporter::makeStartFen4(co
 void SpellChessLib::PGN4Exporter::exportPGN4(const GameState& root, const Annotation::GameAnnotations& annotations){
 	std::ostream& out = *out_ptr;
 	currentState = root;
+	moveCounterOffset = root.getFullMoveCounter() - 1;
 
 	writeTagLine(makeStartFen4(root), out);
 	writeTagLine({"RuleVariants", "EnPassant Play4Mate Spell=1+3"}, out);

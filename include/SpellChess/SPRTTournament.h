@@ -30,7 +30,6 @@ namespace SpellChessLib {
 		void onGameCrashed(const GameRunnerPool::GameRunRequest& request);
 		void spawnNewGameRequest();
 
-		bool allGameCompleted() const;
 
 	protected:
 		mutable std::mutex lock;
