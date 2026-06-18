@@ -51,6 +51,10 @@ namespace SpellChessLib {
 		public:
 			NumericAnnotationGlyph(int glyphCode) : glyphCode(glyphCode) {};
 			const unsigned int& getGlyphCode() const;
+
+			bool operator==(const NumericAnnotationGlyph & other) const;
+			bool operator!=(const NumericAnnotationGlyph & other) const;
+
 		};
 
 		using AnnotatedSequenceElement = typename std::variant<std::string, NumericAnnotationGlyph, SpellChessMove>;
@@ -59,6 +63,16 @@ namespace SpellChessLib {
 			std::string name;
 			std::string value;
 		};
+		
+		struct SevenTagRoster {
+			std::string event;
+			std::string site;
+			std::string date;
+			std::string round;
+			std::string white;
+			std::string black;
+			std::string result;
+		};
 
 		class TagSection {
 			std::vector<TagPair> tagPairs;
@@ -66,6 +80,11 @@ namespace SpellChessLib {
 			using iterator = typename std::vector<TagPair>::iterator;
 			using const_iterator = typename std::vector<TagPair>::const_iterator;
 			
+			TagSection() = default;
+			TagSection(const std::vector<TagPair> & pairs);
+			TagSection(const TagSection & other);
+			TagSection(const SevenTagRoster & roster);
+
 			iterator begin();
 			iterator end();
 			const_iterator begin() const { return cbegin(); };
@@ -77,6 +96,8 @@ namespace SpellChessLib {
 			void push_back(const TagPair& tagPair);
 			void emplace_back(const std::string& tagName, const std::string& value);
 			std::string& operator[] (const std::string& tagName);
+			bool operator==(const TagSection & other) const;
+			bool operator!=(const TagSection & other) const;
 
 		};
 
@@ -113,6 +134,8 @@ namespace SpellChessLib {
 			void pushBack(const std::string& comment);
 
 			AnnotatedSequence & operator=(const AnnotatedSequence & other);
+			bool operator==(const AnnotatedSequence & other) const;
+			bool operator!=(const AnnotatedSequence & other) const;
 		};
 
 		struct GameAnnotations {
@@ -120,16 +143,6 @@ namespace SpellChessLib {
 			AnnotatedSequence annotatedSequence;
 			GameTermination terminationReason;
 			GameState root;
-		};
-
-		struct SevenTagRoster {
-			std::string event;
-			std::string site;
-			std::string date;
-			std::string round;
-			std::string white;
-			std::string black;
-			std::string result;
 		};
 
 		extern void validateAnnotatedSequenceMoveLegality(const GameState& root, const Annotation::AnnotatedSequence & seq);

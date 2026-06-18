@@ -21,6 +21,7 @@ set ( test_files
         "TestObserver.cpp"
         "TestPlayerTimerService.cpp"
         "TestSchedulerModule.cpp"
+        "TestSpellChessDocument.cpp"
         "TestThreadPool.cpp"
         "TestWorkerTHread.cpp"
 )

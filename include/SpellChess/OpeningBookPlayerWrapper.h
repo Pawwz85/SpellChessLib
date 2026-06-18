@@ -22,8 +22,8 @@ namespace SpellChessLib {
 		virtual void onNewGame() override;
 		virtual void interrupt() override;
 		virtual void kill() override;
-        virtual Result search(const Game& game);
-		virtual void ponder(const Game& game, const SpellChessMove & ponderMove);
+        virtual Result search(const Game& game) override;
+		virtual void ponder(const Game& game, const SpellChessMove & ponderMove) override;
         public:
         PlayerWithOpeningBook(Scheduler::ResourcePointer<Player> && wraped, std::shared_ptr<OpeningBook> book);
     };

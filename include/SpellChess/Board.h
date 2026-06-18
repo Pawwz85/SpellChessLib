@@ -92,6 +92,10 @@ namespace SpellChessLib {
 					this->jumpSquare == other.jumpSquare &&
 					this->promoteTo == other.promoteTo;
 		};
+
+		inline bool operator!=(const SpellChessMove & other) const {
+			return !(*this == other); 
+		}
 	};
 	
 

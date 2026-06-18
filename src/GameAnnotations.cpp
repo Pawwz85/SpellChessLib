@@ -15,6 +15,14 @@ const unsigned int& SpellChessLib::Annotation::NumericAnnotationGlyph::getGlyphC
     return glyphCode;
 }
 
+bool SpellChessLib::Annotation::NumericAnnotationGlyph::operator==(const NumericAnnotationGlyph & other) const {
+    return glyphCode == other.glyphCode;
+};
+
+bool SpellChessLib::Annotation::NumericAnnotationGlyph::operator!=(const NumericAnnotationGlyph & other) const {
+    return glyphCode != other.glyphCode;
+};
+
 SpellChessLib::Annotation::TagSection::iterator SpellChessLib::Annotation::TagSection::begin() {
     return tagPairs.begin();
 }
@@ -28,6 +36,21 @@ SpellChessLib::Annotation::TagSection::const_iterator SpellChessLib::Annotation:
 SpellChessLib::Annotation::TagSection::const_iterator SpellChessLib::Annotation::TagSection::cend() const {
     return tagPairs.cend();
 }
+
+SpellChessLib::Annotation::TagSection::TagSection(const TagSection & other) : tagPairs(other.tagPairs) {}
+
+SpellChessLib::Annotation::TagSection::TagSection(const std::vector<TagPair> & tagPairs) : tagPairs(tagPairs) {}
+
+SpellChessLib::Annotation::TagSection::TagSection(const SevenTagRoster & roster) : tagPairs(
+    {{"Event", roster.event},
+     {"Site", roster.site},
+     {"Date", roster.date},
+     {"Round", roster.round},
+     {"White", roster.white},
+     {"Black", roster.black},
+     {"Result", roster.result}}
+) {};
+
 
 SpellChessLib::Annotation::TagSection::iterator SpellChessLib::Annotation::TagSection::find(const std::string& tagName)
 {
@@ -94,6 +117,23 @@ std::string& SpellChessLib::Annotation::TagSection::operator[](const std::string
     return tagPairs.back().value;
 }
 
+bool SpellChessLib::Annotation::TagSection::operator==(const TagSection & other) const {
+    if (tagPairs.size() != other.tagPairs.size())
+        return false;
+
+    for(const auto & pair : tagPairs) {
+        auto it = other.find(pair.name);
+        if(it == other.end() || it->value != pair.value)
+            return false;
+    };
+
+    return true;
+};
+
+bool SpellChessLib::Annotation::TagSection::operator!=(const TagSection & other) const {
+    return !(*this == other);
+};
+
 SpellChessLib::Annotation::AnnotatedSequence::AnnotatedSequence() {};
 
 void SpellChessLib::Annotation::AnnotatedSequence::deepcopy(const AnnotatedSequence & other) {
@@ -119,6 +159,25 @@ SpellChessLib::Annotation::AnnotatedSequence::AnnotatedSequence(const AnnotatedS
 SpellChessLib::Annotation::AnnotatedSequence & SpellChessLib::Annotation::AnnotatedSequence::operator=(const AnnotatedSequence & other) {
     deepcopy(other);
     return *this;
+};
+
+bool SpellChessLib::Annotation::AnnotatedSequence::operator==(const AnnotatedSequence & other) const {
+
+    if (nodes.size() != other.nodes.size())
+        return false;
+
+    auto it = this->begin();
+    auto it2 = other.begin();
+
+    for(; it != this->end(); ++it, ++it2)
+        if((*it) != (*it2)) 
+            return false;
+
+    return true;
+};
+
+bool SpellChessLib::Annotation::AnnotatedSequence::operator!=(const AnnotatedSequence & other) const {
+    return !(*this == other);
 };
 
 void SpellChessLib::Annotation::AnnotatedSequence::insertVariationAfter(iterator pos, AnnotatedSequence&& variation){
