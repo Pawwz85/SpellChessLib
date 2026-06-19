@@ -72,9 +72,7 @@ void SpellChessLib::SPRTPTournament::onGameCompleted(const Game& game, const Gam
 
     con_var.notify_one();
 
-    auto annotations = game.getAnnotations();
-    annotations.tagSection["Round"] = "?";
-    annotations.tagSection["Result"] = Annotation::makeResultTag(game.getAnnotations().terminationReason);
+    auto annotations = game.getDocument()->toAnnotations();
 
     std::string saveLocation = "Games/game_" + std::to_string(Stats::getNumberOfGames(tournamentModel));
     Annotation::exportAnnotatedGame(saveLocation, annotations);

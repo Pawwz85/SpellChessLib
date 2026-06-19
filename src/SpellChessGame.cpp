@@ -19,6 +19,20 @@ void SpellChessLib::Game::timeOutPlayer(const PlayerColor& color){
 		setOutcome(Nobody, OpponentTimedOutWithoutSufficientMatingMaterial);
 }
 
+inline void appendCommentToGameDocument(SpellChessLib::SpellChessDocument & document, 
+	SpellChessLib::SpellChessDocument::Handle where,
+	const std::string & comment) {
+		std::string finalComment = document.getComment(where);
+		if (!finalComment.empty()) 
+			finalComment += " ";
+		finalComment += comment;
+		document.setComment(where, finalComment);
+	};
+
+void SpellChessLib::Game::writeComment(const std::string & comment) {
+	appendCommentToGameDocument(*gameDocument, gameDocument->getTail(), comment);
+};
+
 void SpellChessLib::Game::setOutcome(const PlayerColor& winner, const GameStatusCode& outcome)
 {
 	std::lock_guard<std::mutex> guard(lock);
@@ -30,13 +44,14 @@ void SpellChessLib::Game::setOutcome(const PlayerColor& winner, const GameStatus
 	this->statusCode = outcome;
 
 	if (winner == White)
-		annotations.terminationReason = Annotation::WhiteWon;
+		gameDocument->setGameResult(Annotation::WhiteWon);
 	else if (winner == Black)
-		annotations.terminationReason = Annotation::BlackWon;
+		gameDocument->setGameResult(Annotation::BlackWon);
 	else
-		annotations.terminationReason = Annotation::Draw;
+		gameDocument->setGameResult(Annotation::Draw);
 
-	annotations.annotatedSequence.pushBack(make_result_comment(winner, outcome));
+	writeComment(make_result_comment(winner, outcome));
+
 	notifyResultObservers();
 }
 
@@ -107,7 +122,7 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	auto movingSide = state.getSideToMove();
 	if (!MoveGenerator(state).isMoveLegal(move)) {
 		setOutcome(flipColor(movingSide), IllegalMovePlayed);
-		annotations.annotatedSequence.pushBack(Annotation::makeIllegalMoveComment(movingSide, move)); // write illegal move comment to the sequence
+		writeComment(Annotation::makeIllegalMoveComment(movingSide, move));
 		return;
 	}
 	auto & movingSideTimer = (movingSide == White) ? whTimer : blTimer;
@@ -123,7 +138,8 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 
 	movesSinceRoot.push_back(move);
 	posHistory.push_back(calculateHash(state));
-	annotations.annotatedSequence.pushBack(move);
+
+	gameDocument->makeMoveAndAdvance(gameDocument->getTail(), move);
 
 	if (capturedPiece.owner != Nobody && capturedPiece.type == King) {
 		setOutcome(movingSide, KingCaptured);
@@ -182,22 +198,15 @@ UCILoader::GoParamsBuilder<SpellChessLib::SpellChessMove>& SpellChessLib::Game::
 SpellChessLib::Annotation::SevenTagRoster SpellChessLib::Game::getRoster() const
 {
 	 Annotation::SevenTagRoster result;
-	 Annotation::TagSection::const_iterator it;
+	 
+	 result.event = gameDocument->getTag("Event").value_or("?");
+	 result.site = gameDocument->getTag("Site").value_or("?");
+	 result.date = gameDocument->getTag("Date").value_or("??.??.????");
+	 result.round = gameDocument->getTag("Round").value_or("?");
+	 result.white = gameDocument->getTag("White").value_or("?");
+	 result.black = gameDocument->getTag("Black").value_or("?");
+	 result.result = gameDocument->getTag("Result").value_or("*");
 
-	 it = annotations.tagSection.find("Event");
-	 result.event = (it == annotations.tagSection.end()) ? "?" : it->value;
-	 it = annotations.tagSection.find("Site");
-	 result.site = (it == annotations.tagSection.end()) ? "?" : it->value;
-	 it = annotations.tagSection.find("Date");
-	 result.date = (it == annotations.tagSection.end()) ? "????.??.??" : it->value;
-	 it = annotations.tagSection.find("Round");
-	 result.round = (it == annotations.tagSection.end()) ? "*" : it->value;
-	 it = annotations.tagSection.find("White");
-	 result.white = (it == annotations.tagSection.end()) ? "?" : it->value;
-	 it = annotations.tagSection.find("Black");
-	 result.black = (it == annotations.tagSection.end()) ? "?" : it->value;
-	 it = annotations.tagSection.find("Result");
-	 result.result = (it == annotations.tagSection.end()) ? "*" : it->value;
 	 return result;
 }
 
@@ -207,17 +216,12 @@ UCILoader::GoParams<SpellChessLib::SpellChessMove> SpellChessLib::Game::getGoPar
 }
 
 void SpellChessLib::Game::setSevenTagRooster(const Annotation::SevenTagRoster& roster){
-	annotations.tagSection["Event"] = roster.event;
-	annotations.tagSection["Site"]  = roster.site;
-	annotations.tagSection["Date"]  = roster.date;
-	annotations.tagSection["Round"] = roster.round;
-	annotations.tagSection["White"] = roster.white;
-	annotations.tagSection["Black"] = roster.black;
-	annotations.tagSection["Result"] = roster.result;
-}
-
-const SpellChessLib::Annotation::GameAnnotations& SpellChessLib::Game::getAnnotations() const{
-	return annotations;
+	gameDocument->setTag("Event", roster.event);
+	gameDocument->setTag("Site", roster.site);
+	gameDocument->setTag("Date", roster.date);
+	gameDocument->setTag("Round", roster.round);
+	gameDocument->setTag("White", roster.white);
+	gameDocument->setTag("Black", roster.black);
 }
 
 void SpellChessLib::Game::exportGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& target) const{
@@ -228,3 +232,13 @@ void SpellChessLib::Game::exportGoParams(UCILoader::GoParamsBuilder<SpellChessMo
 SpellChessLib::TimerPairState SpellChessLib::Game::getTimerPair() const {
 	return TimerPairState{whTimer->exportState(), blTimer->exportState()};
 }
+
+std::shared_ptr<SpellChessLib::SpellChessDocument>
+SpellChessLib::Game::getDocument() {
+	return gameDocument;
+};
+
+std::shared_ptr<const SpellChessLib::SpellChessDocument>
+SpellChessLib::Game::getDocument() const {
+	return gameDocument;
+};

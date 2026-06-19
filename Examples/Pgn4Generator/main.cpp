@@ -55,6 +55,6 @@ int main(int argc, char ** argv) {
     std::ofstream out;
     out.open(output);
     SpellChessLib::PGN4Exporter exporter(&out);
-    exporter.exportPGN4(runner.getGame().getRoot(), runner.getGame().getAnnotations());
+    exporter.exportPGN4(runner.getGame().getRoot(), runner.getGame().getDocument()->toAnnotations());
     out.close();
 };

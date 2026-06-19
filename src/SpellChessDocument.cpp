@@ -4,19 +4,19 @@
 SpellChessLib::SpellChessDocument::Node::Node(
     const GameState & state,
     Handle parent,
-    SpellChessDocument * doc) :
-    document(doc), gameState(state), parent(parent)
+    SpellChessDocument & doc) :
+    gameState(state), parent(parent)
     {
-        registerId();
+        registerId(doc);
     }
 
 void
-SpellChessLib::SpellChessDocument::Node::registerId() {
+SpellChessLib::SpellChessDocument::Node::registerId(SpellChessDocument & document) {
     static std::atomic_int idSequence = 0;
     nodeId = idSequence.fetch_add(1);
 
-    std::scoped_lock<std::mutex> guard(document->mut);
-    document->idMap[nodeId] = this;
+    std::scoped_lock<std::mutex> guard(document.mut);
+    document.idMap[nodeId] = this;
 };
 
 const SpellChessLib::GameState & 
@@ -83,7 +83,7 @@ SpellChessLib::SpellChessDocument::SpellChessDocument(const GameState & root,
              gameResult(result),
              tags(roster)
              {
-                this->root = std::make_shared<Node>(root, Handle(), this);
+                this->root = std::make_shared<Node>(root, Handle(), *this);
                 this->tail = this->root;
              };
 
@@ -91,7 +91,7 @@ SpellChessLib::SpellChessDocument::SpellChessDocument(const Annotation::GameAnno
             dirty(false),
             gameResult(annotations.terminationReason),
             tags(annotations.tagSection) {
-                root = std::make_shared<Node>(annotations.root, Handle(), this);
+                root = std::make_shared<Node>(annotations.root, Handle(), *this);
 
                 const Annotation::AnnotatedSequence & sequence = annotations.annotatedSequence;
                 initNodeFromAnnotations(root, nullptr, sequence.begin(), sequence.end());
@@ -170,15 +170,13 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
             initNodeFromAnnotations(child, parent, ++it, var->end());
         };
     }
-    
-
 };
 
 std::shared_ptr<SpellChessLib::SpellChessDocument::Node> 
 SpellChessLib::SpellChessDocument::makeChildNode(std::shared_ptr<Node> node, const SpellChessMove & move) {
     GameState gs = node->gameState;
     gs.makeMove(move);
-    return std::make_shared<Node>(gs, node, this);
+    return std::make_shared<Node>(gs, node, *this);
 };
 
 bool 

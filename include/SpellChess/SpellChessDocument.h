@@ -11,9 +11,6 @@
 
 namespace SpellChessLib {
 
-    /*
-        Class designed for GUI purposes.  
-    */
     class SpellChessDocument : public std::enable_shared_from_this<SpellChessDocument> {
         public:
         class Node;
@@ -45,17 +42,16 @@ namespace SpellChessLib {
 
         class Node : public std::enable_shared_from_this<Node>{
             friend SpellChessDocument;
-            Handle parent;
-            SpellChessDocument * document; // non-owning pointer to parent document
+            const Handle parent;
             std::string comment;
             const GameState gameState;
             std::vector<NodeTransition> transitions;
             mutable std::mutex mut;
             int nodeId;
 
-            void registerId();
+            void registerId(SpellChessDocument & document);
             public:
-            Node(const GameState & state, Handle parent, SpellChessDocument * doc);
+            Node(const GameState & state, Handle parent, SpellChessDocument & doc);
             Node(const Node & other) = delete;
             const GameState & getGameState() const;
             std::string getComment() const;
@@ -65,7 +61,6 @@ namespace SpellChessLib {
             Handle getChildByMove(const SpellChessMove & move) const;
             Handle getFirstChildNode() const;
             Handle getParentNode() const;
-
         };
 
         private:

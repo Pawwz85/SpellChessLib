@@ -148,6 +148,7 @@ namespace SpellChessLib {
 		extern void validateAnnotatedSequenceMoveLegality(const GameState& root, const Annotation::AnnotatedSequence & seq);
 
 		extern SevenTagRoster beginSevenTagRooster(const std::string& event, const std::string& site, const std::string& round);
+		extern SevenTagRoster makePlaceHolderRoster();
 		extern void addPlayerTagsToRoster(SevenTagRoster& roster, const std::string& whitePlayer, const std::string& blackPlayer);
 		
 		extern std::string makeCurrentDateTag();

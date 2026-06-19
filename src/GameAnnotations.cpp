@@ -249,6 +249,17 @@ SpellChessLib::Annotation::SevenTagRoster SpellChessLib::Annotation::beginSevenT
     return result;
 }
 
+SpellChessLib::Annotation::SevenTagRoster SpellChessLib::Annotation::makePlaceHolderRoster() {
+    SevenTagRoster result;
+    result.event = "?";
+    result.site = "?";
+    result.date = "??.??.????";
+    result.round = "?";
+    result.white = result.black = "?";
+    result.result = "*";
+    return result;
+};
+
 void SpellChessLib::Annotation::addPlayerTagsToRoster(SevenTagRoster& roster, const std::string& whitePlayer, const std::string& blackPlayer)
 {
     roster.black = blackPlayer;
