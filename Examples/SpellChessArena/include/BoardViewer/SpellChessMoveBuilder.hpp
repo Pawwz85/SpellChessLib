@@ -2,7 +2,7 @@
 
 #include <SpellChess/Board.h>
 
-namespace GameSession {
+namespace BoardViewer {
 
     class SpellChessMoveBuilder {
         SpellChessLib::SpellChessMove currentValue;

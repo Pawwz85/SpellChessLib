@@ -91,6 +91,10 @@ namespace SpellChessLib {
 
         bool isDirty() const;
         bool clearDirtyFlag(); // sets dirty flag to zero and returns its old value
+        
+        bool isRoot(Handle node) const; 
+        bool isTail(Handle node) const; 
+        bool has(Handle node) const;
 
         // get root node of the document
         Handle getRoot() const;
@@ -119,7 +123,7 @@ namespace SpellChessLib {
         // Make move and return the handle to resulting position.
         // If the move leads to one of existing children, the handle to this will child will be returned.
         // Otherwise handle to newly created node is returned.
-        Handle makeMoveAndAdvance(Handle where, const SpellChessMove & move);
+        Handle makeMove(Handle where, const SpellChessMove & move);
 
         // Return copy of position at given position
         GameState getGameState(Handle where) const;

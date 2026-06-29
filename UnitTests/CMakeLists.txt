@@ -13,6 +13,7 @@ set ( header_files
 set ( test_files 
         "test.cpp"
         "TestAnnotations.cpp"
+        "TestAsynchronousPlayer.cpp"
         "TestAttackers.cpp"
         "TestBoard.cpp"
         "TestGameRunner.cpp"

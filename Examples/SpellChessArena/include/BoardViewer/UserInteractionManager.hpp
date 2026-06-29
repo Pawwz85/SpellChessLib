@@ -4,7 +4,7 @@
 #include <BoardGrid/BoardGridWidget.h>
 #include <memory>
 
-namespace GameSession {
+namespace BoardViewer {
 
     /*
         This file defines a state machine responsible for handling high level user interactions (squareClicked, 

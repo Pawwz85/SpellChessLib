@@ -1,8 +1,8 @@
-#include <GameSession/BoardLinter.hpp>
+#include <BoardViewer/BoardLinter.hpp>
 #include <SpellChess/MoveGen.h>
 
 //! checks whatever linter input satisfies spell requirements of given move candidate
-bool isMoveValidGivenLinterInput(const GameSession::LinterInput & input, const SpellChessLib::MoveCandidate & move) {
+bool isMoveValidGivenLinterInput(const BoardViewer::LinterInput & input, const SpellChessLib::MoveCandidate & move) {
 
     if (move.spellPolicy == SpellChessLib::UserCanAddSpell)
         return true;
@@ -14,7 +14,7 @@ bool isMoveValidGivenLinterInput(const GameSession::LinterInput & input, const S
     return false;
 }
 
-uint64_t GameSession::Internal::getMovablePieces(const LinterInput & input) {
+uint64_t BoardViewer::Internal::getMovablePieces(const LinterInput & input) {
 
     if (input.playerColor != input.state.getSideToMove()    ||
         input.playerColor == SpellChessLib::Nobody)
@@ -30,7 +30,7 @@ uint64_t GameSession::Internal::getMovablePieces(const LinterInput & input) {
     return result;
 };
 
-uint64_t GameSession::Internal::getValidTargetSquares(const LinterInput & input) {
+uint64_t BoardViewer::Internal::getValidTargetSquares(const LinterInput & input) {
 
     if (input.playerColor != input.state.getSideToMove()    ||
         input.playerColor == SpellChessLib::Nobody)
@@ -46,7 +46,7 @@ uint64_t GameSession::Internal::getValidTargetSquares(const LinterInput & input)
     return result;
 };
 
-uint64_t GameSession::Internal::getJumpableSquares(const LinterInput & input) {
+uint64_t BoardViewer::Internal::getJumpableSquares(const LinterInput & input) {
     uint64_t result = 0ull;
 
     if (input.state.getJumpSquare() != SpellChessLib::NoSquare)
@@ -73,21 +73,21 @@ uint64_t freezeArea(SpellChessLib::SquareIndex freezeCenter) {
     return result;
 };
 
-uint64_t  GameSession::Internal::getFrozenSquares(const LinterInput & input) {
+uint64_t  BoardViewer::Internal::getFrozenSquares(const LinterInput & input) {
     uint64_t result = 0ull;
     result |= freezeArea(input.state.getFreezeSquare());
     result |= freezeArea(input.previewedFreezeSquare);
     return result;
 };
 
-uint64_t GameSession::Internal::getInteractiveSquares(const LinterInput & input) {
+uint64_t BoardViewer::Internal::getInteractiveSquares(const LinterInput & input) {
     return  input.selectedSquare == SpellChessLib::NoSquare ? 
             getMovablePieces(input) :
             getValidTargetSquares(input);
 };
 
 
- void GameSession::lintBoard(Board::BoardGridModel & model, const LinterInput & input) {
+ void BoardViewer::lintBoard(Board::BoardGridModel & model, const LinterInput & input) {
     uint64_t interactable = Internal::getInteractiveSquares(input);
     uint64_t selected =  input.selectedSquare != SpellChessLib::NoSquare ? (1ull << input.selectedSquare) : 0ull;
 
@@ -100,7 +100,7 @@ uint64_t GameSession::Internal::getInteractiveSquares(const LinterInput & input)
     .commit();
  };
 
- uint64_t GameSession::getDraggablePieces(const LinterInput & input) {
+ uint64_t BoardViewer::getDraggablePieces(const LinterInput & input) {
     return input.selectedSquare != SpellChessLib::NoSquare ? 
         0ull :
         Internal::getInteractiveSquares(input);

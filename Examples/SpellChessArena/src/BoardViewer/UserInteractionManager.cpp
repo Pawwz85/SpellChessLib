@@ -1,6 +1,6 @@
-#include <GameSession/UserInteractionManager.hpp>
+#include <BoardViewer/UserInteractionManager.hpp>
 
-using namespace GameSession;
+using namespace BoardViewer;
 
 void UserInteractionManager::tryAdvanceState() {
     if(nextState) 

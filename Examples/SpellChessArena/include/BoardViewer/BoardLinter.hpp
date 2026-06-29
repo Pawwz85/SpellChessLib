@@ -4,7 +4,7 @@
 #include <SpellChess/SpellChessGame.h>
 #include <array>
 
-namespace GameSession {
+namespace BoardViewer {
 
    struct LinterInput {
         SpellChessLib::GameState state;

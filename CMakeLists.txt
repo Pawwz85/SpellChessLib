@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(source_files 
+	"src/AsynchronousPlayer.cpp"
 	"src/Board.cpp"
 	"src/ControlFlowManager.cpp"
 	"src/GameAnnotations.cpp"
@@ -60,7 +61,8 @@ target_include_directories( spellchess PUBLIC include )
 target_link_libraries(spellchess PUBLIC uciloader)
 
 add_subdirectory("Examples/TournamentRunner")
-add_subdirectory("Examples/SpellChessArena")
+# commented out for the time being, as serious overhaul of UI is outgoing
+#add_subdirectory("Examples/SpellChessArena")
 add_subdirectory("Examples/Grimoire")
 add_subdirectory("Examples/Pgn4Generator")
 add_subdirectory("UnitTests")

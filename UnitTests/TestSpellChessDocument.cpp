@@ -16,7 +16,7 @@ TEST(SpellChessDocument, createEmptyNoParams) {
 TEST(SpellChessDocument, makeMove) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    SpellChessDocument::Handle nextPos = doc->makeMoveAndAdvance(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, parseMove("e2e4"));
 
     ASSERT_EQ(doc->getTail().lock(), nextPos.lock());
     ASSERT_EQ(rootHandle.lock()->getChildByMove(parseMove("e2e4")).lock(), nextPos.lock());
@@ -30,9 +30,9 @@ TEST(SpellChessDocument, makeMove) {
 TEST(SpellChessDocument, makeMoveIsIdempotent) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    SpellChessDocument::Handle nextPos = doc->makeMoveAndAdvance(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, parseMove("e2e4"));
     (void)doc->clearDirtyFlag(); // clear dirty flag
-    SpellChessDocument::Handle nextPos2 = doc->makeMoveAndAdvance(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos2 = doc->makeMove(rootHandle, parseMove("e2e4"));
 
     ASSERT_EQ(nextPos.lock(), nextPos2.lock());
     ASSERT_FALSE(doc->isDirty());
@@ -41,7 +41,7 @@ TEST(SpellChessDocument, makeMoveIsIdempotent) {
 TEST(SpellChessDocument, makeMoveSetsDirtyFlag) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    SpellChessDocument::Handle nextPos = doc->makeMoveAndAdvance(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, parseMove("e2e4"));
     ASSERT_TRUE(doc->isDirty());
 };
 
@@ -55,7 +55,7 @@ TEST(SpellChessDocument, getChildByMoveReturnsEmptyIfNoCHildPresent) {
 
 TEST(SpellChessDocument, makeMoveThrowsOnIllegalMove) {
     auto doc = createEmptySpellChessDocument();
-    ASSERT_ANY_THROW(doc->makeMoveAndAdvance(doc->getRoot(), parseMove("e1e2")));
+    ASSERT_ANY_THROW(doc->makeMove(doc->getRoot(), parseMove("e1e2")));
 };
 
 TEST(SpellChessDocument, badHandle1) {
@@ -121,9 +121,9 @@ TEST(SpellChessDocument, enumeratePositions) {
     auto doc = createEmptySpellChessDocument();
 
     auto root = doc->getRoot();
-    auto pos1 = doc->makeMoveAndAdvance(root, parseMove("e2e4"));
-    auto pos2 = doc->makeMoveAndAdvance(root, parseMove("d2d4"));
-    auto pos3 = doc->makeMoveAndAdvance(root, parseMove("c2c4"));
+    auto pos1 = doc->makeMove(root, parseMove("e2e4"));
+    auto pos2 = doc->makeMove(root, parseMove("d2d4"));
+    auto pos3 = doc->makeMove(root, parseMove("c2c4"));
 
     auto moves = doc->getChildren(root);
     ASSERT_EQ(moves.size(), 3);

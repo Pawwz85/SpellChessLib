@@ -92,17 +92,8 @@ SpellChessLib::SpellChessDocument::SpellChessDocument(const Annotation::GameAnno
             gameResult(annotations.terminationReason),
             tags(annotations.tagSection) {
                 root = std::make_shared<Node>(annotations.root, Handle(), *this);
-
                 const Annotation::AnnotatedSequence & sequence = annotations.annotatedSequence;
                 initNodeFromAnnotations(root, nullptr, sequence.begin(), sequence.end());
-
-                // find tail
-                auto it = this->root;
-                do {
-                    this->tail = it;
-                    it = it->transitions.size() ? it->transitions[0].child : nullptr; 
-                } while(it != nullptr);
-
             }; 
 
 void 
@@ -139,7 +130,6 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
             case 2: // Move
                 SpellChessMove move = std::get<SpellChessMove>(element);
                 child = makeChildNode(node, move);
-                node->transitions.push_back({child, move});
                 initNodeFromAnnotations(child, node, ++it, end);
                 break_thy_loop = true;
             }
@@ -166,7 +156,6 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
 
             SpellChessMove move = std::get<SpellChessMove>(element);
             std::shared_ptr<Node> child = makeChildNode(parent, move);
-            parent->transitions.push_back({child, move});
             initNodeFromAnnotations(child, parent, ++it, var->end());
         };
     }
@@ -174,9 +163,18 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
 
 std::shared_ptr<SpellChessLib::SpellChessDocument::Node> 
 SpellChessLib::SpellChessDocument::makeChildNode(std::shared_ptr<Node> node, const SpellChessMove & move) {
+    std::scoped_lock<std::mutex> guard(node->mut);
     GameState gs = node->gameState;
     gs.makeMove(move);
-    return std::make_shared<Node>(gs, node, *this);
+    auto result = std::make_shared<Node>(gs, node, *this); 
+    node->transitions.push_back({result, move});
+
+    // if the parent node is tail, move it
+    if (node == tail.lock()) 
+        tail = result;
+    
+    dirty.store(true);
+    return result;
 };
 
 bool 
@@ -187,6 +185,24 @@ SpellChessLib::SpellChessDocument::isDirty() const {
 bool 
 SpellChessLib::SpellChessDocument::clearDirtyFlag() {
     return dirty.exchange(false);
+};
+
+bool
+SpellChessLib::SpellChessDocument::isRoot(Handle node) const {
+    return !node.expired() && node.lock() == root;
+};
+
+bool
+SpellChessLib::SpellChessDocument::isTail(Handle node) const {
+    return !node.expired() && node.lock() == tail.lock();
+}
+
+bool
+SpellChessLib::SpellChessDocument::has(Handle node) const {
+    auto node_ = node.lock();
+    if(!node_) return false;
+
+    return idMap.find(node_->getNodeId()) != idMap.end();
 };
 
 SpellChessLib::SpellChessDocument::Handle 
@@ -267,7 +283,7 @@ SpellChessLib::SpellChessDocument::referenceNodeByHandle(Handle h) {
 };
 
 SpellChessLib::SpellChessDocument::Handle
-SpellChessLib::SpellChessDocument::makeMoveAndAdvance(Handle where, const SpellChessMove & move){
+SpellChessLib::SpellChessDocument::makeMove(Handle where, const SpellChessMove & move){
     Node & node = referenceNodeByHandle(where);
     Handle result = node.getChildByMove(move);
 
@@ -281,20 +297,7 @@ SpellChessLib::SpellChessDocument::makeMoveAndAdvance(Handle where, const SpellC
         throw IllegalMoveError(node.gameState, move);
 
     // .. if not we have to create it
-    std::scoped_lock<std::mutex> guard(node.mut);
-    auto newNode = makeChildNode(node.shared_from_this(), move);
-    node.transitions.push_back({newNode, move});
-
-    // If node is tail, update tail reference
-    if (node.shared_from_this() == tail.lock()) {
-        std::scoped_lock<std::mutex> guard2(mut);
-        tail = newNode;
-    } 
-    
-    dirty.store(true);
-
-    return newNode;
-
+    return makeChildNode(node.shared_from_this(), move);
 };
 
 void 

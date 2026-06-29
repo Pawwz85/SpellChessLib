@@ -139,7 +139,7 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	movesSinceRoot.push_back(move);
 	posHistory.push_back(calculateHash(state));
 
-	gameDocument->makeMoveAndAdvance(gameDocument->getTail(), move);
+	gameDocument->makeMove(gameDocument->getTail(), move);
 
 	if (capturedPiece.owner != Nobody && capturedPiece.type == King) {
 		setOutcome(movingSide, KingCaptured);

@@ -9,11 +9,11 @@ set( headears
 )
 
 set ( src_files 
-    "src/GameSession/BoardLinter.cpp"
-    "src/GameSession/GameRunnerBridge.cpp"
+    "src/BoardViewer/BoardLinter.cpp"
+    "src/BoardViewer/SpellChessMoveBuilder.cpp"
+    "src/BoardViewer/UserInteractionManager.cpp"
     "src/GameSession/OpenSessionRequest.cpp"
-    "src/GameSession/SpellChessMoveBuilder.cpp"
-    "src/GameSession/UserInteractionManager.cpp"
+    "src/GameSession/GameRunnerBridge.cpp"
     "src/ChessGui.cpp"
     "src/EngineRepository.cpp"
     "src/Form.cpp"
