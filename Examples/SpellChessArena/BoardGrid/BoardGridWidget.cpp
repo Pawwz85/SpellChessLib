@@ -284,6 +284,7 @@ void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
 
     (void)startDrag(draggedEntity->getIdentifier());
     draggedEntity->setProperty("z_level", 100);
+    draggedEntity->setProperty("size", QSizeF(1.4, 1.4));
 };
 
  void BoardWidget::tryHandleDragActionEnd(BoardWidgetPoint rawMousePoint) {
@@ -295,11 +296,17 @@ void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
     
     DragHandle<BoardWidget> * dragHandle = new DragHandleImpl(*this,currentlyDraggedPiece);
     BoardEntity * draggedEntity = dragHandle->getEntity(); 
-    if (draggedEntity ) 
-        draggedEntity->setProperty("z_level", currentlyDraggedPiece->startingZLevel);
+    
     if(dragHandle->isClosed()) 
         goto cleanup;
+
+    if (draggedEntity ) {
+        draggedEntity->setProperty("z_level", currentlyDraggedPiece->startingZLevel);
+        draggedEntity->setProperty("size", QSizeF(1.0, 1.0));
+    } 
+
     onDrag(*dragHandle);
+
     cleanup:
     delete dragHandle;
  };
