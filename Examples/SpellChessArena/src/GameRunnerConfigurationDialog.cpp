@@ -7,7 +7,7 @@
 #include <QRadioButton>
 #include <QFileDialog>
 
-PlayerSelectionWidget::PlayerSelectionWidget(GameSession::OpenSessionRequestBuilder * reqBuilder, QWidget *parent) : Form(parent),
+PlayerSelectionWidget::PlayerSelectionWidget(BoardViewer::OpenSessionRequestBuilder * reqBuilder, QWidget *parent) : Form(parent),
  requestBuilder(reqBuilder) {
     QVBoxLayout * layout = new QVBoxLayout();
     availableEngines.append(getEnginePlayerRepositoryInstance().getAll());
@@ -59,17 +59,17 @@ PlayerSelectionWidget::PlayerSelectionWidget(GameSession::OpenSessionRequestBuil
 }
 
 void PlayerSelectionWidget::post() {
-    using CPUdef = GameSession::CPUPlayerDefinition;
-    using BuilderMethod = GameSession::OpenSessionRequestBuilder & (GameSession::OpenSessionRequestBuilder::*)(std::shared_ptr<GameSession::PlayerDefinition>);
+    using CPUdef = BoardViewer::CPUPlayerDefinition;
+    using BuilderMethod = BoardViewer::OpenSessionRequestBuilder & (BoardViewer::OpenSessionRequestBuilder::*)(std::shared_ptr<BoardViewer::PlayerDefinition>);
     BuilderMethod method;
     try {
         for(size_t i = 0; i < 2; ++i){
             method = (i == 0) ? 
-                    &GameSession::OpenSessionRequestBuilder::withWhitePlayer:
-                    &GameSession::OpenSessionRequestBuilder::withBlackPlayer;
+                    &BoardViewer::OpenSessionRequestBuilder::withWhitePlayer:
+                    &BoardViewer::OpenSessionRequestBuilder::withBlackPlayer;
 
             if (!playerForms[i].isEngine) 
-                (*requestBuilder.*method)(GameSession::defaultHumanPlayerDef);
+                (*requestBuilder.*method)(BoardViewer::defaultHumanPlayerDef);
             else {
                 const auto & entry = SpellChessLib::PlayerRegistry->get(playerForms[i].id);
                 (*requestBuilder.*method)(std::make_shared<CPUdef>(entry));
@@ -249,7 +249,7 @@ void OpeningSuiteWidget::post(){
 }
 
 
-OpeningSuiteWidget::OpeningSuiteWidget(GameSession::OpenSessionRequestBuilder * builder, QWidget *parent) : Form(parent), builder(builder){
+OpeningSuiteWidget::OpeningSuiteWidget(BoardViewer::OpenSessionRequestBuilder * builder, QWidget *parent) : Form(parent), builder(builder){
     QVBoxLayout* layout = new QVBoxLayout(this);
     QHBoxLayout* grimoirePathBox;
 
@@ -336,7 +336,7 @@ void GameRunnerConfigurationDialog::trySubmit() {
     }
 }
 
-GameSession::OpenSessionRequest GameRunnerConfigurationDialog::buildRequest() {
+BoardViewer::OpenSessionRequest GameRunnerConfigurationDialog::buildRequest() {
     return requestBuilder.build();
 }
 

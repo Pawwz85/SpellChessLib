@@ -3,25 +3,28 @@
 #include <memory>
 #include <functional>
 #include <mutex>
+#include <cstdint>
 
 #include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/SpellChessGame.h> // for TimerPairState
 
 #include <QObject>
 
-#include "BoardViewer/SpellChessMoveBuilder.hpp"
+#include "SpellChessMoveBuilder.hpp"
 
 namespace BoardViewer {
 
     class Model : public QObject {
         Q_OBJECT
 
-        //
         virtual void handleMakeMove(SpellChessLib::SpellChessMove move) = 0;
 
         protected:
         std::recursive_mutex mut;
         std::shared_ptr<SpellChessLib::SpellChessDocument> document;
         SpellChessLib::SpellChessDocument::Handle currentPosition;
+        
+        SpellChessLib::TimerPairState timers;
 
         using NextFunctor = typename std::function<SpellChessLib::SpellChessDocument::Handle(SpellChessLib::SpellChessDocument::Handle)>;
 
@@ -37,7 +40,7 @@ namespace BoardViewer {
         void makeMove(SpellChessLib::SpellChessMove move);
         
         // Go *exactly* 'plies' forward or noop
-        void goForward(uint16_t plies) ;
+        void goForward(uint16_t plies);
        
         // Go *exactly* 'plies' backward or noop
         void goBackward(uint16_t plies);
@@ -47,20 +50,18 @@ namespace BoardViewer {
 
         // Go to document's root
         void goToDocumentRoot();
-       
+        
 
         virtual SpellChessLib::SpellChessDocument::Handle getCurrentPosition() const = 0;
+        virtual SpellChessLib::GameState getCurrentState() const; 
         virtual std::shared_ptr<const SpellChessLib::SpellChessDocument> getDocument() const = 0;
+        virtual bool canUserSubmitMove() = 0;
 
         signals:
         void changed(const Model & model);
         void documentChanged(const SpellChessLib::SpellChessDocument & document);
+        void onTimerChanged(const SpellChessLib::TimerPairState & timers);
     };
 
-    /*
-        Model dedicated for interacting with outgoing game 
-    */
-    class OutgoingGameModel : public Model {
-
-    };
+    
 };

@@ -4,6 +4,8 @@
 #include <QPainter>
 #include <QBrush>
 
+using namespace BoardViewer;
+
 SpellPanelModel::SpellPanelModel(): spells({
                                         {SpellChessLib::FreezeSpell, {}},
                                         {SpellChessLib::JumpSpell, {}}
@@ -89,7 +91,7 @@ void SpellCoolDownBar::paintEvent(QPaintEvent * event) {
 };
 
 
-SpriteSet::SpriteSetScheme makeSpellSetSchemeFromFolder(const QString & folderPath) {
+SpriteSet::SpriteSetScheme BoardViewer::makeSpellSetSchemeFromFolder(const QString & folderPath) {
         QString prefix = QString("file:") + folderPath + QString("/");
 
     std::vector<SpriteSet::SpriteSetScheme::SpriteDef> defs = {
@@ -102,7 +104,7 @@ SpriteSet::SpriteSetScheme makeSpellSetSchemeFromFolder(const QString & folderPa
     return SpriteSet::SpriteSetScheme(defs);
 }
 
-SpriteSet::SpriteSetScheme makeDefaultSpellSetScheme() {
+SpriteSet::SpriteSetScheme BoardViewer::makeDefaultSpellSetScheme() {
     return makeSpellSetSchemeFromFolder(QString("assets/spells/default"));
 }
 

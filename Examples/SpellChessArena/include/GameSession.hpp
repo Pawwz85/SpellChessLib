@@ -61,7 +61,6 @@ namespace GameSession {
 
         int gameRunnerId;
 
-
         bool event(QEvent * e) override;
 
         static UserFunction userFunctionFromRequest(const OpenSessionRequest & request);

@@ -1,4 +1,4 @@
-#include <BoardViewer/BoardLinter.hpp>
+#include <BoardLinter.hpp>
 #include <SpellChess/MoveGen.h>
 
 //! checks whatever linter input satisfies spell requirements of given move candidate

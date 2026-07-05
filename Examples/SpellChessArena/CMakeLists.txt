@@ -9,22 +9,13 @@ set( headears
 )
 
 set ( src_files 
-    "src/BoardViewer/BoardLinter.cpp"
-    "src/BoardViewer/SpellChessMoveBuilder.cpp"
-    "src/BoardViewer/UserInteractionManager.cpp"
-    "src/GameSession/OpenSessionRequest.cpp"
-    "src/GameSession/GameRunnerBridge.cpp"
     "src/ChessGui.cpp"
     "src/EngineRepository.cpp"
     "src/Form.cpp"
     "src/GameRunnerConfigurationDialog.cpp"
-    "src/GameSession.cpp"
     "src/EmptyBoardWidget.cpp"
     "src/App.cpp"
     "src/main.cpp"
-    "src/MoveList.cpp"
-    "src/PlayerTimer.cpp"
-    "src/SpellPanel.cpp"
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Gui  Concurrent)
@@ -40,6 +31,7 @@ add_subdirectory(Misc)
 add_subdirectory(SpriteSet)
 add_subdirectory(BoardGrid)
 add_subdirectory(SpellButton)
+add_subdirectory(BoardViewer)
 
 qt_add_executable( arena ${src_files} )
 
@@ -54,7 +46,7 @@ FetchContent_MakeAvailable(cereal)
 
 target_compile_definitions( arena PRIVATE QT_NO_EMIT) # Disable QT's emit keyword to avoid name conflict with UCI Loader
 target_link_libraries( arena PRIVATE Qt6::Widgets Qt6::Gui Qt6::Concurrent)
-target_link_libraries( arena PRIVATE BoardGrid SpellButton SpriteSet spellchess cereal::cereal Misc)
+target_link_libraries( arena PRIVATE BoardGrid SpellButton SpriteSet BoardViewer spellchess cereal::cereal Misc)
 target_include_directories( arena PRIVATE include )
 
 enable_testing()

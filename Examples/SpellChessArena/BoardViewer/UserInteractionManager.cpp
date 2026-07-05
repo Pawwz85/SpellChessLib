@@ -1,4 +1,4 @@
-#include <BoardViewer/UserInteractionManager.hpp>
+#include <UserInteractionManager.hpp>
 
 using namespace BoardViewer;
 

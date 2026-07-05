@@ -14,7 +14,11 @@ SpellChessLib::AsynchronousPlayer::makeResult(const Game& game, const std::chron
     auto future = currentMovePromise->get_future();
 
     SpellChessMove bestMove;
-    if (future.wait_for(timeOut) == std::future_status::ready) 
+
+    if (timeOut.count() == 0){
+        future.wait();
+        bestMove = future.get();
+    }  else if (future.wait_for(timeOut) == std::future_status::ready) 
         bestMove = future.get();
     else
         bestMove = SpellChessMove{ NoSquare, NoSquare, NoSquare, NoSquare, None };

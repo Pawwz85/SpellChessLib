@@ -8,7 +8,7 @@
 #include <SpellChess/Player.h>
 #include <SpellChess/OpeningBook.h>
 
-namespace GameSession {
+namespace BoardViewer {
 
     class PlayerDefinition {
         public:

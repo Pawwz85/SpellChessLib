@@ -1,7 +1,11 @@
 #include <BoardViewerModel.hpp>
 #include <iostream>
 
-BoardViewer::Model::Model(QObject * parent) : QObject(parent){};
+BoardViewer::Model::Model(QObject * parent) : QObject(parent){
+    timers.whiteTimer.running = timers.blackTimer.running = false;
+    timers.whiteTimer.showValue = timers.blackTimer.showValue = false;
+    timers.whiteTimer.timeLeft = timers.blackTimer.timeLeft = std::chrono::milliseconds(0);
+};
 
 void 
 BoardViewer::Model::setCurrentPosition(SpellChessLib::SpellChessDocument::Handle newPosition) {
@@ -67,6 +71,12 @@ void
 BoardViewer::Model::goToDocumentTail() {
     setCurrentPosition(document->getTail());
 };
+
+SpellChessLib::GameState
+BoardViewer::Model::getCurrentState() const {
+    return document->getGameState(getCurrentPosition());
+};
+
 
 void
 BoardViewer::Model::makeMove(SpellChessLib::SpellChessMove move) {

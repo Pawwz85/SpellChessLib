@@ -1,0 +1,70 @@
+#pragma once
+
+#include <QWidget>
+#include <QGridLayout>
+
+#include <BoardGrid/BoardGridWidget.h>
+
+#include "BoardViewerModel.hpp"
+#include "UserInteractionManager.hpp"
+#include "SpellChessMoveBuilder.hpp"
+#include "PlayerTimer.hpp"
+#include "MoveList.hpp"
+#include "BoardLinter.hpp"
+#include "SpellPanel.hpp"
+
+namespace BoardViewer {
+
+    class BoardViewerWidget : public QWidget {
+
+        class NoFocus;
+        class PromotionPicker;
+        class SpellSquarePicker;
+
+        Q_OBJECT
+        std::shared_ptr<UserInteractionManager> interactionManager;
+        std::shared_ptr<SpellChessMoveBuilder> moveBuilder;
+        std::shared_ptr<MoveListModel> moveListModel;
+
+        Board::BoardWidget * board;
+        Model * model;
+        MoveListView * moveList;
+
+        PlayerTimer * whiteTimer;
+        PlayerTimer * blackTimer;
+
+
+        QGridLayout * layout;
+
+        SpellPanelModel whiteSpellPanel;
+        SpellPanelModel blackSpellPanel;
+
+
+        void connectSlots();
+        LinterInput prepareInfoForLinter() const;
+
+        QPointF pointFromSquareIndex(unsigned int sqId) const;
+
+        void updateLinter();
+
+        protected slots:
+        void handleDrag(Board::DragHandle<Board::BoardWidget> & drag);
+        void handleClick(Board::BoardWidget::ClickHandle & click);
+        void handleGamestateChange(const SpellChessLib::GameState & state);
+        void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves);
+        void handleModelChanged(const Model & model);
+        void handleTimePairChanged(const SpellChessLib::TimerPairState & state);
+        void handleGameRunnerIdChanged(int id) {};
+        void handlePromotionActionSelected(Board::PawnPromotionAction action);
+        void handleSpellSelect(SpellChessLib::SpellIdentifator spell);
+        void handleSpellDiscarded();
+
+
+        public:
+
+        BoardViewerWidget(Model * model, QWidget * parent = nullptr);
+        ~BoardViewerWidget();
+    };
+
+}
+

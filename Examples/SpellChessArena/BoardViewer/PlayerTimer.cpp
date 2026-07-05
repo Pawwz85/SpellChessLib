@@ -3,6 +3,8 @@
 #include <ctime>
 #include <QHBoxLayout>
 
+using namespace BoardViewer;
+
 QString PlayerTimer::formatTime() const {
     if (!state.showValue)
         return "--:--.--";

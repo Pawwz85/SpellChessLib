@@ -1,19 +1,18 @@
 #include <App.hpp>
-
-#include <GameSession.hpp>
-
 #include <GameRunnerConfigurationDialog.hpp>
-
 #include <EmptyBoardWidget.hpp>
-
 #include <EngineRepository.hpp>
+
+#include <BoardViewer/GameViewerModel.hpp>
+#include <BoardViewer/BoardViewerWidget.hpp>
+
 
 #include <QMenuBar>
 #include <QMenu>
 
-void App::openSession(const GameSession::OpenSessionRequest &request){
-    GameSession::GameSessionModel * model = new GameSession::GameSessionModel(timerService, request, coreQApp);
-    GameSession::GameSessionView * view = new GameSession::GameSessionView(model);
+void App::openSession(const BoardViewer::OpenSessionRequest &request){
+    BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
+    BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
     this->mainWindow->setCentralWidget(view);
 }
 
@@ -58,8 +57,6 @@ App::App(QCoreApplication * coreApp) {
 
     mainWindow->setMenuBar(menuBar);
     
-    
-    // todo: addd toolbar and set default central widget
 };
 
 

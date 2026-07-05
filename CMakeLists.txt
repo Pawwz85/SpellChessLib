@@ -61,8 +61,7 @@ target_include_directories( spellchess PUBLIC include )
 target_link_libraries(spellchess PUBLIC uciloader)
 
 add_subdirectory("Examples/TournamentRunner")
-# commented out for the time being, as serious overhaul of UI is outgoing
-#add_subdirectory("Examples/SpellChessArena")
+add_subdirectory("Examples/SpellChessArena")
 add_subdirectory("Examples/Grimoire")
 add_subdirectory("Examples/Pgn4Generator")
 add_subdirectory("UnitTests")

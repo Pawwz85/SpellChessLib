@@ -8,8 +8,8 @@
 #include <QCoreApplication>
 #include <QObject>
 
-#include <GameSession/OpenSessionRequest.hpp>
-#include <GameSession/GameRunnerBridge.hpp>
+#include <BoardViewer/OpenSessionRequest.hpp>
+#include <BoardViewer/GameRunnerBridge.hpp>
 
 
 /*!
@@ -33,7 +33,7 @@ class App : public QObject {
     App(QCoreApplication * coreApp);
 
     
-    void openSession(const GameSession::OpenSessionRequest & request); // create new game session from request
+    void openSession(const BoardViewer::OpenSessionRequest & request); // create new game session from request
 
     inline QMainWindow * getWindow() {
         return mainWindow;

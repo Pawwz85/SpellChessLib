@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SpellChess/GameRunnerConfiguration.h>
-#include <GameSession/OpenSessionRequest.hpp> 
+#include <BoardViewer/OpenSessionRequest.hpp> 
 #include <EngineRepository.hpp>
 #include <Form.hpp>
 
@@ -24,7 +24,7 @@
 
 class PlayerSelectionWidget : public Form {
 
-    GameSession::OpenSessionRequestBuilder * requestBuilder;
+    BoardViewer::OpenSessionRequestBuilder * requestBuilder;
     QList<EngineListEntry> availableEngines;
 
     QLabel       * playerLabels[2];
@@ -42,9 +42,9 @@ class PlayerSelectionWidget : public Form {
 
     public:
 
-    PlayerSelectionWidget(GameSession::OpenSessionRequestBuilder * reqBuilder, QWidget* parent = nullptr);
+    PlayerSelectionWidget(BoardViewer::OpenSessionRequestBuilder * reqBuilder, QWidget* parent = nullptr);
 
-    };
+};
 
 class TimeSelectionWidget : public Form {
     std::shared_ptr<SpellChessLib::GameRunnerConfigurationBuilder> builder;
@@ -83,7 +83,7 @@ class EngineOptionsWidget : public QWidget {
 };
 
 class OpeningSuiteWidget : public Form {
-    GameSession::OpenSessionRequestBuilder * builder;
+    BoardViewer::OpenSessionRequestBuilder * builder;
     QLineEdit   *   startingFen; 
     QLineEdit   *   grimoireFilePath;
     QPushButton *   browse;
@@ -96,7 +96,7 @@ class OpeningSuiteWidget : public Form {
 
     void post() override;
     public:
-    OpeningSuiteWidget(GameSession::OpenSessionRequestBuilder * builder, QWidget * parent = nullptr);
+    OpeningSuiteWidget(BoardViewer::OpenSessionRequestBuilder * builder, QWidget * parent = nullptr);
 
 };
 
@@ -106,7 +106,7 @@ class GameRunnerConfigurationDialog : public QDialog {
     QPushButton * cancelBtn;
     QPushButton * submitBtn;
 
-    GameSession::OpenSessionRequestBuilder requestBuilder;
+    BoardViewer::OpenSessionRequestBuilder requestBuilder;
     bool alreadySubmitted = false;
 
     PlayerSelectionWidget * playerForm;
@@ -121,5 +121,5 @@ class GameRunnerConfigurationDialog : public QDialog {
     public:
     GameRunnerConfigurationDialog(QWidget * parent = nullptr);
     
-    GameSession::OpenSessionRequest buildRequest();
+    BoardViewer::OpenSessionRequest buildRequest();
 };

@@ -5,6 +5,8 @@
 #include <string>
 #include <QVBoxLayout>
 
+using namespace BoardViewer;
+
 MoveListModel::MoveListModel() {
     SpellChessLib::FenParser parser;
     initialPosition = parser.fromSpellChessFen(SpellChessLib::SPELL_START_POS);

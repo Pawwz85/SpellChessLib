@@ -7,14 +7,12 @@
 #include <SpellChess/Observer.h>
 #include <SpellChess/Player.h>
 #include <SpellChess/GameAnnotations.h>
-#include <SpellChess/Scheduler/ObjectAllocator.h> // for resource pointer
-#include <SpellChess/Factory.h> // for resource pointer
 
 #include <memory>
 #include <vector>
 #include <future>
 
-namespace GameSession {
+namespace BoardViewer {
 
 
     namespace Internal {
@@ -77,10 +75,7 @@ namespace GameSession {
     extern Internal::GameRunnerEvents gameSessionEvents;
 
     #define EVENT_EMITTER_DECL(EVENT, STATE) std::shared_ptr<Internal::EventEmmiter<Internal::EVENT, STATE>> emitter##EVENT
-
-    class GuiPlayer;
     class GameRunnerBridge {
-        friend GuiPlayer; 
 
         QCoreApplication * app;
 
@@ -91,36 +86,12 @@ namespace GameSession {
 
         std::shared_ptr<SpellChessLib::GameMonitor> gameMonitor;
         std::unique_ptr<std::promise<SpellChessLib::SpellChessMove>> movePromise;
-        
-        std::shared_ptr<SpellChessLib::Factory<SpellChessLib::Player>> playerFactory; 
 
         public:
         GameRunnerBridge(QCoreApplication * app, QObject * owner);
 
         std::shared_ptr<SpellChessLib::GameMonitor> getGameMonitor();  
-        SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player> makePlayerFromSession();
-        void submitMove(SpellChessLib::SpellChessMove move);
 
-    };
-
-
-    class GuiPlayer : public SpellChessLib::Player {
-
-        GameRunnerBridge * session;
-
-        // inherited from SpellChessLib::Player
-        Result makeResult(const SpellChessLib::Game& game, const std::chrono::milliseconds & timeOut) override;
-		Result handlePonderHit() override;
-		void startPondering(const SpellChessLib::Game& game, const SpellChessLib::SpellChessMove & ponderMove) override;
-		void cancelPondering() override;
-        bool supportsPondering() const override;
-		void onNewGame() override;
-		void interrupt() override; 
-		void kill() override; 
-
-        public:
-
-        GuiPlayer(GameRunnerBridge * session);         
     };
 
     #undef EVENT_EMITTER_DECL
