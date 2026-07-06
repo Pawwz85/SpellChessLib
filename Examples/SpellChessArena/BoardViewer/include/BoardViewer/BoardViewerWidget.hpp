@@ -24,7 +24,6 @@ namespace BoardViewer {
         Q_OBJECT
         std::shared_ptr<UserInteractionManager> interactionManager;
         std::shared_ptr<SpellChessMoveBuilder> moveBuilder;
-        std::shared_ptr<MoveListModel> moveListModel;
 
         Board::BoardWidget * board;
         Model * model;

@@ -245,6 +245,19 @@ SpellChessLib::SpellChessDocument::getChildren(Handle handle) const {
     throw BadHandle();
 };
 
+std::vector<SpellChessLib::SpellChessDocument::Arc>
+SpellChessLib::SpellChessDocument::getArcs(Handle handle) const {
+    std::vector<Arc> result;
+
+    if (auto node = handle.lock()) {
+        std::scoped_lock<std::mutex> guard(node->mut);
+        for(const auto & link : node->transitions)
+            result.push_back({link.child, link.move});
+        return result;
+    } 
+    throw BadHandle();
+};
+
 SpellChessLib::GameState
 SpellChessLib::SpellChessDocument::getGameState(Handle handle) const {
     if (auto node = handle.lock())

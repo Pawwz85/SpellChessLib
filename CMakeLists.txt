@@ -28,6 +28,7 @@ set(source_files
 	"src/PositionSupplier.cpp"
 	"src/RandomPlayer.cpp"
 	"src/SpellChessDocument.cpp"
+	"src/SpellChessDocumentHTMLRenderer.cpp"
 	"src/SpellChessGame.cpp"
 	"src/SpellChessUciLoaderPort.cpp"
 	"src/SPRTTournament.cpp"

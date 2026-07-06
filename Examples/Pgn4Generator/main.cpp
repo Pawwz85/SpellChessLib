@@ -1,6 +1,8 @@
 #include <SpellChess/PGN4Exporter.h>
 #include <SpellChess/RandomPlayer.h>
 #include <SpellChess/GameRunner.h>
+#include <SpellChess/SpellChessDocumentHTMLRenderer.h>
+
 
 #include <memory>
 #include <fstream>
@@ -56,5 +58,13 @@ int main(int argc, char ** argv) {
     out.open(output);
     SpellChessLib::PGN4Exporter exporter(&out);
     exporter.exportPGN4(runner.getGame().getRoot(), runner.getGame().getDocument()->toAnnotations());
+
+    std::ofstream htmlOut;
+    htmlOut.open("test.html");
+
+    auto html = SpellChessLib::toHtml(*runner.getGame().getDocument());
+    htmlOut << html->toText();
+    
     out.close();
+    htmlOut.close();
 };

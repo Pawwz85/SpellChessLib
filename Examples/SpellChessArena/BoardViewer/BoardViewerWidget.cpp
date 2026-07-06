@@ -56,15 +56,10 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(board, &Board::BoardWidget::onDrag, this, &BoardViewerWidget::handleDrag);
     connect(board, &Board::BoardWidget::onClick, this, &BoardViewerWidget::handleClick);
 
-    connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);
-    
+    connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);    
     connect(model, &Model::onTimerChanged, this, &BoardViewerWidget::handleTimePairChanged);
-    
-    // TODO: implement equivalent methods
-    // connect(model, &GameSessionModel::onGameStateChanged,   this, &BoardViewerWidget::handleGamestateChange);
-    // connect(model, &GameSessionModel::onMoveListChanged,    this, &BoardViewerWidget::handleMoveListChanged);
-    // connect(model, &GameSessionModel::onTimerPairChanged,   this, &BoardViewerWidget::handleTimePairChanged);
-    // connect(model, &GameSessionModel::onGameRunnerIdChanged,this, &BoardViewerWidget::handleGameRunnerIdChanged);
+    connect(model, &Model::documentChanged, moveList, &MoveListView::documentChanged);
+    // TODO: handle document changes
 
     connect(&whiteSpellPanel, &SpellPanelModel::spellSelected, this, &BoardViewerWidget::handleSpellSelect);
     connect(&whiteSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
@@ -160,13 +155,8 @@ void BoardViewer::BoardViewerWidget::handleGamestateChange(const SpellChessLib::
 }
 
 void BoardViewer::BoardViewerWidget::handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> &moves){
-    SpellChessLib::Annotation::AnnotatedSequence seq;
-    for(const auto & m : moves)
-        seq.pushBack(m);
-    auto doc = model->getDocument();
-    moveListModel->set(doc->getGameState(doc->getRoot()), seq);
+    // ignored
 }
-
 void BoardViewer::BoardViewerWidget::handleTimePairChanged(const SpellChessLib::TimerPairState & state) {
     whiteTimer->setState(state.whiteTimer);
     blackTimer->setState(state.blackTimer);
@@ -180,12 +170,11 @@ void BoardViewer::BoardViewerWidget::handleModelChanged(const Model & model) {
 BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent) : QWidget(parent), model(model){
     interactionManager = std::make_shared<UserInteractionManager>();
     moveBuilder = std::make_shared<SpellChessMoveBuilder>();
-    moveListModel = std::make_shared<MoveListModel>();
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
     
     board = new Board::BoardWidget(this);
     layout = new QGridLayout(this);
-    moveList = new MoveListView(moveListModel, this);
+    moveList = new MoveListView(this);
 
     whiteTimer = new PlayerTimer(this);
     blackTimer = new PlayerTimer(this);

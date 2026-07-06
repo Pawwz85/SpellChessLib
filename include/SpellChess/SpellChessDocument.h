@@ -27,6 +27,11 @@ namespace SpellChessLib {
         
         using Handle = typename std::weak_ptr<const Node>;
         
+        struct Arc {
+            Handle node;
+            SpellChessMove move;
+        };
+
         class BadHandle : public std::exception {
             public:
             const char * what() const noexcept override;
@@ -116,6 +121,9 @@ namespace SpellChessLib {
 
         // get children of a node
         std::vector<Handle> getChildren(Handle node) const;
+        
+        // get arcs of a node
+        std::vector<Arc> getArcs(Handle node) const;
 
         // Set comment on selected node 
         void setComment(Handle where, const std::string & comment);
