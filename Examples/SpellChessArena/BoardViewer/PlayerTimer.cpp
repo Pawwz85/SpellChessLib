@@ -14,7 +14,7 @@ QString PlayerTimer::formatTime() const {
     timeLeft -= timeLeft % 10;
 
     if (timeLeft <= 60 * 1000) // if less than minute is left, show milliseconds 
-        format += ".z";
+        format += ".zzz";
 
     if (timeLeft >= 60 * 1000)
         format = "m:s" + format;
@@ -63,7 +63,7 @@ PlayerTimer::PlayerTimer(QWidget * parent ) : QWidget(parent) {
     setLayout(l);
 
     timer = new QTimer(this);
-    timer->setInterval(std::chrono::milliseconds(100));    
+    timer->setInterval(std::chrono::milliseconds(10));    
     connect(timer, &QTimer::timeout, this, &PlayerTimer::onTick);
     timer->start();
 };
@@ -76,7 +76,7 @@ void PlayerTimer::setState(const SpellChessLib::PlayerTimerState & newState) {
 
 void PlayerTimer::onTick() {
     if(state.running) {
-        long long newValue = std::max(0LL, state.timeLeft.count() - 100); 
+        long long newValue = std::max(0LL, state.timeLeft.count() - 10); 
         state.timeLeft = std::chrono::milliseconds(newValue);
         content->setText(formatTime());
         update(); 
