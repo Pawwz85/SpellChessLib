@@ -65,6 +65,8 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(&whiteSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
     connect(&blackSpellPanel, &SpellPanelModel::spellSelected, this, &BoardViewerWidget::handleSpellSelect);
     connect(&blackSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
+
+    connect(moveList, &MoveListView::nodeClicked, this, &BoardViewerWidget::handleNodeClicked);
 }
 
 BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() const {
@@ -265,6 +267,11 @@ void BoardViewer::BoardViewerWidget::handleSpellSelect(SpellChessLib::SpellIdent
 void BoardViewer::BoardViewerWidget::handleSpellDiscarded() {
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
 };
+
+void BoardViewer::BoardViewerWidget::handleNodeClicked(int nodeId) {
+    auto newPos = model->getDocument()->getNodeById(nodeId);
+    model->setCurrentPosition(newPos);
+}
 
 void BoardViewer::BoardViewerWidget::NoFocus::onSpellSelected(SpellChessLib::SpellIdentifator spellId)  {
         transistTo(std::make_unique<SpellSquarePicker>(spellId, widget, manager));

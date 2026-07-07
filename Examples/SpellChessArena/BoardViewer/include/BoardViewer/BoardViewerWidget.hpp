@@ -58,7 +58,7 @@ namespace BoardViewer {
         void handlePromotionActionSelected(Board::PawnPromotionAction action);
         void handleSpellSelect(SpellChessLib::SpellIdentifator spell);
         void handleSpellDiscarded();
-
+        void handleNodeClicked(int nodeId);
 
         public:
 

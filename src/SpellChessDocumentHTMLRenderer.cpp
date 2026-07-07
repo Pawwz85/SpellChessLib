@@ -115,6 +115,21 @@ namespace SpellChessLib {
             return "<i style=\"color: orange;\">" + text + "</i>";
         }
 
+        std::string MoveToken::openAnchor(SpellChessDocument::Handle pos) const {
+            int nodeId = pos.lock()->getNodeId();
+            std::string result = "<a href=";
+            result += "\"node" + std::to_string(nodeId) + "\" ";
+
+            result += "name=node" + std::to_string(nodeId);
+            result += ">";
+
+            return result;
+        };
+
+        std::string MoveToken::closeAnchor() const {
+            return "</a>";
+        };
+
         MoveToken::MoveToken(const SpellChessDocument::Arc & arc) : arc(arc){
         }
 
@@ -122,6 +137,7 @@ namespace SpellChessLib {
             std::string result = spellChessMoveToString(arc.move);
             if (bolt)
                result = "<b>" + result + "</b>";
+            result = openAnchor(arc.node) + result + closeAnchor();
             return result;
         }
 
