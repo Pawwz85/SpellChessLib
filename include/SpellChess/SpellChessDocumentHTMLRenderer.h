@@ -117,6 +117,8 @@ namespace SpellChessLib {
             bool isBlock() const override;
             unsigned int getNumberIndicator() const;
             BlockType getType() const;
+            void setType(BlockType type);
+
         };
     };
 

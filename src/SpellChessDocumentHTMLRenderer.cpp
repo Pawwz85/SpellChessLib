@@ -108,6 +108,10 @@ namespace SpellChessLib {
             return type;
         }
 
+        void Block::setType(BlockType tp) {
+            this->type = tp;
+        }
+
         CommentToken::CommentToken(const std::string & text) : text(text) {
         }
 
@@ -120,7 +124,9 @@ namespace SpellChessLib {
             std::string result = "<a href=";
             result += "\"node" + std::to_string(nodeId) + "\" ";
 
-            result += "name=node" + std::to_string(nodeId);
+            result += "name=node" + std::to_string(nodeId) +" ";
+
+            result += "style=\"text-decoration:none;\"";
             result += ">";
 
             return result;
@@ -157,26 +163,26 @@ namespace SpellChessLib {
 
     void singleBlockDocumentScan(HTML::ContainerElement & scope, const SpellChessDocument & document, SpellChessDocument::Handle currentPos) {
         auto currentState = document.getGameState(currentPos);
+        auto arcs = document.getArcs(currentPos);
+        
+        if (arcs.empty())
+            return;
+
         auto & currentBlock = scope.pushBack(std::make_unique<HTML::Block>(
             currentState.getFullMoveCounter(),
             (currentState.getSideToMove() == SpellChessLib::Black) ? HTML::RightColumn : HTML::LeftColumn
         ));
-        
-        auto arcs = document.getArcs(currentPos);
 
-        std::string currentComment;
-
-        if (!arcs.empty()) {
-            insertMoveTokenNode(currentBlock, arcs[0], document);
-        }
+        insertMoveTokenNode(currentBlock, arcs[0], document);
+     
         
         for (size_t i = 1; i < arcs.size(); ++i) {
             auto & variant = scope.pushBack(std::make_unique<HTML::Variation>());
             auto newState = document.getGameState(arcs[i].node);
             
             auto & variantBlock = variant.pushBack(std::make_unique<HTML::Block>(
-            newState.getFullMoveCounter(),
-            (newState.getSideToMove() == SpellChessLib::Black) ? HTML::RightColumn : HTML::LeftColumn
+            currentState.getFullMoveCounter(),
+            (currentState.getSideToMove() == SpellChessLib::Black) ? HTML::RightColumn : HTML::LeftColumn
             ));
 
             insertMoveTokenNode(variantBlock, arcs[i], document);
@@ -233,7 +239,8 @@ namespace SpellChessLib {
                     HTML::Block* prev = (HTML::Block*)previous->get();
                     HTML::Block* curr = (HTML::Block*)current->get(); 
                     
-                    if (prev->getNumberIndicator() == curr->getNumberIndicator()) {
+                    if (prev->getNumberIndicator() == curr->getNumberIndicator() &&
+                        prev->getType() == HTML::LeftColumn && curr->getType() == HTML::RightColumn) {
                         auto merged = mergeBlocks(*prev, *curr);
                         children.erase(current);
                         current = children.emplace(previous, (HTML::Element*)merged.release());
@@ -245,11 +252,28 @@ namespace SpellChessLib {
                 ++current;
             };
         }
-        
+
         for (auto & child : children)
             if (!child->isLeaf())
                 mergeHtmlBlocks(*(HTML::ContainerElement*)child.get());
     };
+
+    void promoteLastBlock(HTML::ContainerElement & scope) {
+        auto & children = scope.getChildren();
+
+        HTML::Block * lastBlock = nullptr;
+
+        for (auto & child : children)
+            if (child->isBlock())
+                lastBlock = (HTML::Block*)child.get();
+
+        if (lastBlock && lastBlock->getType() == HTML::LeftColumn)
+            lastBlock->setType(HTML::Full);
+
+        for (auto & child : children)
+            if (!child->isLeaf())
+                promoteLastBlock(*(HTML::ContainerElement*)child.get());
+    }
 
     std::unique_ptr<HTML::Element> toHtml(const SpellChessDocument & document) {
         auto result = std::make_unique<HTML::Root>();
@@ -259,6 +283,7 @@ namespace SpellChessLib {
         singleBlockDocumentScan(*result, document, currentPos);
         eraseEmptyBlocks(*result);
         mergeHtmlBlocks(*result);
+        promoteLastBlock(*result);
 
         return result;
     };

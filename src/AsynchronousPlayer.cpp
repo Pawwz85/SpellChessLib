@@ -57,7 +57,9 @@ void
 SpellChessLib::AsynchronousPlayer::interrupt() {
     wasInterrupted = true;
     if (currentMovePromise.has_value()) {
-        currentMovePromise->set_exception(std::make_exception_ptr(std::runtime_error("AsynchronousPlayer interrupted.")));
+        try {
+            currentMovePromise->set_exception(std::make_exception_ptr(std::runtime_error("AsynchronousPlayer interrupted.")));
+        } catch(...){}
     }
 };
 
@@ -65,7 +67,9 @@ void
 SpellChessLib::AsynchronousPlayer::kill() {
     // Note: this code shouldn't be reachable, so if you ever encounter this exception, there is a bug in the game runner logic. The game runner should always call interrupt() before calling kill().
     if (currentMovePromise.has_value()) {
-        currentMovePromise->set_exception(std::make_exception_ptr(std::runtime_error("AsynchronousPlayer killed.")));
+         try {
+            currentMovePromise->set_exception(std::make_exception_ptr(std::runtime_error("AsynchronousPlayer killed.")));
+        } catch(...){}
     }
 };
 
