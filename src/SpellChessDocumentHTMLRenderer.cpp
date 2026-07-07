@@ -112,7 +112,7 @@ namespace SpellChessLib {
         }
 
         std::string CommentToken::toText() const {
-            return "<i style=\"color: darkblue;\">" + text + "</i>";
+            return "<i style=\"color: orange;\">" + text + "</i>";
         }
 
         MoveToken::MoveToken(const SpellChessDocument::Arc & arc) : arc(arc){
