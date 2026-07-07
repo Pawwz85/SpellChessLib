@@ -133,11 +133,11 @@ class EnginePlayerRepositoryView : public QWidget {
 
     void onEngineIdentificationFinished(const EngineIdentificationTask::Result & res, const std::string & path);
     private slots:
-    
     void promptForNewEntry();
     void removeCurrentItem();
     void moveCurrentItemUp();
     void moveCurrentItemDown();
+    void editCurrentItem();
     void onNewEngineDialogAccepted();
     void onListChanged(const QList<EngineListEntry> & newList);
     public:
@@ -156,4 +156,16 @@ class AddNewEngineDialog : public QDialog {
      void reset();
 };
 
+class EditEngineDialog : public QDialog {
+    QLineEdit * nameEdit;
+    QLineEdit * pathToEngineEdit;
+    
+    bool pathChanged = false;
+    EngineListEntry resultEntry;
 
+    public:
+    EditEngineDialog(const EngineListEntry & entry, QWidget * parent = nullptr);
+
+    EngineListEntry getResult() const;
+    bool hasPathChanged() const;
+};  

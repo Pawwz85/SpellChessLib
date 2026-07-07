@@ -187,6 +187,26 @@ void EnginePlayerRepositoryView::moveCurrentItemDown(){
     }
 }
 
+void EnginePlayerRepositoryView::editCurrentItem() {
+    int currRow = listWidget->currentRow();
+    auto & repo = getEnginePlayerRepositoryInstance();
+
+    if (currRow >= 0 && currRow < listWidget->count()) {
+        EngineListEntry entry = repo.getAll()[currRow];
+        
+        EditEngineDialog * dialog = new EditEngineDialog(entry, this);
+
+        connect(dialog, &QDialog::accepted, this, [this, dialog, currRow](){
+            auto & repo = getEnginePlayerRepositoryInstance();
+            repo[currRow] = dialog->getResult();
+            onListChanged(repo.getAll());
+            // TODO: test if path provided by user is still valid engine path
+        });
+
+        dialog->open();
+    }
+}
+
 void EnginePlayerRepositoryView::onNewEngineDialogAccepted(){
     
     if(newEngineDialog == nullptr) 
@@ -245,6 +265,7 @@ EnginePlayerRepositoryView::EnginePlayerRepositoryView(QWidget *parent){
     QAction * removeEntryAction = toolBar->addAction(QIcon::fromTheme(QIcon::ThemeIcon::ListRemove),  tr("&Remove"));
     QAction * moveUpAction = toolBar->addAction(QIcon::fromTheme(QIcon::ThemeIcon::GoUp),        tr("&Up"));
     QAction * moveDownAction = toolBar->addAction(QIcon::fromTheme(QIcon::ThemeIcon::GoDown),        tr("&Down"));
+    QAction * editItemAction = toolBar->addAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentProperties), tr("&Edit"));
 
     toolBar->setOrientation(Qt::Vertical);
 
@@ -252,6 +273,7 @@ EnginePlayerRepositoryView::EnginePlayerRepositoryView(QWidget *parent){
     connect(removeEntryAction, &QAction::triggered, this, &EnginePlayerRepositoryView::removeCurrentItem);
     connect(moveUpAction, &QAction::triggered, this, &EnginePlayerRepositoryView::moveCurrentItemUp);
     connect(moveDownAction, &QAction::triggered, this, &EnginePlayerRepositoryView::moveCurrentItemDown);
+    connect(editItemAction, &QAction::triggered, this, &EnginePlayerRepositoryView::editCurrentItem);
 
     connect(&getEnginePlayerRepositoryInstance(), &EnginePlayerRepository::listChanged, this, &EnginePlayerRepositoryView::onListChanged);
     onListChanged(getEnginePlayerRepositoryInstance().getAll());
@@ -309,6 +331,61 @@ EngineListEntry AddNewEngineDialog::getResultEntry() const{
 
 void AddNewEngineDialog::reset(){
     enginePathEdit->setText("");
+}
+
+EngineListEntry EditEngineDialog::getResult() const {
+    return resultEntry;
+}
+
+bool EditEngineDialog::hasPathChanged() const {
+    return pathChanged;
+}
+
+EditEngineDialog::EditEngineDialog(const EngineListEntry & entry, QWidget * parent) : QDialog(parent), resultEntry(entry) {
+    QVBoxLayout *  layout = new QVBoxLayout(this);
+
+    nameEdit = new QLineEdit(this);
+    pathToEngineEdit = new QLineEdit(this);
+    QPushButton * browseButton = new QPushButton(tr("browse", "browse a filesystem"), this);
+    QPushButton * acceptButton = new QPushButton(tr("accept"), this);
+    QPushButton * cancelButton = new QPushButton(tr("cancel"), this);
+
+
+    nameEdit->setText(QString::fromStdString(entry.name));
+    pathToEngineEdit->setText(QString::fromStdString(entry.pathToEngine));
+
+    connect(nameEdit, &QLineEdit::textChanged, this, [this](const QString & val){
+        this->resultEntry.name = val.toStdString();
+    });
+
+    connect(pathToEngineEdit, &QLineEdit::textChanged, this, [this](const QString & val){
+        this->resultEntry.pathToEngine = val.toStdString();
+        this->pathChanged = true;
+    });
+
+    auto enginePath = pathToEngineEdit;
+
+    connect(browseButton, &QPushButton::clicked, this, [this, enginePath]{
+        QString path = QFileDialog::getOpenFileName(this, tr("Select engine"), enginePath->text(), tr("Engines (*.exe)"));
+        enginePath->setText(path);
+    });
+
+
+    layout->addWidget(new QLabel(tr("Engine's name"), this));
+    layout->addWidget(nameEdit);
+    layout->addWidget(new QLabel(tr("Engine's path"), this));
+    layout->addWidget(pathToEngineEdit);
+    layout->addWidget(browseButton);
+
+    QHBoxLayout * buttonLayout = new QHBoxLayout(this);
+    buttonLayout->addWidget(cancelButton);
+    buttonLayout->addWidget(acceptButton);
+    layout->addLayout(buttonLayout);
+
+    connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
+    connect(acceptButton, &QPushButton::clicked, this, &QDialog::accept);
+
+    setLayout(layout);
 }
 
 #include <moc_EngineRepository.cpp>
