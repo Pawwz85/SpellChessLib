@@ -43,6 +43,9 @@ void SpellChessLib::Game::setOutcome(const PlayerColor& winner, const GameStatus
 	this->winner = winner;
 	this->statusCode = outcome;
 
+	whTimer->pause();
+	blTimer->pause();
+
 	if (winner == White)
 		gameDocument->setGameResult(Annotation::WhiteWon);
 	else if (winner == Black)
