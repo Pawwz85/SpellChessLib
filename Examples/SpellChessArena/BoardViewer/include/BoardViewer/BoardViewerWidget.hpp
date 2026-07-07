@@ -53,6 +53,7 @@ namespace BoardViewer {
         void handleGamestateChange(const SpellChessLib::GameState & state);
         void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves);
         void handleModelChanged(const Model & model);
+        void handleDocumentChanged(const SpellChessLib::SpellChessDocument & document);
         void handleTimePairChanged(const SpellChessLib::TimerPairState & state);
         void handleGameRunnerIdChanged(int id) {};
         void handlePromotionActionSelected(Board::PawnPromotionAction action);

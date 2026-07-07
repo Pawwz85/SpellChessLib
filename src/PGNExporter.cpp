@@ -1,117 +1,16 @@
 #include <SpellChess/PGNExporter.h>
 #include <SpellChess/MoveLegality.h> // for isMoveCastling function
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/MoveNotation.h>
 #include <algorithm>
 #include <set>
 #include <sstream>
 
-std::vector<SpellChessLib::SquareIndex> SpellChessLib::PGNExporter::calculateAmbiguities(const PieceType& type, const SquareIndex& to) const{
-	MoveGenerator gen(currentState);
-	auto legalMoves = gen.generateMoves();
-	std::set<SquareIndex> result; // we are using set to filter duplicates. Duplicate might arrive in case of pawn promotions
-
-	for (auto move : legalMoves)
-		if (currentState.getSquare(move.move.from).piece.type == type && move.move.to == to)
-			result.insert(move.move.from);
-
-	return std::vector<SquareIndex>(result.begin(), result.end());
-}
-
-SpellChessLib::PGNExporter::AmbiguityLevel SpellChessLib::PGNExporter::calculateAmbiguityLevel(const PieceType& type, const SpellChessMove& move, const bool& isCapture) const
-{
-	if (type == Pawn) {
-		return isCapture ? FileNeeded : NoAmbiguity;
-	}
-
-	auto ambiguities = calculateAmbiguities(type, move.to);
-	
-	if (ambiguities.empty())
-		throw std::exception("Illegal Move");
-
-	if (ambiguities.size() == 1)
-		return NoAmbiguity;
-
-	size_t matches = 0;
-	int tmp = move.from % 8;
-	if (std::count_if(ambiguities.cbegin(), ambiguities.cend(), [tmp](const SquareIndex& i) { return i % 8 == tmp; }) == 1)
-		return FileNeeded;
-	tmp = move.from / 8;
-	if (std::count_if(ambiguities.cbegin(), ambiguities.cend(), [tmp](const SquareIndex& i) { return i / 8 == tmp; }) == 1)
-		return RankNeeded;
-	return FullSquareNeeded;
-}
-
-char SpellChessLib::PGNExporter::checkMark() const{
-	MoveGenerator gen(currentState);
-	if(!gen.isInCheck()) 
-		return '\0';
-
-	return (gen.generateMoves().size()) ? '+' : '#';
-}
 
 std::string SpellChessLib::PGNExporter::calculateSanMoveTokenAndAdvance(const SpellChessMove& move){
-	char piecePrefixes[7] = { '\0', '\0', 'N', 'B', 'R', 'Q', 'K' };
-	char prefix;
-	PieceType movedPiece = currentState.getSquare(move.from).piece.type;
-	bool isCapture = !currentState.getSquare(move.to).isEmpty();
-
-	std::string base;
-
-	if (movedPiece == None) 
-		throw std::exception("Illegal Move encountered");
-
-	std::string from_str = squareIndexToString(move.from);
-	std::string to_str = squareIndexToString(move.to);
-	AmbiguityLevel lvl = NoAmbiguity;
-
-	if (movedPiece == King) {
-		int castlingDirection = isMoveCastling(currentState, move.from, move.to);
-		if (castlingDirection == int(Kingside)) {
-			base = "O-O";
-			goto BASE_CALCULATED;
-		}
-
-		if (castlingDirection == int(QueenSide)) {
-			base = "O-O-O";
-			goto BASE_CALCULATED;
-		}
-	}
-
-	if (movedPiece == Pawn && currentState.getEnppassantSquare() == move.to)
-		isCapture = true;
-
-	if (prefix = piecePrefixes[movedPiece])
-		base += prefix;
-
-
-	lvl = calculateAmbiguityLevel(movedPiece, move, isCapture);
-
-	switch (lvl) {
-	case FileNeeded:
-		base += from_str[0];
-		break;
-	case RankNeeded:
-		base += from_str[1];
-		break;
-	case FullSquareNeeded:
-		base += from_str;
-		break;
-	}
-
-	if (isCapture)
-		base += 'x';
-
-	base += to_str;
-
-	if (move.promoteTo != None)
-		base += std::string("=") + piecePrefixes[move.promoteTo];
-
-BASE_CALCULATED:
+	std::string result = spellChessMoveToSAN(move, currentState);
 	currentState.makeMove(move);
-	char tmp = checkMark();
-	if (tmp) base += tmp;
-	base += ' ';
-	return base;
+	return result;
 }
 
 bool SpellChessLib::PGNExporter::isStartPos(const GameState& root) const{
@@ -150,7 +49,7 @@ void SpellChessLib::PGNExporter::writeSequence(const Annotation::AnnotatedSequen
 			break;
 		
 		default:
-			throw std::exception("Unknown Sequence element");
+			throw std::logic_error("Unknown Sequence element");
 		}
 	}
 }
@@ -179,7 +78,7 @@ void SpellChessLib::PGNExporter::writeAnnotationSequenceElement(const Annotation
 		writeToken(token, out);
 		break;
 	default:
-		throw std::exception("Unknown Sequence element");
+		throw std::logic_error("Unknown Sequence element");
 	}
 }
 

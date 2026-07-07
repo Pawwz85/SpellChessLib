@@ -400,6 +400,7 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
     
     if (move.jumpSquare != NoSquare) {
         board[move.jumpSquare].jumpable = true;
+        jumpSquare = move.jumpSquare;
         decrementSpellUsages(sideToMove, JumpSpell);
     }
     else

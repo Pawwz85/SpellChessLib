@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/SpellChessDocumentHTMLRenderer.h>
 #include <QObject>
 #include <QWidget>
 #include <QTextDocument>
@@ -12,11 +13,7 @@ namespace BoardViewer {
         Q_OBJECT
         QLayout * layout;
 
-        int lastScrollValue = 0;
-
-        void storeScrollValue();
-        void scrollToTail();
-        void restoreScrollValue();
+        std::unique_ptr<SpellChessLib::HTML::Element> HtmlDocument;
 
         protected:
         QTextDocument * doc;
@@ -30,7 +27,8 @@ namespace BoardViewer {
 
         public slots:
         void documentChanged(const SpellChessLib::SpellChessDocument & document, SpellChessLib::SpellChessDocument::Handle currentPos);
-    
+        void currentPosChanged(SpellChessLib::SpellChessDocument::Handle currentPos);
+
         signals:
         void nodeClicked(int nodeId);
     };

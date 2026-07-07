@@ -322,7 +322,7 @@ namespace SpellChessLib {
 		GameState fromSpellChessFen(const std::string& fen);
 		
 	};
-
+	
 };
 
 

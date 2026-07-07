@@ -21,11 +21,6 @@ namespace SpellChessLib {
 		size_t maxLineLength;
 		bool firstMoveWritten = false;
 
-
-
-		std::vector<SquareIndex> calculateAmbiguities(const PieceType& type, const SquareIndex& to) const;
-		AmbiguityLevel calculateAmbiguityLevel(const PieceType& type, const SpellChessMove& move, const bool & isCapture) const;
-		char checkMark() const;
 		std::string calculateSanMoveTokenAndAdvance(const SpellChessMove& move);
 
 		bool isStartPos(const GameState& root) const;

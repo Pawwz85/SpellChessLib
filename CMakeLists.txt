@@ -19,6 +19,7 @@ set(source_files
 	"src/MatchStatistics.cpp"
 	"src/MoveGen.cpp"
 	"src/MoveLegality.cpp"
+	"src/MoveNotation.cpp"
 	"src/OpeningBookPlayerWrapper.cpp"
 	"src/OpeningBookPositionSupplier.cpp"
 	"src/PGNExporter.cpp"

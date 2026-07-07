@@ -81,9 +81,11 @@ namespace SpellChessLib {
         class MoveToken : public LeafElement {
             SpellChessDocument::Arc arc;
             bool bolt = false;
-            
+
             std::string openAnchor(SpellChessDocument::Handle pos) const;
             std::string closeAnchor() const;
+
+            std::string tokenValue;
 
             public:
             MoveToken(const SpellChessDocument::Arc & arc);

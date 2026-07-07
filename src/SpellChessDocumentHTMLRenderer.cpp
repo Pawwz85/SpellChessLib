@@ -1,4 +1,5 @@
 #include <SpellChess/SpellChessDocumentHTMLRenderer.h>
+#include <SpellChess/MoveNotation.h>
 
 namespace SpellChessLib {
     namespace HTML {
@@ -137,10 +138,12 @@ namespace SpellChessLib {
         };
 
         MoveToken::MoveToken(const SpellChessDocument::Arc & arc) : arc(arc){
+            tokenValue = spellChessMoveToUnicodeString(arc.move, arc.node.lock()->getParentNode().lock()->getGameState());
         }
 
+
         std::string MoveToken::toText() const {
-            std::string result = spellChessMoveToString(arc.move);
+            std::string result = tokenValue;
             if (bolt)
                result = "<b>" + result + "</b>";
             result = openAnchor(arc.node) + result + closeAnchor();

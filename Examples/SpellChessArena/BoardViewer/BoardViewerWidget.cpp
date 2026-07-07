@@ -59,7 +59,7 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
 
     connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);    
     connect(model, &Model::onTimerChanged, this, &BoardViewerWidget::handleTimePairChanged);
-    //connect(model, &Model::documentChanged, this, &BoardViewerWidget::handleDocumentChanged);
+    connect(model, &Model::documentChanged, this, &BoardViewerWidget::handleDocumentChanged);
 
     connect(&whiteSpellPanel, &SpellPanelModel::spellSelected, this, &BoardViewerWidget::handleSpellSelect);
     connect(&whiteSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
@@ -166,8 +166,12 @@ void BoardViewer::BoardViewerWidget::handleTimePairChanged(const SpellChessLib::
 
 void BoardViewer::BoardViewerWidget::handleModelChanged(const Model & model) {
     handleGamestateChange(model.getCurrentState());
-    moveList->documentChanged(*model.getDocument(), model.getCurrentPosition());
+    moveList->currentPosChanged(model.getCurrentPosition());
 };
+
+void BoardViewer::BoardViewerWidget::handleDocumentChanged(const SpellChessLib::SpellChessDocument & document) {
+    moveList->documentChanged(document, model->getCurrentPosition());
+}
 
 
 BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent) : QWidget(parent), model(model){
