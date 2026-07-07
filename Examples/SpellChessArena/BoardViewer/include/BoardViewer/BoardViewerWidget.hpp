@@ -45,6 +45,7 @@ namespace BoardViewer {
         QPointF pointFromSquareIndex(unsigned int sqId) const;
 
         void updateLinter();
+        void keyPressEvent(QKeyEvent * event) override;
 
         protected slots:
         void handleDrag(Board::DragHandle<Board::BoardWidget> & drag);

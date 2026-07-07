@@ -20,6 +20,9 @@ namespace SpellChessLib {
                 Scallable? No. Do I care? No.
             */
             virtual bool isBlock() const; 
+
+            virtual void onCurrentPosChanged(SpellChessDocument::Handle currentPos);
+
             virtual std::string toText() const = 0; 
         };
 
@@ -47,6 +50,7 @@ namespace SpellChessLib {
         
             bool isLeaf() const override;
             std::string toText() const override;
+            void onCurrentPosChanged(SpellChessDocument::Handle currentPos) override;
 
             std::list<std::unique_ptr<Element>> & getChildren();
             const std::list<std::unique_ptr<Element>> & getChildren() const;
@@ -75,10 +79,14 @@ namespace SpellChessLib {
         };
 
         class MoveToken : public LeafElement {
-            SpellChessMove move;
+            SpellChessDocument::Arc arc;
+            bool bolt = false;
+
             public:
-            MoveToken(const SpellChessMove & move);
+            MoveToken(const SpellChessDocument::Arc & arc);
             std::string toText() const override;
+            void onCurrentPosChanged(SpellChessDocument::Handle currentPos) override;
+            
         };
 
         class CommentToken : public LeafElement {

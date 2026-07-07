@@ -20,6 +20,6 @@ namespace BoardViewer {
         MoveListView(QWidget * parent = nullptr);
 
         public slots:
-        void documentChanged(const SpellChessLib::SpellChessDocument & document);
+        void documentChanged(const SpellChessLib::SpellChessDocument & document, SpellChessLib::SpellChessDocument::Handle currentPos);
     };
 };

@@ -1,9 +1,10 @@
 #include <BoardViewerWidget.hpp>
 #include <BoardLinter.hpp>
 #include <BoardGrid/EntityInitializers.hpp>
-#include <map>
 #include <SpellChess/Board.h>
 
+#include <map>
+#include <QKeyEvent>
 class BoardViewer::BoardViewerWidget::NoFocus : public BoardViewer::UserInteractionState {
     BoardViewerWidget * widget;
 
@@ -58,8 +59,7 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
 
     connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);    
     connect(model, &Model::onTimerChanged, this, &BoardViewerWidget::handleTimePairChanged);
-    connect(model, &Model::documentChanged, moveList, &MoveListView::documentChanged);
-    // TODO: handle document changes
+    //connect(model, &Model::documentChanged, this, &BoardViewerWidget::handleDocumentChanged);
 
     connect(&whiteSpellPanel, &SpellPanelModel::spellSelected, this, &BoardViewerWidget::handleSpellSelect);
     connect(&whiteSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
@@ -164,6 +164,7 @@ void BoardViewer::BoardViewerWidget::handleTimePairChanged(const SpellChessLib::
 
 void BoardViewer::BoardViewerWidget::handleModelChanged(const Model & model) {
     handleGamestateChange(model.getCurrentState());
+    moveList->documentChanged(*model.getDocument(), model.getCurrentPosition());
 };
 
 
@@ -192,6 +193,7 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
     setLayout(layout);
 
     connectSlots();
+    setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 }
 
 BoardViewer::BoardViewerWidget::~BoardViewerWidget(){
@@ -203,6 +205,37 @@ void BoardViewer::BoardViewerWidget::updateLinter() {
     lintBoard(board->boardGridModel, linterInput);
     update();
 };
+
+void BoardViewer::BoardViewerWidget::keyPressEvent(QKeyEvent * event) {
+    switch (event->key())
+    {
+        case Qt::Key_Left:
+            model->goBackward(1);
+            break;
+        
+        case Qt::Key_Up:
+            model->goBackward(2);
+            break;
+
+         case Qt::Key_Right:
+            model->goForward(1);
+            break;
+
+        case Qt::Key_Down:
+            model->goForward(2);
+            break;
+
+        case Qt::Key_Home:
+            model->goToDocumentRoot();
+            break;
+
+        default:
+            QWidget::keyPressEvent(event);
+            break;
+    }
+   
+};
+
 
 #define PROMOTION_ACTION(type) Board::PromoteTo##type
 #define SPELLCHESSLIB_PIECE(type) SpellChessLib:: type

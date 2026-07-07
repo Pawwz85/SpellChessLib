@@ -7,9 +7,11 @@
 using namespace BoardViewer;
 
 
-void BoardViewer::MoveListView::documentChanged(const SpellChessLib::SpellChessDocument &document){
+void BoardViewer::MoveListView::documentChanged(const SpellChessLib::SpellChessDocument &document, SpellChessLib::SpellChessDocument::Handle currentPos){
     doc->clear();
-    QString html = QString::fromStdString(SpellChessLib::toHtml(document)->toText());
+    auto HtmlDocument = SpellChessLib::toHtml(document);
+    HtmlDocument->onCurrentPosChanged(currentPos);
+    QString html = QString::fromStdString(HtmlDocument->toText());
     browser->setHtml(html);
 }
 

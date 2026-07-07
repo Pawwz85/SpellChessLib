@@ -7,6 +7,8 @@ namespace SpellChessLib {
             return false;
         }
 
+        void Element::onCurrentPosChanged(SpellChessDocument::Handle currentPos) {};
+
         bool LeafElement::isLeaf() const {
             return true;
         }
@@ -31,6 +33,12 @@ namespace SpellChessLib {
             result += closeTag();
             return result;
         };
+
+        void ContainerElement::onCurrentPosChanged(SpellChessDocument::Handle currentPos) {
+            for (auto & child : children)
+                child->onCurrentPosChanged(currentPos);
+        };
+
 
         std::list<std::unique_ptr<Element>> & ContainerElement::getChildren() {
             return children;
@@ -107,12 +115,28 @@ namespace SpellChessLib {
             return "<i style=\"color: darkblue;\">" + text + "</i>";
         }
 
-        MoveToken::MoveToken(const SpellChessMove & move) : move(move){
+        MoveToken::MoveToken(const SpellChessDocument::Arc & arc) : arc(arc){
         }
 
         std::string MoveToken::toText() const {
-            return spellChessMoveToString(move);
+            std::string result = spellChessMoveToString(arc.move);
+            if (bolt)
+               result = "<b>" + result + "</b>";
+            return result;
         }
+
+        void MoveToken::onCurrentPosChanged(SpellChessDocument::Handle currentPos) {
+            bolt = arc.node.lock() == currentPos.lock();
+        }
+
+    };
+
+    void insertMoveTokenNode(HTML::ContainerElement & parent, const SpellChessDocument::Arc & arc,  const SpellChessDocument & document) {
+        parent.pushBack(std::make_unique<HTML::MoveToken>(arc));
+
+        std::string currentComment = document.getComment(arc.node);
+        if(!currentComment.empty())
+                parent.pushBack(std::make_unique<HTML::CommentToken>(currentComment));
     };
 
     void singleBlockDocumentScan(HTML::ContainerElement & scope, const SpellChessDocument & document, SpellChessDocument::Handle currentPos) {
@@ -127,17 +151,20 @@ namespace SpellChessLib {
         std::string currentComment;
 
         if (!arcs.empty()) {
-            const auto & currentArc = arcs[0];
-            currentBlock.pushBack(std::make_unique<HTML::MoveToken>(currentArc.move));
-
-            currentComment = document.getComment(currentArc.node);
-            if(!currentComment.empty())
-                currentBlock.pushBack(std::make_unique<HTML::CommentToken>(currentComment));
+            insertMoveTokenNode(currentBlock, arcs[0], document);
         }
         
         for (size_t i = 1; i < arcs.size(); ++i) {
             auto & variant = scope.pushBack(std::make_unique<HTML::Variation>());
-            singleBlockDocumentScan(variant, document, arcs[i].node);
+            auto newState = document.getGameState(arcs[i].node);
+            
+            auto & variantBlock = variant.pushBack(std::make_unique<HTML::Block>(
+            newState.getFullMoveCounter(),
+            (newState.getSideToMove() == SpellChessLib::Black) ? HTML::RightColumn : HTML::LeftColumn
+            ));
+
+            insertMoveTokenNode(variantBlock, arcs[i], document);
+            singleBlockDocumentScan(variant, document, arcs[i].node); 
         }
 
         if(!arcs.empty() && !document.getArcs(arcs[0].node).empty())
@@ -204,7 +231,7 @@ namespace SpellChessLib {
         }
         
         for (auto & child : children)
-            if (child->isLeaf())
+            if (!child->isLeaf())
                 mergeHtmlBlocks(*(HTML::ContainerElement*)child.get());
     };
 
