@@ -30,11 +30,23 @@ BoardViewer::SpellChessMoveBuilder & BoardViewer::SpellChessMoveBuilder::setProm
 };
 
 BoardViewer::SpellChessMoveBuilder & BoardViewer::SpellChessMoveBuilder::reset() {
+    (void)clearSquares();
+    (void)clearSpells();
+    return *this;
+};
+
+BoardViewer::SpellChessMoveBuilder & BoardViewer::SpellChessMoveBuilder::clearSquares() {
     this->currentValue.from = this->currentValue.to = SpellChessLib::NoSquare;
-    this->currentValue.jumpSquare = this->currentValue.freezeSquare = SpellChessLib::NoSquare;
     this->currentValue.promoteTo = SpellChessLib::None;
     return *this;
 };
+
+
+BoardViewer::SpellChessMoveBuilder & BoardViewer::SpellChessMoveBuilder::clearSpells() {
+    this->currentValue.jumpSquare = this->currentValue.freezeSquare = SpellChessLib::NoSquare;
+    return *this;
+}
+
 
 SpellChessLib::SpellChessMove BoardViewer::SpellChessMoveBuilder::build() {
     return this->currentValue;

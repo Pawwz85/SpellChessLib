@@ -14,6 +14,8 @@ namespace BoardViewer {
         SpellChessMoveBuilder & setJumpSquare(uint8_t jumpSq);
         SpellChessMoveBuilder & setPromotion(SpellChessLib::PieceType promotionTarget);
         SpellChessMoveBuilder & reset();
+        SpellChessMoveBuilder & clearSquares();
+        SpellChessMoveBuilder & clearSpells();
         SpellChessLib::SpellChessMove build();  
     };
 

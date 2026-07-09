@@ -99,6 +99,8 @@ namespace BoardViewer {
 
         SpellButton * freeze;
         SpellButton * jump;
+        
+        QPushButton * clearSpellButton;
 
         SpellPanelModel * model;
 

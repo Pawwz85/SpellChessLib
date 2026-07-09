@@ -100,7 +100,6 @@ QPointF BoardViewer::BoardViewerWidget::pointFromSquareIndex(unsigned int sqId) 
 }
 
 void BoardViewer::BoardViewerWidget::handleDrag(Board::DragHandle<Board::BoardWidget> & drag) {
-
     interactionManager->onPieceDrag(drag);
 };
 
@@ -108,7 +107,6 @@ void BoardViewer::BoardViewerWidget::handleClick(Board::BoardWidget::ClickHandle
     unsigned int squareIndex = board->squareIndexFromBoardPos(click.getPosition());
 
     if (squareIndex > 63) {
-        interactionManager->onSpellDiscarded();
         return;
     };
 
@@ -266,7 +264,6 @@ void BoardViewer::BoardViewerWidget::handlePromotionActionSelected(Board::PawnPr
   
     moveBuilder->setPromotion(actionToPieceTypeMap[action]);
     model->makeMove(moveBuilder->build());
-    moveBuilder->reset();
     board->closePromotionContextMenu();
     updateLinter();
     board->update();
@@ -278,6 +275,7 @@ void BoardViewer::BoardViewerWidget::handleSpellSelect(SpellChessLib::SpellIdent
 }
 
 void BoardViewer::BoardViewerWidget::handleSpellDiscarded() {
+    moveBuilder->clearSpells();
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
     updateLinter();
 };
@@ -296,7 +294,7 @@ void BoardViewer::BoardViewerWidget::NoFocus::onSpellDiscarded() {
 };
 
 void BoardViewer::BoardViewerWidget::NoFocus::onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) {
-    widget->moveBuilder->reset();
+    widget->moveBuilder->clearSquares();
     widget->updateLinter();
 }
 
@@ -329,7 +327,7 @@ void BoardViewer::BoardViewerWidget::NoFocus::onPieceDrag(Board::DragHandle<Boar
 
 
     if (fromSq > 63 || toSq > 63) {
-        widget->moveBuilder->reset();
+        widget->moveBuilder->clearSquares();
         widget->updateLinter();
         drag.reject();
         widget->board->update();
@@ -374,7 +372,7 @@ bool BoardViewer::BoardViewerWidget::NoFocus::isPromotionMove(SpellChessLib::Squ
 };
 
 void BoardViewer::BoardViewerWidget::PromotionPicker::discard() {
-        widget->moveBuilder->reset();
+        widget->moveBuilder->clearSquares();
         widget->board->closePromotionContextMenu();
         widget->updateLinter();
         widget->board->update();
@@ -424,7 +422,7 @@ BoardViewer::BoardViewerWidget::PromotionPicker::PromotionPicker(SpellChessLib::
 }
 
 void BoardViewer::BoardViewerWidget::SpellSquarePicker::discard() {
-    widget->moveBuilder->reset();
+    widget->moveBuilder->clearSquares();
     widget->updateLinter();
     widget->board->update();
     transistTo(std::make_unique<NoFocus>(widget, manager));

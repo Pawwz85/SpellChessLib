@@ -50,6 +50,7 @@ bool  SpellPanelModel::deselect() {
 
     return anyChange;
 }
+
 bool SpellPanelModel::isSelected(SpellChessLib::SpellIdentificator spell) const{
     return isSpellSelected.at(spell);
 };
@@ -184,11 +185,19 @@ void SpellButton::onClick() {
 SpellPanel::SpellPanel(SpellPanelModel & model , QWidget * parent) : QWidget(parent) {
     freeze = new SpellButton(model, SpellChessLib::FreezeSpell);
     jump = new SpellButton(model, SpellChessLib::JumpSpell);
+    clearSpellButton = new QPushButton(tr("Clear", "Clear casted spell"), this);
+
+    SpellPanelModel * modelPtr = &model; 
+
+    connect(clearSpellButton, &QPushButton::clicked, this, [modelPtr](){
+        modelPtr->deselect();
+    });
 
     freeze->setParent(this);
     jump->setParent(this);
 
     layout = new QHBoxLayout(this);
+    layout->addWidget(clearSpellButton);
     layout->addWidget(freeze);
     layout->addWidget(jump);
     layout->setContentsMargins(QMargins(0, 0, 0, 0));
