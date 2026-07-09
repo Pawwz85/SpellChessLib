@@ -108,6 +108,7 @@ namespace Board {
 
         signals:
         void onDrag(Board::DragHandle<BoardWidget> & drag);
+        void onDragStarted(Board::BoardWidget::ClickHandle & click);
         void onClick(Board::BoardWidget::ClickHandle & click);
     };
 };

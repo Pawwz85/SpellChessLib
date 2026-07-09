@@ -57,6 +57,7 @@ class BoardViewer::BoardViewerWidget::SpellSquarePicker : public UserInteraction
 void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(board, &Board::BoardWidget::onDrag, this, &BoardViewerWidget::handleDrag);
     connect(board, &Board::BoardWidget::onClick, this, &BoardViewerWidget::handleClick);
+    connect(board, &Board::BoardWidget::onDragStarted, this, &BoardViewerWidget::handleClick);
 
     connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);    
     connect(model, &Model::onTimerChanged, this, &BoardViewerWidget::handleTimePairChanged);

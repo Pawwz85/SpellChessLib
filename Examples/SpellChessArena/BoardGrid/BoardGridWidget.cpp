@@ -344,6 +344,10 @@ void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
     (void)startDrag(draggedEntity->getIdentifier());
     draggedEntity->setProperty("z_level", 100);
     draggedEntity->setProperty("size", QSizeF(1.4, 1.4));
+
+    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
+    ClickHandle click(this, point);
+    onDragStarted(click);
 };
 
  void BoardWidget::tryHandleDragActionEnd(BoardWidgetPoint rawMousePoint) {
