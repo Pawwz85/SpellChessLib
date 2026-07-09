@@ -29,7 +29,7 @@ QColor BoardGridWidget::pickColorForSquare(unsigned int index) {
     unsigned int x = index & 7, y = index >> 3;
 
     uint32_t baseColour = ((x + y) % 2 == 0) ? config.baseDarkColour : config.baseLightColour;
-    if (model.getPropertyValue(index, Higlighted))
+    if (model.getPropertyValue(index, Higlighted) || model.getPropertyValue(index, Selected))
         baseColour = config.baseHighlightedColour;
 
     return QRgb(baseColour);
@@ -152,9 +152,8 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
     painter.setPen(pen);
 }
 
-void BoardGridWidget::resetHiglight() {
-    uint64_t selected = boardGridModel.getPropertyBitmask(Board::Selected); 
-    boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, selected).commit();
+void BoardGridWidget::resetHiglight() { 
+    boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, 0ull).commit();
 };
 
 

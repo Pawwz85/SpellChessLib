@@ -134,6 +134,7 @@ void BoardViewer::BoardViewerWidget::handleGamestateChange(const SpellChessLib::
         {SpellChessLib::King,   Board::King}
     };
 
+    moveBuilder->reset();
     auto linterInput = prepareInfoForLinter();
     uint64_t draggableMask =  getDraggablePieces(linterInput);
     for( unsigned int sq = 0; sq < 64; ++sq) {
@@ -154,7 +155,6 @@ void BoardViewer::BoardViewerWidget::handleGamestateChange(const SpellChessLib::
     blackSpellPanel.setSpell(state.getSpell(SpellChessLib::Black, SpellChessLib::JumpSpell));
 
     lintBoard(board->boardGridModel, linterInput);
-    moveBuilder->reset();
     board->update();
 }
 
@@ -317,8 +317,6 @@ void BoardViewer::BoardViewerWidget::NoFocus::onPieceTargetSquareClicked(SpellCh
     } else {
         widget->moveBuilder->setDestSquare(targetSquare);
         widget->model->makeMove(widget->moveBuilder->build());
-        widget->moveBuilder->reset();
-        widget->updateLinter();
     };
 };
 
@@ -354,8 +352,6 @@ void BoardViewer::BoardViewerWidget::NoFocus::onPieceDrag(Board::DragHandle<Boar
             return;
         }
         widget->model->makeMove(move);
-        widget->moveBuilder->reset();
-        widget->updateLinter();
     };
 };
 

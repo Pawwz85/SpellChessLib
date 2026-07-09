@@ -151,15 +151,16 @@ uint64_t BoardViewer::Internal::getSquaresWithRings(const LinterInput & input) {
     uint64_t occupied = Internal::getOccupiedSquares(input);
     uint64_t selected =  input.selectedSquare != SpellChessLib::NoSquare ? (1ull << input.selectedSquare) : 0ull;
 
+    uint64_t highlighted = model.getPropertyBitmask(Board::Higlighted);
     model.startEdit()
     .setPropertyBitmask(Board::Frozen,          Internal::getFrozenSquares(input))
     .setPropertyBitmask(Board::Jumpable,        Internal::getJumpableSquares(input))
     .setPropertyBitmask(Board::Selected,        selected)
     .setPropertyBitmask(Board::Interactable,    interactable)
     .setPropertyBitmask(Board::HasMoveDot,      input.selectedSquare != SpellChessLib::NoSquare ? interactable : 0ull)
-    .setPropertyBitmask(Board::HasRing,         0ull)
     .setPropertyBitmask(Board::HasSnowflake,    Internal::getSquaresWithSnowflakes(input))
     .setPropertyBitmask(Board::HasRing,         Internal::getSquaresWithRings(input))
+    .setPropertyBitmask(Board::Higlighted,      highlighted & interactable)
     .commit();
     
  };
