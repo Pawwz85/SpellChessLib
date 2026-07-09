@@ -21,6 +21,8 @@
         Interactable,
         Higlighted,
         HasMoveDot,
+        HasSnowflake,
+        HasRing,
         SquareProperty_EnumSize
     };
 

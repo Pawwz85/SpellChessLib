@@ -134,7 +134,7 @@ namespace GameSession {
         void handleTimePairChanged(const SpellChessLib::TimerPairState & state);
         void handleGameRunnerIdChanged(int id) {};
         void handlePromotionActionSelected(Board::PawnPromotionAction action);
-        void handleSpellSelect(SpellChessLib::SpellIdentifator spell);
+        void handleSpellSelect(SpellChessLib::SpellIdentificator spell);
         void handleSpellDiscarded();
 
 
@@ -149,7 +149,7 @@ namespace GameSession {
         class NoFocus : public UserInteractionState {
             GameSessionView * view;
 
-            void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+            void onSpellSelected(SpellChessLib::SpellIdentificator spellId) override;
             void onSpellDiscarded() override;
             void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
             void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
@@ -168,7 +168,7 @@ namespace GameSession {
 
             void discard();
 
-            void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override {discard();};
+            void onSpellSelected(SpellChessLib::SpellIdentificator spellId) override {discard();};
             void onSpellDiscarded() override {discard();};   
             void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override {discard();};
             void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {discard();}
@@ -181,11 +181,11 @@ namespace GameSession {
 
         class SpellSquarePicker : public UserInteractionState {
             GameSessionView * view;
-            SpellChessLib::SpellIdentifator spellId;
+            SpellChessLib::SpellIdentificator spellId;
 
             void discard();
 
-            void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+            void onSpellSelected(SpellChessLib::SpellIdentificator spellId) override;
             void onSpellDiscarded() override {discard();};   
             void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
             void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override {onEmptySquareClicked(pieceSquare);}
@@ -193,7 +193,7 @@ namespace GameSession {
             void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) override {discard();};
 
             public:
-            SpellSquarePicker(SpellChessLib::SpellIdentifator spell, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager);
+            SpellSquarePicker(SpellChessLib::SpellIdentificator spell, GameSessionView * view, std::weak_ptr<UserInteractionManager> manager);
 
         };
     };

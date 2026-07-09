@@ -17,18 +17,18 @@ SpellPanelModel::SpellPanelModel(): spells({
     
 }
 
-bool SpellPanelModel::canBeSelected(SpellChessLib::SpellIdentifator spell) const {
+bool SpellPanelModel::canBeSelected(SpellChessLib::SpellIdentificator spell) const {
     auto other = (spell == SpellChessLib::FreezeSpell) ? SpellChessLib::JumpSpell : SpellChessLib::FreezeSpell;
     bool isAvailable = spells.at(spell).canCastNow();
     bool otherSelected = isSpellSelected.at(other);
     return isAvailable && !otherSelected;
 };
 
-bool  SpellPanelModel::canBeUsed(SpellChessLib::SpellIdentifator spell) const {
+bool  SpellPanelModel::canBeUsed(SpellChessLib::SpellIdentificator spell) const {
     return spells.at(spell).canCastNow();
 }
 
-bool SpellPanelModel::trySelect(SpellChessLib::SpellIdentifator spell) {
+bool SpellPanelModel::trySelect(SpellChessLib::SpellIdentificator spell) {
     if (!canBeSelected(spell))
         return false;
 
@@ -50,7 +50,7 @@ bool  SpellPanelModel::deselect() {
 
     return anyChange;
 }
-bool SpellPanelModel::isSelected(SpellChessLib::SpellIdentifator spell) const{
+bool SpellPanelModel::isSelected(SpellChessLib::SpellIdentificator spell) const{
     return isSpellSelected.at(spell);
 };
 
@@ -118,11 +118,11 @@ void SpellPanelModel::setSpell(const SpellChessLib::SpellCounter & counter) {
     spellChanged(counter.spellId);
 };
 
-const SpellChessLib::SpellCounter & SpellPanelModel::getSpell(SpellChessLib::SpellIdentifator spell) const {
+const SpellChessLib::SpellCounter & SpellPanelModel::getSpell(SpellChessLib::SpellIdentificator spell) const {
     return spells.at(spell);
 };
 
-SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifator id) :
+SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentificator id) :
     model(&model), id(id) {    
 
     QString spellStrId = (id == SpellChessLib::FreezeSpell) ? "freeze" : "jump";    
@@ -131,13 +131,12 @@ SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifato
     
     layout = new QVBoxLayout(this);
     btn = new QPushButton(this);
-    cancelBtn = new QPushButton(tr("cancel", "Cancel spell casting"));
+ 
     cooldownBar = new SpellCoolDownBar(2, this);
     
     cooldownBar->setMaximum(2);
     
     connect(btn, &QPushButton::clicked, this, &SpellButton::onClick);
-    connect(cancelBtn, &QPushButton::clicked, this, &SpellButton::onCancel);
 
     connect(&model, &SpellPanelModel::spellChanged, this,  &SpellButton::onModelChanged);
     connect(&SpellSpriteSet::getInstance(), &SpriteSet::SpriteSet::onSpriteSetReloaded, this, &SpellButton::onModelChanged);
@@ -145,7 +144,7 @@ SpellButton::SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifato
     layout->setContentsMargins(QMargins(0,0,0,0));
     layout->addWidget(cooldownBar);
     layout->addWidget(btn);
-    layout->addWidget(cancelBtn);
+
     setLayout(layout);
 
     onModelChanged();
@@ -165,11 +164,6 @@ void SpellButton::onModelChanged () {
 
     btn->setText(QString(char('0' + model->getSpell(id).usagesLeft)));
 
-    if (model->isSelected(id))
-        cancelBtn->show();
-    else
-        cancelBtn->hide();
-
     cooldownBar->setValue(model->getSpell(id).cooldown);    
     /*if (model->getSpell(id).canCastNow()) 
         cooldownBar->hide();
@@ -181,7 +175,10 @@ void SpellButton::onModelChanged () {
 };
 
 void SpellButton::onClick() {
-    model->trySelect(id);
+    if (model->isSelected(id))
+        model->deselect();
+    else
+        model->trySelect(id);
 };
 
 SpellPanel::SpellPanel(SpellPanelModel & model , QWidget * parent) : QWidget(parent) {

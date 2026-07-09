@@ -3,8 +3,10 @@
 using namespace BoardViewer;
 
 void UserInteractionManager::tryAdvanceState() {
-    if(nextState) 
+    if(nextState) {
         currentState.reset(nextState.release());
+        stateChangedCallback();
+    }
 };
 
 void UserInteractionManager::setNextState(std::unique_ptr<UserInteractionState> && nextState) {
@@ -13,11 +15,13 @@ void UserInteractionManager::setNextState(std::unique_ptr<UserInteractionState> 
 
 void UserInteractionManager::setCurrentState(std::unique_ptr<UserInteractionState> && state) {
     this->currentState.reset(state.release());
+    stateChangedCallback();
 };
 
-UserInteractionManager::UserInteractionManager() {};
+UserInteractionManager::UserInteractionManager(std::function<void()> stateChangedCallback) : stateChangedCallback(stateChangedCallback)
+ {};
 
-void UserInteractionManager::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
+void UserInteractionManager::onSpellSelected(SpellChessLib::SpellIdentificator spellId) {
     if (currentState){
         currentState->onSpellSelected(spellId);
         tryAdvanceState();
@@ -59,9 +63,18 @@ void UserInteractionManager::onPieceDrag(Board::DragHandle<Board::BoardWidget> &
     };
 };
 
+std::optional<SpellChessLib::SpellIdentificator> UserInteractionManager::spellPickerRenderTip() const {
+    return currentState ? currentState->spellPickerRenderTip() : std::nullopt;
+};
+
+
 void UserInteractionState::transistTo(std::unique_ptr<UserInteractionState> && newState) {
     if (auto man = manager.lock()) {
         man->setNextState(std::move(newState));
     };
 };
+
+std::optional<SpellChessLib::SpellIdentificator> UserInteractionState::spellPickerRenderTip() const {
+    return std::nullopt;
+}
 

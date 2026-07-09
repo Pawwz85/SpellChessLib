@@ -335,7 +335,7 @@ void GameSession::GameSessionView::handlePromotionActionSelected(Board::PawnProm
     interactionManager->setCurrentState(std::make_unique<States::NoFocus>(this, interactionManager));
 }
 
-void GameSession::GameSessionView::handleSpellSelect(SpellChessLib::SpellIdentifator spell) {
+void GameSession::GameSessionView::handleSpellSelect(SpellChessLib::SpellIdentificator spell) {
     interactionManager->setCurrentState(std::make_unique<States::SpellSquarePicker>(spell, this, interactionManager));
 }
 
@@ -358,7 +358,7 @@ bool GameSession::States::NoFocus::isPromotionMove(SpellChessLib::SquareIndex ta
 };
 
 
-void GameSession::States::NoFocus::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
+void GameSession::States::NoFocus::onSpellSelected(SpellChessLib::SpellIdentificator spellId) {
     transistTo(std::make_unique<SpellSquarePicker>(spellId, view, manager));
 };
 
@@ -469,7 +469,7 @@ void GameSession::States::SpellSquarePicker::discard(){
     transistTo(std::make_unique<NoFocus>(view, manager));
 }
 
-void GameSession::States::SpellSquarePicker::onSpellSelected(SpellChessLib::SpellIdentifator spellId)
+void GameSession::States::SpellSquarePicker::onSpellSelected(SpellChessLib::SpellIdentificator spellId)
 {
     if (spellId !=  this->spellId ) {
         transistTo(std::make_unique<SpellSquarePicker>(spellId, view, manager));
@@ -488,7 +488,7 @@ void GameSession::States::SpellSquarePicker::onEmptySquareClicked(SpellChessLib:
     transistTo(std::make_unique<NoFocus>(view, manager));
 }
 
-GameSession::States::SpellSquarePicker::SpellSquarePicker(SpellChessLib::SpellIdentifator spell, GameSessionView *view, std::weak_ptr<UserInteractionManager> manager) :
+GameSession::States::SpellSquarePicker::SpellSquarePicker(SpellChessLib::SpellIdentificator spell, GameSessionView *view, std::weak_ptr<UserInteractionManager> manager) :
     UserInteractionState(manager), view(view), spellId(spell) {
 }
 

@@ -19,26 +19,26 @@
 namespace BoardViewer {
     class SpellPanelModel : public QObject{
         Q_OBJECT
-        std::map<SpellChessLib::SpellIdentifator, SpellChessLib::SpellCounter> spells;
-        std::map<SpellChessLib::SpellIdentifator, bool> isSpellSelected;
+        std::map<SpellChessLib::SpellIdentificator, SpellChessLib::SpellCounter> spells;
+        std::map<SpellChessLib::SpellIdentificator, bool> isSpellSelected;
 
         public:
 
         SpellPanelModel();
 
-        [[nodiscard]] bool canBeSelected(SpellChessLib::SpellIdentifator spell) const;
-        [[nodiscard]] bool canBeUsed(SpellChessLib::SpellIdentifator spell) const;
-        bool trySelect(SpellChessLib::SpellIdentifator spell);
+        [[nodiscard]] bool canBeSelected(SpellChessLib::SpellIdentificator spell) const;
+        [[nodiscard]] bool canBeUsed(SpellChessLib::SpellIdentificator spell) const;
+        bool trySelect(SpellChessLib::SpellIdentificator spell);
         bool deselect();
-        bool isSelected(SpellChessLib::SpellIdentifator spell) const; 
-        [[nodiscard]] const SpellChessLib::SpellCounter & getSpell(SpellChessLib::SpellIdentifator spell) const; 
+        bool isSelected(SpellChessLib::SpellIdentificator spell) const; 
+        [[nodiscard]] const SpellChessLib::SpellCounter & getSpell(SpellChessLib::SpellIdentificator spell) const; 
 
         void setSpell(const SpellChessLib::SpellCounter & counter);
         
         signals:
 
-        void spellChanged(SpellChessLib::SpellIdentifator spell); // signal for UI
-        void spellSelected(SpellChessLib::SpellIdentifator spell);
+        void spellChanged(SpellChessLib::SpellIdentificator spell); // signal for UI
+        void spellSelected(SpellChessLib::SpellIdentificator spell);
         void spellDiscarded();
 
     };
@@ -73,17 +73,16 @@ namespace BoardViewer {
 
         SpellPanelModel * model;
         
-        SpellChessLib::SpellIdentifator id;
+        SpellChessLib::SpellIdentificator id;
 
         QPushButton * btn;
-        QPushButton * cancelBtn;
         QLayout * layout;
 
         SpellCoolDownBar * cooldownBar;
 
         public: 
 
-        SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentifator id);
+        SpellButton(SpellPanelModel & model, SpellChessLib::SpellIdentificator id);
 
         public slots:
         void onModelChanged();

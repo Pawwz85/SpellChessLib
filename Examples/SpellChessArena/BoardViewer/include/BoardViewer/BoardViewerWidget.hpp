@@ -38,7 +38,6 @@ namespace BoardViewer {
         SpellPanelModel whiteSpellPanel;
         SpellPanelModel blackSpellPanel;
 
-
         void connectSlots();
         LinterInput prepareInfoForLinter() const;
 
@@ -57,7 +56,7 @@ namespace BoardViewer {
         void handleTimePairChanged(const SpellChessLib::TimerPairState & state);
         void handleGameRunnerIdChanged(int id) {};
         void handlePromotionActionSelected(Board::PawnPromotionAction action);
-        void handleSpellSelect(SpellChessLib::SpellIdentifator spell);
+        void handleSpellSelect(SpellChessLib::SpellIdentificator spell);
         void handleSpellDiscarded();
         void handleNodeClicked(int nodeId);
 

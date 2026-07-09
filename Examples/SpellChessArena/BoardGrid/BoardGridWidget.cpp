@@ -1,6 +1,7 @@
 #include <BoardGridWidget.h>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPen>
 #include <map>
 #include <vector>
@@ -34,6 +35,51 @@ QColor BoardGridWidget::pickColorForSquare(unsigned int index) {
     return QRgb(baseColour);
 };
 
+inline QPainterPath createSnowflake(QPoint centre, int radius) {
+    QPainterPath path;
+
+    int r1 = radius/2;
+    int r2 = 5*r1/4;
+    int r3 = radius/4; 
+
+    const qreal PI_sixth = M_PI / 6;
+
+    for (int i = 0; i < 6; ++i) {
+        qreal x1 = centre.x() +  r1 * std::sin(2 * i * PI_sixth), x2 = centre.x() + r1 * std::sin((2 * i + 1) * PI_sixth);
+        qreal y1 = centre.y() + r1 * std::cos(2 * i * PI_sixth), y2 = centre.y() + r1 * std::cos((2 * i + 1) * PI_sixth);
+        
+        qreal x3 = centre.x() + r3 * std::sin(i * PI_sixth * 2), y3 = centre.y() + r3 * std::cos(i * PI_sixth * 2);
+        qreal x4 = centre.x() + r3 * std::sin((i + 1) * PI_sixth * 2), y4 = centre.y() + r3 * std::cos((i+1) * PI_sixth * 2);
+
+
+        path.moveTo(x1, y1);
+        path.lineTo(x2, y2);
+        
+        path.moveTo(centre.x() + r2*((x1 + x2)/2 - centre.x()) / r1,
+            centre.y() + r2*((y1 + y2)/2 - centre.y()) / r1
+        );
+
+        path.lineTo(centre.x() + r3*((x1 + x2)/2 - centre.x()) / r1,
+            centre.y() + r3*((y1 + y2)/2 - centre.y()) / r1
+        );
+
+        path.moveTo(x3, y3);
+        path.lineTo(x4, y4);
+    };
+
+
+    return path;
+};
+
+inline void drawSnowflake(QPainter & painter, QPoint centre, int radius) {
+    painter.save();
+    painter.setBrush(QColorConstants::DarkGray);
+    painter.setPen(QPen(QColorConstants::DarkGray, radius / 10));
+    auto snowflake = createSnowflake(centre, radius);
+    painter.drawPath(snowflake);
+    painter.restore();
+};
+
 void BoardGridWidget::paintEvent(QPaintEvent * event) {
     const QRect & rect = event->rect();
     QWidget::paintEvent(event);
@@ -42,6 +88,8 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
     int step_y = height() / 8;
     int step_x = width() / 8;
     
+    int r = std::min(step_x, step_y)/2;
+
     QPen pen = painter.pen();
     painter.setPen(Qt::transparent); // disable white outlines
 
@@ -56,6 +104,18 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
             int y = row * step_y;
             painter.drawRect(x, y, step_x, step_y);
 
+            QPoint centre(x + step_x/2, y + step_y/2);
+
+            if (boardGridModel.getPropertyValue(squareIndex, HasSnowflake)) {
+                drawSnowflake(painter, centre, r);
+            }
+
+            if (boardGridModel.getPropertyValue(squareIndex, HasRing)) {
+                painter.setBrush(QColorConstants::DarkGray);
+                painter.drawEllipse(centre, r, r);
+                painter.setBrush(pickColorForSquare(squareIndex)); 
+                painter.drawEllipse(centre, 19*r/20, 19*r/20);
+            }
         }
     
     // step 2. Draw pieces or other stuff suppossed to be affected visually by spell (noop unless defined by subclass)

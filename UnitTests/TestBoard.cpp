@@ -135,7 +135,7 @@ public:
 		return *this;
 	}
 
-	GameStateBuilder& setSpell(PlayerColor side, SpellIdentifator spell, int cooldown, int usagesLeft) {
+	GameStateBuilder& setSpell(PlayerColor side, SpellIdentificator spell, int cooldown, int usagesLeft) {
 		size_t index = (side - 1) * 2 + spell;
 		spells[index].cooldown = cooldown;
 		spells[index].usagesLeft = usagesLeft;

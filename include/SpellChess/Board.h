@@ -34,7 +34,7 @@ namespace SpellChessLib {
 		QueenSide
 	};
 
-	enum SpellIdentifator {
+	enum SpellIdentificator {
 		FreezeSpell,
 		JumpSpell,
 	};
@@ -59,7 +59,7 @@ namespace SpellChessLib {
 	};
 	
 	struct SpellCounter {
-		SpellIdentifator spellId;
+		SpellIdentificator spellId;
 		uint8_t usagesLeft;
 		uint8_t cooldown;
 
@@ -202,7 +202,7 @@ namespace SpellChessLib {
 		bool castlingRights[2][2];
 		BoardSquare board[64];
 
-		inline SpellCounter& getSpell(const PlayerColor& side, const SpellIdentifator& spellType) {
+		inline SpellCounter& getSpell(const PlayerColor& side, const SpellIdentificator& spellType) {
 			return spells[side - 1][spellType];
 		}
 
@@ -210,13 +210,13 @@ namespace SpellChessLib {
 			return castlingRights[side - 1][direction];
 		}
 
-		inline void decrementSpellCooldown(const PlayerColor& side, const SpellIdentifator& spellType) {
+		inline void decrementSpellCooldown(const PlayerColor& side, const SpellIdentificator& spellType) {
 			auto& counter = getSpell(side, spellType);
 			if (counter.cooldown > 0) 
 				--counter.cooldown;
 		}
 
-		inline void decrementSpellUsages(const PlayerColor& side, const SpellIdentifator& spellType) {
+		inline void decrementSpellUsages(const PlayerColor& side, const SpellIdentificator& spellType) {
 			auto& counter = getSpell(side, spellType);
 			--counter.usagesLeft;
 
@@ -279,11 +279,11 @@ namespace SpellChessLib {
 		const uint16_t& getHalfMoveCounter() const { return halfMoveRuleCounter; };
 		const uint16_t& getFullMoveCounter() const { return fullMoveCounter; }
 		const BoardSquare& getSquare(const SquareIndex& i) const { return board[i]; };
-		const SpellCounter& getSpell(const PlayerColor& side, const SpellIdentifator& spellType) const {
+		const SpellCounter& getSpell(const PlayerColor& side, const SpellIdentificator& spellType) const {
 			return spells[side - 1][spellType];
 		}
 
-		bool canUseSpell(const PlayerColor& side, const SpellIdentifator& spellType) const {
+		bool canUseSpell(const PlayerColor& side, const SpellIdentificator& spellType) const {
 			auto& spell = getSpell(side, spellType);
 			return spell.usagesLeft && spell.cooldown == 0;
 		}

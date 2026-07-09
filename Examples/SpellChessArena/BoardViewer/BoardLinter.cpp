@@ -30,6 +30,16 @@ uint64_t BoardViewer::Internal::getMovablePieces(const LinterInput & input) {
     return result;
 };
 
+uint64_t BoardViewer::Internal::getOccupiedSquares(const LinterInput & input) {
+    uint64_t result = 0ull;
+
+    for(size_t i = 0; i <64; ++i)
+        if(!input.state.getSquare(i).isEmpty())
+            result |= (1ull << i);
+    return result;
+}
+
+
 uint64_t BoardViewer::Internal::getValidTargetSquares(const LinterInput & input) {
 
     if (input.playerColor != input.state.getSideToMove()    ||
@@ -81,14 +91,64 @@ uint64_t  BoardViewer::Internal::getFrozenSquares(const LinterInput & input) {
 };
 
 uint64_t BoardViewer::Internal::getInteractiveSquares(const LinterInput & input) {
-    return  input.selectedSquare == SpellChessLib::NoSquare ? 
+
+    if(!input.selectedSpell.has_value())
+        return  input.selectedSquare == SpellChessLib::NoSquare ? 
             getMovablePieces(input) :
             getValidTargetSquares(input);
+
+    auto spell = input.selectedSpell.value();
+
+    uint64_t result;
+    SpellChessLib::SquareIndex forbiddenSq;
+    if (spell == SpellChessLib::FreezeSpell) {
+        result = ~0ull;
+        forbiddenSq = input.state.getFreezeSquare();
+    } else {
+        result = getOccupiedSquares(input);
+        forbiddenSq = input.state.getJumpSquare();
+    }
+
+    if (forbiddenSq != SpellChessLib::NoSquare)
+        result &= ~(1ull << forbiddenSq);
+
+    return result;
 };
 
+uint64_t BoardViewer::Internal::getSquaresWithSnowflakes(const LinterInput & input) {
+    if (input.selectedSpell.value_or(SpellChessLib::JumpSpell) != SpellChessLib::FreezeSpell)
+        return 0ull;
+
+    uint64_t result = ~0ull;
+
+    if (input.state.getFreezeSquare() != SpellChessLib::NoSquare) 
+        result &= ~(1ull << input.state.getFreezeSquare());
+    
+    result &= ~getOccupiedSquares(input);
+    
+    return result;
+}
+
+uint64_t BoardViewer::Internal::getSquaresWithRings(const LinterInput & input) {
+    if (!input.selectedSpell.has_value())
+        return 0ull;
+
+    SpellChessLib::SpellIdentificator spell = input.selectedSpell.value();
+
+    uint64_t result = getOccupiedSquares(input);
+
+    if (input.state.getJumpSquare() != SpellChessLib::NoSquare && spell == SpellChessLib::JumpSpell)
+        result &= ~(1ull << input.state.getJumpSquare());
+
+    if (input.state.getFreezeSquare() != SpellChessLib::NoSquare && spell == SpellChessLib::FreezeSpell)
+        result &= ~(1ull << input.state.getFreezeSquare());
+
+    return result;
+}
 
  void BoardViewer::lintBoard(Board::BoardGridModel & model, const LinterInput & input) {
     uint64_t interactable = Internal::getInteractiveSquares(input);
+    uint64_t occupied = Internal::getOccupiedSquares(input);
     uint64_t selected =  input.selectedSquare != SpellChessLib::NoSquare ? (1ull << input.selectedSquare) : 0ull;
 
     model.startEdit()
@@ -97,7 +157,11 @@ uint64_t BoardViewer::Internal::getInteractiveSquares(const LinterInput & input)
     .setPropertyBitmask(Board::Selected,        selected)
     .setPropertyBitmask(Board::Interactable,    interactable)
     .setPropertyBitmask(Board::HasMoveDot,      input.selectedSquare != SpellChessLib::NoSquare ? interactable : 0ull)
+    .setPropertyBitmask(Board::HasRing,         0ull)
+    .setPropertyBitmask(Board::HasSnowflake,    Internal::getSquaresWithSnowflakes(input))
+    .setPropertyBitmask(Board::HasRing,         Internal::getSquaresWithRings(input))
     .commit();
+    
  };
 
  uint64_t BoardViewer::getDraggablePieces(const LinterInput & input) {

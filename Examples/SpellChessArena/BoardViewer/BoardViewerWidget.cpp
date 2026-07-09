@@ -8,7 +8,7 @@
 class BoardViewer::BoardViewerWidget::NoFocus : public BoardViewer::UserInteractionState {
     BoardViewerWidget * widget;
 
-    void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+    void onSpellSelected(SpellChessLib::SpellIdentificator spellId) override;
     void onSpellDiscarded() override;
     void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
     void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
@@ -25,7 +25,7 @@ class BoardViewer::BoardViewerWidget::PromotionPicker : public UserInteractionSt
     BoardViewerWidget * widget;
 
     void discard();
-    void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+    void onSpellSelected(SpellChessLib::SpellIdentificator spellId) override;
     void onSpellDiscarded() override;
     void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override ;
     void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
@@ -38,18 +38,19 @@ class BoardViewer::BoardViewerWidget::PromotionPicker : public UserInteractionSt
 
 class BoardViewer::BoardViewerWidget::SpellSquarePicker : public UserInteractionState {
     BoardViewerWidget * widget;
-    SpellChessLib::SpellIdentifator spellId;
+    SpellChessLib::SpellIdentificator spellId;
 
     void discard();
-    void onSpellSelected(SpellChessLib::SpellIdentifator spellId) override;
+    void onSpellSelected(SpellChessLib::SpellIdentificator spellId) override;
     void onSpellDiscarded() override;
     void onEmptySquareClicked(SpellChessLib::SquareIndex squareIndex) override;
     void onPieceClicked(SpellChessLib::SquareIndex pieceSquare, SpellChessLib::Piece piece) override;
     void onPieceTargetSquareClicked(SpellChessLib::SquareIndex targetSquare) override;
     void onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) override;
-
+    std::optional<SpellChessLib::SpellIdentificator> spellPickerRenderTip() const override;
+    
     public:
-    SpellSquarePicker(SpellChessLib::SpellIdentifator spell, BoardViewerWidget * widget, std::weak_ptr<UserInteractionManager> manager): 
+    SpellSquarePicker(SpellChessLib::SpellIdentificator spell, BoardViewerWidget * widget, std::weak_ptr<UserInteractionManager> manager): 
     UserInteractionState(manager), widget(widget), spellId(spell) {}
 };
 
@@ -82,6 +83,7 @@ BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() 
     result.selectedSquare = builderState.from;
     result.previewedFreezeSquare = builderState.freezeSquare;
     result.previewedJumpableSquare = builderState.jumpSquare;
+    result.selectedSpell = interactionManager->spellPickerRenderTip();
     return result;
 }
 
@@ -175,9 +177,7 @@ void BoardViewer::BoardViewerWidget::handleDocumentChanged(const SpellChessLib::
 
 
 BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent) : QWidget(parent), model(model){
-    interactionManager = std::make_shared<UserInteractionManager>();
     moveBuilder = std::make_shared<SpellChessMoveBuilder>();
-    interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
     
     board = new Board::BoardWidget(this);
     layout = new QGridLayout(this);
@@ -200,6 +200,12 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
 
     connectSlots();
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+
+    interactionManager = std::make_shared<UserInteractionManager>([this]() {
+        // When state changes, update linter in case if render tips had changed
+        this->updateLinter();
+    });
+    interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
 }
 
 BoardViewer::BoardViewerWidget::~BoardViewerWidget(){
@@ -264,12 +270,13 @@ void BoardViewer::BoardViewerWidget::handlePromotionActionSelected(Board::PawnPr
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
 }
 
-void BoardViewer::BoardViewerWidget::handleSpellSelect(SpellChessLib::SpellIdentifator spell) {
+void BoardViewer::BoardViewerWidget::handleSpellSelect(SpellChessLib::SpellIdentificator spell) {
     interactionManager->setCurrentState(std::make_unique<SpellSquarePicker>(spell, this, interactionManager));
 }
 
 void BoardViewer::BoardViewerWidget::handleSpellDiscarded() {
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
+    updateLinter();
 };
 
 void BoardViewer::BoardViewerWidget::handleNodeClicked(int nodeId) {
@@ -277,8 +284,8 @@ void BoardViewer::BoardViewerWidget::handleNodeClicked(int nodeId) {
     model->setCurrentPosition(newPos);
 }
 
-void BoardViewer::BoardViewerWidget::NoFocus::onSpellSelected(SpellChessLib::SpellIdentifator spellId)  {
-        transistTo(std::make_unique<SpellSquarePicker>(spellId, widget, manager));
+void BoardViewer::BoardViewerWidget::NoFocus::onSpellSelected(SpellChessLib::SpellIdentificator spellId)  {
+    transistTo(std::make_unique<SpellSquarePicker>(spellId, widget, manager));
 };
 
 void BoardViewer::BoardViewerWidget::NoFocus::onSpellDiscarded() {
@@ -375,7 +382,7 @@ void BoardViewer::BoardViewerWidget::PromotionPicker::discard() {
         transistTo(std::make_unique<NoFocus>(widget, manager));
 }
 
-void BoardViewer::BoardViewerWidget::PromotionPicker::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
+void BoardViewer::BoardViewerWidget::PromotionPicker::onSpellSelected(SpellChessLib::SpellIdentificator spellId) {
     discard();
 }
 
@@ -424,7 +431,7 @@ void BoardViewer::BoardViewerWidget::SpellSquarePicker::discard() {
     transistTo(std::make_unique<NoFocus>(widget, manager));
 }
 
-void BoardViewer::BoardViewerWidget::SpellSquarePicker::onSpellSelected(SpellChessLib::SpellIdentifator spellId) {
+void BoardViewer::BoardViewerWidget::SpellSquarePicker::onSpellSelected(SpellChessLib::SpellIdentificator spellId) {
     if (spellId !=  this->spellId ) 
         transistTo(std::make_unique<SpellSquarePicker>(spellId, widget, manager));
 }
@@ -439,9 +446,7 @@ void BoardViewer::BoardViewerWidget::SpellSquarePicker::onEmptySquareClicked(Spe
         widget->moveBuilder->setFreezeSquare(squareIndex);
     else
         widget->moveBuilder->setJumpSquare(squareIndex);
-    
-    widget->updateLinter();
-    widget->board->update();
+
     transistTo(std::make_unique<NoFocus>(widget, manager));
 }
 
@@ -456,5 +461,10 @@ void BoardViewer::BoardViewerWidget::SpellSquarePicker::onPieceTargetSquareClick
 void BoardViewer::BoardViewerWidget::SpellSquarePicker::onPieceDrag(Board::DragHandle<Board::BoardWidget> & drag) {
     discard();
 }
+
+std::optional<SpellChessLib::SpellIdentificator> BoardViewer::BoardViewerWidget::SpellSquarePicker::spellPickerRenderTip() const {
+    return spellId;
+}
+
 
 #include <moc_BoardViewerWidget.cpp>
