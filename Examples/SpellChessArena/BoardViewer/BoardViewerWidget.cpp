@@ -85,6 +85,7 @@ BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() 
     result.previewedFreezeSquare = builderState.freezeSquare;
     result.previewedJumpableSquare = builderState.jumpSquare;
     result.selectedSpell = interactionManager->spellPickerRenderTip();
+    result.isDragging = board->isDragging();
     return result;
 }
 
@@ -99,6 +100,7 @@ QPointF BoardViewer::BoardViewerWidget::pointFromSquareIndex(unsigned int sqId) 
 }
 
 void BoardViewer::BoardViewerWidget::handleDrag(Board::DragHandle<Board::BoardWidget> & drag) {
+
     interactionManager->onPieceDrag(drag);
 };
 

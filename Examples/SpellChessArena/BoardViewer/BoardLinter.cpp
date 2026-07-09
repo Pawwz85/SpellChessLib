@@ -43,7 +43,8 @@ uint64_t BoardViewer::Internal::getOccupiedSquares(const LinterInput & input) {
 uint64_t BoardViewer::Internal::getValidTargetSquares(const LinterInput & input) {
 
     if (input.playerColor != input.state.getSideToMove()    ||
-        input.playerColor == SpellChessLib::Nobody)
+        input.playerColor == SpellChessLib::Nobody          ||
+        input.selectedSquare == SpellChessLib::NoSquare)
         return 0ull;
 
     SpellChessLib::MoveGenerator gen(input.state);
@@ -92,10 +93,17 @@ uint64_t  BoardViewer::Internal::getFrozenSquares(const LinterInput & input) {
 
 uint64_t BoardViewer::Internal::getInteractiveSquares(const LinterInput & input) {
 
-    if(!input.selectedSpell.has_value())
-        return  input.selectedSquare == SpellChessLib::NoSquare ? 
-            getMovablePieces(input) :
-            getValidTargetSquares(input);
+    if(!input.selectedSpell.has_value()) {
+        uint64_t result = 0ull;
+
+        if (!input.isDragging)
+            result |= getMovablePieces(input);
+
+        if  (input.selectedSquare != SpellChessLib::NoSquare)
+            result |= getValidTargetSquares(input);
+        return result;
+    }
+
 
     auto spell = input.selectedSpell.value();
 
@@ -157,7 +165,7 @@ uint64_t BoardViewer::Internal::getSquaresWithRings(const LinterInput & input) {
     .setPropertyBitmask(Board::Jumpable,        Internal::getJumpableSquares(input))
     .setPropertyBitmask(Board::Selected,        selected)
     .setPropertyBitmask(Board::Interactable,    interactable)
-    .setPropertyBitmask(Board::HasMoveDot,      input.selectedSquare != SpellChessLib::NoSquare ? interactable : 0ull)
+    .setPropertyBitmask(Board::HasMoveDot,      Internal::getValidTargetSquares(input))
     .setPropertyBitmask(Board::HasSnowflake,    Internal::getSquaresWithSnowflakes(input))
     .setPropertyBitmask(Board::HasRing,         Internal::getSquaresWithRings(input))
     .setPropertyBitmask(Board::Higlighted,      highlighted & interactable)

@@ -49,6 +49,7 @@ namespace BoardViewer {
         protected slots:
         void handleDrag(Board::DragHandle<Board::BoardWidget> & drag);
         void handleClick(Board::BoardWidget::ClickHandle & click);
+
         void handleGamestateChange(const SpellChessLib::GameState & state);
         void handleMoveListChanged(const std::vector<SpellChessLib::SpellChessMove> & moves);
         void handleModelChanged(const Model & model);

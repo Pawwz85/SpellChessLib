@@ -69,6 +69,8 @@ namespace Board {
         virtual ~DragArea() = default;
 
         virtual DragHandle<Context> * startDrag(unsigned int EntityId) = 0;
+
+        virtual bool isDragging() const;
     };
 };
 
@@ -134,3 +136,8 @@ template <class Context>
 std::unique_ptr<QPropertyAnimation> Board::DragArea<Context>::getDragAnimation(std::shared_ptr<Internal::DragInfo> info) {
     return std::make_unique<Internal::MouseFollowAnimation>(nullptr, info);
 };
+
+template <class Context>
+bool Board::DragArea<Context>::isDragging() const {
+    return currentlyDraggedPiece != nullptr && !currentlyDraggedPiece->closed;
+}

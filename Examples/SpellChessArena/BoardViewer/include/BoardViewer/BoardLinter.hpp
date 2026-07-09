@@ -14,6 +14,7 @@ namespace BoardViewer {
         SpellChessLib::SquareIndex previewedFreezeSquare;
         SpellChessLib::SquareIndex previewedJumpableSquare;
         std::optional<SpellChessLib::SpellIdentificator> selectedSpell;
+        bool isDragging;
    };
 
 
