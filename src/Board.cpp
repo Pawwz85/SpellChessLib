@@ -439,6 +439,15 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
     sideToMove = flipColor(sideToMove);
 }
 
+int SpellChessLib::GameState::countPiece(Piece piece) const{
+    int result = 0;
+    for(size_t i = 0; i < 64; ++i)
+        if (board[i].piece == piece)
+            ++result;
+    return result;
+};
+
+
 void SpellChessLib::FenValidator::throwIfInvalid(const char* fen) const
 {
     if (!isValidFen(fen)) {

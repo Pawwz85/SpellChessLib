@@ -302,6 +302,7 @@ namespace SpellChessLib {
 
 		void makeMove(const SpellChessMove& move);
 
+		int countPiece(Piece piece) const;
 
 	};
 	const char START_POS[57] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
