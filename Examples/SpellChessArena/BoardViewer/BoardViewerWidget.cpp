@@ -244,6 +244,9 @@ void BoardViewer::BoardViewerWidget::keyPressEvent(QKeyEvent * event) {
             model->goToDocumentRoot();
             break;
 
+        case Qt::Key_End:
+            model->goToDocumentTail();
+            break;
         default:
             QWidget::keyPressEvent(event);
             break;
