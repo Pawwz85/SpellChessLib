@@ -193,6 +193,13 @@ SpellPanel::SpellPanel(SpellPanelModel & model , QWidget * parent) : QWidget(par
         modelPtr->deselect();
     });
 
+    connect(&model, &SpellPanelModel::spellChanged, this, [this, modelPtr](SpellChessLib::SpellIdentificator spellId) {
+        bool shouldBeEnabled = 
+        modelPtr->isSelected(SpellChessLib::FreezeSpell) ||
+        modelPtr->isSelected(SpellChessLib::JumpSpell);
+        this->clearSpellButton->setEnabled(shouldBeEnabled);
+    });
+
     freeze->setParent(this);
     jump->setParent(this);
 
