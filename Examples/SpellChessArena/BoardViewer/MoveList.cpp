@@ -1,12 +1,23 @@
 #include <MoveList.hpp>
 #include <string>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QScrollBar>
-
+#include <QIcon>
+#include <QToolButton>
+#include <QToolBox>
 #include <SpellChess/SpellChessDocumentHTMLRenderer.h>
 
 using namespace BoardViewer;
 
+const size_t navDirectiveCount = 4;
+
+const QIcon::ThemeIcon navIcons[navDirectiveCount] = {
+    QIcon::ThemeIcon::MediaSkipBackward,
+    QIcon::ThemeIcon::MediaSeekBackward,
+    QIcon::ThemeIcon::MediaSeekForward,
+    QIcon::ThemeIcon::MediaSkipForward
+};
 
 void BoardViewer::MoveListView::documentChanged(const SpellChessLib::SpellChessDocument &document, SpellChessLib::SpellChessDocument::Handle currentPos){
     HtmlDocument.reset(SpellChessLib::toHtml(document).release());
@@ -30,7 +41,6 @@ void MoveListView::anchorClicked(const QUrl & anchor) {
     };
 };
 
-
 MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
     layout = new QVBoxLayout(this);
     browser = new QTextBrowser(this);
@@ -42,6 +52,21 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
     connect(browser, &QTextBrowser::anchorClicked, this, &MoveListView::anchorClicked);
 
     layout->addWidget(browser);
+
+    QHBoxLayout * navBox = new QHBoxLayout(this);
+
+    for(size_t i = 0; i < navDirectiveCount; ++i) {
+        auto navButton = new QToolButton(this);
+        navButton->setIcon(QIcon::fromTheme(navIcons[i]));
+
+        connect(navButton, &QToolButton::clicked, this, [this, i](){
+            this->navButtonClicked((NavigationDirective)i);
+        });
+
+        navBox->addWidget(navButton);
+    }
+
+    layout->addItem(navBox);
     setLayout(layout);
 }
 

@@ -9,6 +9,7 @@
 #include <QLayout>
 
 namespace BoardViewer {
+
     class MoveListView : public QWidget {
         Q_OBJECT
         QLayout * layout;
@@ -23,6 +24,14 @@ namespace BoardViewer {
         void anchorClicked(const QUrl & anchor);
 
         public:
+
+        enum NavigationDirective {
+            GoToRoot,
+            GoToPreviousState,
+            GoToNextState,
+            GoToTail
+        };
+
         MoveListView(QWidget * parent = nullptr);
 
         public slots:
@@ -31,5 +40,6 @@ namespace BoardViewer {
 
         signals:
         void nodeClicked(int nodeId);
+        void navButtonClicked(NavigationDirective dir);
     };
 };

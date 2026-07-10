@@ -69,6 +69,7 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(&blackSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
 
     connect(moveList, &MoveListView::nodeClicked, this, &BoardViewerWidget::handleNodeClicked);
+    connect(moveList, &MoveListView::navButtonClicked, this, &BoardViewerWidget::handleMoveListNav);
 }
 
 BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() const {
@@ -284,6 +285,27 @@ void BoardViewer::BoardViewerWidget::handleNodeClicked(int nodeId) {
     auto newPos = model->getDocument()->getNodeById(nodeId);
     model->setCurrentPosition(newPos);
 }
+
+void  BoardViewer::BoardViewerWidget::handleMoveListNav(MoveListView::NavigationDirective directive) {
+    switch (directive)
+    {
+        case MoveListView::NavigationDirective::GoToRoot:
+            model->goToDocumentRoot();
+            break;
+        case MoveListView::NavigationDirective::GoToPreviousState:
+            model->goBackward(1);
+            break;
+        case MoveListView::NavigationDirective::GoToNextState:
+            model->goForward(1);
+            break;
+        case MoveListView::NavigationDirective::GoToTail:
+            model->goToDocumentTail();
+            break;
+        default:
+            break;
+    }
+};
+
 
 void BoardViewer::BoardViewerWidget::NoFocus::onSpellSelected(SpellChessLib::SpellIdentificator spellId)  {
     transistTo(std::make_unique<SpellSquarePicker>(spellId, widget, manager));

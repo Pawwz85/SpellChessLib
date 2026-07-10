@@ -60,6 +60,7 @@ namespace BoardViewer {
         void handleSpellSelect(SpellChessLib::SpellIdentificator spell);
         void handleSpellDiscarded();
         void handleNodeClicked(int nodeId);
+        void handleMoveListNav(MoveListView::NavigationDirective directive);
 
         public:
 
