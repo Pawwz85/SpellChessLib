@@ -61,6 +61,7 @@ namespace BoardViewer {
         void handleSpellDiscarded();
         void handleNodeClicked(int nodeId);
         void handleMoveListNav(MoveListView::NavigationDirective directive);
+        void handleCommentEdit(const QString & newComment);
 
         public:
 

@@ -72,6 +72,13 @@ BoardViewer::Model::goToDocumentTail() {
     setCurrentPosition(document->getTail());
 };
 
+void
+BoardViewer::Model::setComment(const std::string & newComment) {
+    document->setComment(currentPosition, newComment);
+    documentChanged(*document);
+}
+
+
 SpellChessLib::GameState
 BoardViewer::Model::getCurrentState() const {
     return document->getGameState(getCurrentPosition());

@@ -6,6 +6,7 @@
 #include <QIcon>
 #include <QToolButton>
 #include <QToolBar>
+#include <QLabel>
 #include <SpellChess/SpellChessDocumentHTMLRenderer.h>
 
 using namespace BoardViewer;
@@ -30,6 +31,15 @@ void BoardViewer::MoveListView::currentPosChanged(SpellChessLib::SpellChessDocum
     browser->setHtml(html);
     std::string currentAnchor = "node" + std::to_string(currentPos.lock()->getNodeId());
     browser->scrollToAnchor(QString::fromStdString(currentAnchor));
+
+    QString comment = QString::fromStdString(currentPos.lock()->getComment());
+
+    if (commentEdit->toPlainText() != comment) {
+        commentEdit->blockSignals(true);
+        commentEdit->setPlainText(comment);
+        commentEdit->blockSignals(false);
+    }
+    
 };
 
 void MoveListView::anchorClicked(const QUrl & anchor) {
@@ -51,6 +61,9 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
     
     connect(browser, &QTextBrowser::anchorClicked, this, &MoveListView::anchorClicked);
 
+    QLabel * moveListLabel = new QLabel(tr("Moves", "Game history"), this);
+    moveListLabel->setAlignment(Qt::AlignCenter);
+    layout->addWidget(moveListLabel);
     layout->addWidget(browser);
 
     QToolBar * navBox = new QToolBar(this);
@@ -67,6 +80,18 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
     }
 
     layout->addWidget(navBox);
+
+    commentEdit = new QTextEdit(this);
+    commentEdit->setPlaceholderText(tr("Insert comment here"));
+    commentEdit->setMaximumHeight(75);
+    
+    commentEdit->setLineWrapMode(QTextEdit::LineWrapMode::WidgetWidth);
+    layout->addWidget(commentEdit);
+
+    connect(commentEdit, &QTextEdit::textChanged, this, [this](){
+        currentCommentEdited(this->commentEdit->toPlainText());
+    });
+
     setLayout(layout);
 }
 

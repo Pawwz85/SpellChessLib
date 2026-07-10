@@ -283,6 +283,11 @@ namespace SpellChessLib {
 
         auto currentPos = document.getRoot();
 
+        std::string rootComment = document.getComment(currentPos);
+        if(!rootComment.empty())
+                result->pushBack(std::make_unique<HTML::CommentToken>(rootComment));
+    
+
         singleBlockDocumentScan(*result, document, currentPos);
         eraseEmptyBlocks(*result);
         mergeHtmlBlocks(*result);

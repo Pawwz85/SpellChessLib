@@ -70,6 +70,7 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
 
     connect(moveList, &MoveListView::nodeClicked, this, &BoardViewerWidget::handleNodeClicked);
     connect(moveList, &MoveListView::navButtonClicked, this, &BoardViewerWidget::handleMoveListNav);
+    connect(moveList, &MoveListView::currentCommentEdited, this, &BoardViewerWidget::handleCommentEdit);
 }
 
 BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() const {
@@ -305,6 +306,11 @@ void  BoardViewer::BoardViewerWidget::handleMoveListNav(MoveListView::Navigation
             break;
     }
 };
+
+void BoardViewer::BoardViewerWidget::handleCommentEdit(const QString & newComment) {
+    model->setComment(newComment.toStdString());
+}
+
 
 
 void BoardViewer::BoardViewerWidget::NoFocus::onSpellSelected(SpellChessLib::SpellIdentificator spellId)  {

@@ -19,6 +19,7 @@ namespace BoardViewer {
         protected:
         QTextDocument * doc;
         QTextBrowser * browser;
+        QTextEdit * commentEdit;
 
         protected slots:
         void anchorClicked(const QUrl & anchor);
@@ -41,5 +42,6 @@ namespace BoardViewer {
         signals:
         void nodeClicked(int nodeId);
         void navButtonClicked(NavigationDirective dir);
+        void currentCommentEdited(const QString & newValue);
     };
 };

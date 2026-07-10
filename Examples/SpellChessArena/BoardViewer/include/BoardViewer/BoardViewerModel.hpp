@@ -51,6 +51,8 @@ namespace BoardViewer {
         // Go to document's root
         void goToDocumentRoot();
         
+        // Set comment on current position
+        virtual void setComment(const std::string & newComment);
 
         virtual SpellChessLib::SpellChessDocument::Handle getCurrentPosition() const = 0;
         virtual SpellChessLib::GameState getCurrentState() const; 
