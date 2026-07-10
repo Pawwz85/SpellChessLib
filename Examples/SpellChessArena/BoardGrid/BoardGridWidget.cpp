@@ -100,11 +100,15 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
             if(squareIndex == (unsigned int)-1) continue;
 
             painter.setBrush(pickColorForSquare(squareIndex)); 
-            int x = col * step_x;
-            int y = row * step_y;
-            painter.drawRect(x, y, step_x, step_y);
-
-            QPoint centre(x + step_x/2, y + step_y/2);
+            
+            auto rect = getSquareBoundingRect(col, row);
+            int x = rect.x();
+            int y = rect.y();
+            step_x = rect.width();
+            step_y = rect.height();
+            
+            painter.drawRect(rect);
+            QPoint centre(x + rect.width() /2, y + rect.height()/2);
 
             if (boardGridModel.getPropertyValue(squareIndex, HasSnowflake)) {
                 drawSnowflake(painter, centre, r);
@@ -127,9 +131,12 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
         unsigned int squareIndex = boardGridModel.getIndex(col, row);
         if(squareIndex == (unsigned int)-1) continue;
 
-        int x = col * step_x;
-        int y = row * step_y;
-        
+            auto rect = getSquareBoundingRect(col, row);
+            int x = rect.x();
+            int y = rect.y();
+            step_x = rect.width();
+            step_y = rect.height();
+
         if (boardGridModel.getPropertyValue(squareIndex, HasMoveDot)) {
             painter.setBrush(QColorConstants::DarkGray);
             painter.drawEllipse(QPoint(x + step_x / 2, y + step_y/2), step_x/8, step_y/8);
@@ -154,6 +161,15 @@ void BoardGridWidget::paintEvent(QPaintEvent * event) {
 
 void BoardGridWidget::resetHiglight() { 
     boardGridModel.startEdit().setPropertyBitmask(Board::Higlighted, 0ull).commit();
+};
+
+QRect BoardGridWidget::getSquareBoundingRect(int col, int row) {
+    int x = width() * col / 8;
+    int y = height() * row / 8;
+    int w = width() * (col + 1) / 8 - x;
+    int h = height() * (row + 1) / 8 - y;
+
+    return QRect(x, y, w, h);
 };
 
 

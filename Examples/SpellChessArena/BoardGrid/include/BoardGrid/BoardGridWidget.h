@@ -22,6 +22,8 @@ namespace Board {
         virtual void drawPieces(QPainter & painter) {}; 
         virtual void drawExtras(QPainter & painter) {};
 
+        QRect getSquareBoundingRect(int col, int row);
+
         public:
         BoardGridModel boardGridModel;
         BoardGridWidget(QWidget * parent = nullptr);
