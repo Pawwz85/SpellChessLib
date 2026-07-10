@@ -5,7 +5,7 @@
 #include <QScrollBar>
 #include <QIcon>
 #include <QToolButton>
-#include <QToolBox>
+#include <QToolBar>
 #include <SpellChess/SpellChessDocumentHTMLRenderer.h>
 
 using namespace BoardViewer;
@@ -53,7 +53,7 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
 
     layout->addWidget(browser);
 
-    QHBoxLayout * navBox = new QHBoxLayout(this);
+    QToolBar * navBox = new QToolBar(this);
 
     for(size_t i = 0; i < navDirectiveCount; ++i) {
         auto navButton = new QToolButton(this);
@@ -66,7 +66,7 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
         navBox->addWidget(navButton);
     }
 
-    layout->addItem(navBox);
+    layout->addWidget(navBox);
     setLayout(layout);
 }
 
