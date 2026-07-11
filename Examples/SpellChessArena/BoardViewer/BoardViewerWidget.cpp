@@ -51,7 +51,9 @@ class BoardViewer::BoardViewerWidget::SpellSquarePicker : public UserInteraction
     
     public:
     SpellSquarePicker(SpellChessLib::SpellIdentificator spell, BoardViewerWidget * widget, std::weak_ptr<UserInteractionManager> manager): 
-    UserInteractionState(manager), widget(widget), spellId(spell) {}
+    UserInteractionState(manager), widget(widget), spellId(spell) {
+        widget->moveBuilder->reset(); // reset move creation
+    }
 };
 
 void BoardViewer::BoardViewerWidget::connectSlots() {
