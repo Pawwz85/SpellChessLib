@@ -20,6 +20,7 @@ set ( test_files
         "TestGameRunnerConfiguration.cpp"
         "TestMoveGen.cpp"
         "TestObserver.cpp"
+        "TestPgnExporter.cpp"
         "TestPlayerTimerService.cpp"
         "TestSchedulerModule.cpp"
         "TestSpellChessDocument.cpp"
@@ -42,8 +43,12 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 
-add_executable(SpellChessLibtTests pch.h pch.cpp ${all_files})
+add_executable(SpellChessLibTests pch.h pch.cpp ${all_files})
 
-target_link_libraries(SpellChessLibtTests  GTest::gtest_main GTest::gmock uciloader spellchess)
+add_custom_command(TARGET SpellChessLibTests POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/assets/ $<TARGET_FILE_DIR:SpellChessLibTests>)
+
+target_link_libraries(SpellChessLibTests  GTest::gtest_main GTest::gmock uciloader spellchess)
 include(GoogleTest)
-gtest_discover_tests(SpellChessLibtTests)
+gtest_discover_tests(SpellChessLibTests)

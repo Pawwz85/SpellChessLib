@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <mutex>
+#include <atomic>
 #include "TimerService.h"
 
 namespace SpellChessLib {

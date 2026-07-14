@@ -4,11 +4,13 @@
 #include <functional>
 #include <list>
 #include <UCILoader/UCI.h>
+#include <thread>
+#include <memory>
 #include "Board.h" // for SpellChessMove 
 
 namespace SpellChessLib {
 	struct PlayerTimer_data {
-		mutable std::mutex lock;
+		mutable std::recursive_mutex lock;
 		unsigned int id;
 		time_t value;
 		time_t latencyMarginRemaining; 

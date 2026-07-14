@@ -1,4 +1,5 @@
 #include <SpellChess/Player.h>
+#include <stdexcept>
 
 bool SpellChessLib::Player::ponderhit(const SpellChessMove& move) const {
     if (ponderMove == nullptr) return false;
@@ -27,10 +28,10 @@ SpellChessLib::Player::Result SpellChessLib::Player::search(const Game& game)
 
 void SpellChessLib::Player::ponder(const Game& game, const SpellChessMove& ponderMove){
     if (!supportsPondering())
-        throw std::exception("Pondering not supported");
+        throw std::logic_error("Pondering not supported");
 
     if(isPondering())
-        throw std::exception("Already pondering");
+        throw std::logic_error("Already pondering");
     
     setPonderMove(ponderMove);
     startPondering(game, ponderMove);

@@ -16,6 +16,8 @@ namespace SpellChessLib {
 		};
 
 		GameState currentState;
+		GameState parentState;
+
 		std::ostream* out_ptr;
 		size_t currentLineLength = 0; // used in Move text to limit line number to 80 characters
 		size_t maxLineLength;

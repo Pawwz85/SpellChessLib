@@ -8,7 +8,7 @@
 #include <QFontDatabase>
 
 void warmUpTextRendering() {
-    QFontDatabase fontDatabase;
+
      // Trigger font database initialization.
     const auto families = QFontDatabase::families();
     Q_UNUSED(families);

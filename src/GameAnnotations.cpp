@@ -213,12 +213,13 @@ void SpellChessLib::Annotation::AnnotatedSequence::pushBack(const std::string& c
 
 void SpellChessLib::Annotation::validateAnnotatedSequenceMoveLegality(const GameState& root, const Annotation::AnnotatedSequence& seq){
     GameState currentPos = root;
+    GameState parentPos;
     AnnotatedSequenceElement element;
     for (const auto& node : seq) {
         switch (node.index())
         {
         case 0:
-            validateAnnotatedSequenceMoveLegality(currentPos, std::get<Annotation::AnnotatedSequence>(node));
+            validateAnnotatedSequenceMoveLegality(parentPos, std::get<Annotation::AnnotatedSequence>(node));
             break;
         case 1:
             element = std::get<AnnotatedSequenceElement>(node);
@@ -228,6 +229,7 @@ void SpellChessLib::Annotation::validateAnnotatedSequenceMoveLegality(const Game
                 const SpellChessMove& m = std::get<SpellChessMove>(element);
                 if (!gen.isMoveLegal(m))
                     throw IllegalMoveException(m, currentPos.toFen());
+                parentPos = currentPos;
                 currentPos.makeMove(m);
             }
             break;

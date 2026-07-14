@@ -1,0 +1,10 @@
+[Event "?"]
+[Site "?"]
+[Date "2026.07.12"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "k7/n1PB4/1K6/8/8/8/8/8 w - - 0 50"]
+50.Bc6+ Nxc6 51.c8=Q+ Nb8 52.Qb7# 1-0

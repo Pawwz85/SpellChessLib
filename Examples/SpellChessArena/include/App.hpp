@@ -7,6 +7,7 @@
 #include <QMainWindow> 
 #include <QCoreApplication>
 #include <QObject>
+#include <QAction>
 
 #include <BoardViewer/OpenSessionRequest.hpp>
 #include <BoardViewer/GameRunnerBridge.hpp>
@@ -27,6 +28,8 @@ class App : public QObject {
     QMainWindow * mainWindow;
     QCoreApplication * coreQApp;
 
+    QAction * copyFen;
+    QAction * copyPgn;
 
     public:
 

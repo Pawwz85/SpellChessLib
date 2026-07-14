@@ -13,6 +13,10 @@
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
     BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
+
+    connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
+    connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
+
     this->mainWindow->setCentralWidget(view);
 }
 
@@ -43,9 +47,11 @@ App::App(QCoreApplication * coreApp) {
     mainWindow->setCentralWidget(new EmptyBoardWidget());
     QMenuBar * menuBar = new QMenuBar();
 
-    QMenu * playMenu = menuBar->addMenu(tr("Play"));
+    QMenu * playMenu = menuBar->addMenu(tr("Game"));
     
     QAction * newGameAction = playMenu->addAction(tr("New game", "Play new game"));
+    copyFen = playMenu->addAction(tr("Copy FEN"));
+    copyPgn = playMenu->addAction(tr("Copy PGN"));
 
     connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
 

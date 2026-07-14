@@ -23,7 +23,7 @@ void SpellChessLib::TimerService::refreshTimers(time_t delta_t)
 		return;
 
 	for (auto& timer : timers) {
-		std::lock_guard<std::mutex> guard(timer.lock);
+		std::lock_guard<std::recursive_mutex> guard(timer.lock);
 		if (!timer.stopped && timer.value > 0 && !timer.deleteLater) {
 
 			if (timer.latencyMarginRemaining >= delta_t) {
@@ -93,39 +93,39 @@ void SpellChessLib::TimerService::setTimer(const time_t& initialValue, const tim
 }
 
 void SpellChessLib::PlayerTimer::stop() {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	data->stopped = true;
 }
 
 void SpellChessLib::PlayerTimer::resume() {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	data->latencyMarginRemaining = data->margin;
 	data->stopped = false;
 }
 
 void SpellChessLib::PlayerTimer::extend(const time_t& inc) {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	if (data->value > 0)
 		data->value += inc;
 }
 
 void SpellChessLib::PlayerTimer::setCallback(std::function<void()> clb) {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	data->expirationCallback = clb;
 }
 
 bool SpellChessLib::PlayerTimer::expired() const {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	return data->value <= 0;
 }
 
 bool SpellChessLib::PlayerTimer::isStopped() const {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	return data->stopped;
 }
 
 time_t SpellChessLib::PlayerTimer::getValue() const {
-	std::lock_guard<std::mutex> guard(data->lock);
+	std::lock_guard<std::recursive_mutex> guard(data->lock);
 	return data->value;
 }
 

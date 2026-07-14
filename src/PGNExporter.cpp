@@ -9,6 +9,7 @@
 
 std::string SpellChessLib::PGNExporter::calculateSanMoveTokenAndAdvance(const SpellChessMove& move){
 	std::string result = spellChessMoveToSAN(move, currentState);
+	parentState = currentState;
 	currentState.makeMove(move);
 	return result;
 }
@@ -34,15 +35,19 @@ void SpellChessLib::PGNExporter::writeTagLine(const Annotation::TagPair& tagPair
 
 void SpellChessLib::PGNExporter::writeSequence(const Annotation::AnnotatedSequence& sequence, std::ostream& out)
 {
-	GameState currentState = this->currentState;
+	GameState currentState;
+	GameState parentState;
 	for (const Annotation::AnnotatedSequenceNode & element : sequence) {
+		currentState = this->currentState;
+		parentState = this->parentState;
 		switch (element.index()) {
 		case 0: // element is another AnnotatedSequenceNode
-			currentState = this->currentState;
-			writeToken("(", out);
+			this->currentState = this->parentState;
+			writeToken("( ", out);
 			writeSequence(std::get<Annotation::AnnotatedSequence>(element), out);
-			writeToken(")", out);
+			writeToken(") ", out);
 			this->currentState = currentState;
+			this->parentState = parentState;
 			break;
 		case 1: // element is of type Annotation::AnnotatedSequenceElement
 			writeAnnotationSequenceElement(std::get<Annotation::AnnotatedSequenceElement>(element), out);
@@ -61,7 +66,7 @@ void SpellChessLib::PGNExporter::writeAnnotationSequenceElement(const Annotation
 	case 0:
 		writeToken("{", out);
 		writeToken(std::get<std::string>(element), out);
-		writeToken("}", out);
+		writeToken("} ", out);
 		break;
 	case 1: // Annotation Glyph 
 		writeNumericAnnotationGlyph(std::get<Annotation::NumericAnnotationGlyph>(element), out);
@@ -76,6 +81,8 @@ void SpellChessLib::PGNExporter::writeAnnotationSequenceElement(const Annotation
 		firstMoveWritten = true;
 		token = calculateSanMoveTokenAndAdvance(std::get<SpellChessLib::SpellChessMove>(element));
 		writeToken(token, out);
+		writeToken(" ", out);
+
 		break;
 	default:
 		throw std::logic_error("Unknown Sequence element");

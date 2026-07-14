@@ -1,8 +1,10 @@
 #include "pch.h"
+#include "utils.h"
+
 #include <SpellChess/GameRunner.h>
 #include <SpellChess/SpellChessGame.h>
 #include <SpellChess/Scheduler/ObjectAllocator.h>
-#include "utils.h"
+#include <condition_variable>
 using namespace SpellChessLib;
 
 TEST(GameRunner, GameIsStillOutgoing) {
@@ -18,18 +20,20 @@ TEST(GameRunner, GameIsStillOutgoing) {
 }
 
 class UnRespondingPlayer : public Player {
-	volatile bool hang = true;
 	bool respectInterrupts = true;
 	
 	bool interrupted_flag = false;
 	bool killed_flag = false;
 	bool uciNewGame_flag = false;
-	void hangForever() const {
-		while (hang) {};
+	
+	std::mutex mut;
+	std::condition_variable var;
+	void hangForever() {
+		std::unique_lock<std::mutex> lock(mut);
+		var.wait(lock);
 	}
 
 public:
-
 
 	UnRespondingPlayer(bool allowInterrupts) : respectInterrupts(allowInterrupts) {};
 
@@ -51,12 +55,16 @@ public:
 		return true;
 	}
 	void interrupt() override{
-		hang = !respectInterrupts;
+		std::unique_lock<std::mutex> lock(mut);
+		
+		if (respectInterrupts)
+			var.notify_all();
 		interrupted_flag = true;
 	}
 
 	void kill() override{
-		hang = false;
+		std::unique_lock<std::mutex> lock(mut);
+		var.notify_all();
 		killed_flag = true;
 	}
 

@@ -33,7 +33,7 @@ SANAmbiguityLevel calculateAmbiguityLevel(const SpellChessLib::PieceType& type, 
 	auto ambiguities = calculateAmbiguities(type, move.to, state);
 	
 	if (ambiguities.empty())
-		throw std::logic_error("Illegal Move");
+		throw SpellChessLib::IllegalMoveException(move, state.toFen());
 
 	if (ambiguities.size() == 1)
 		return NoAmbiguity;
@@ -69,7 +69,7 @@ std::string SpellChessLib::spellChessMoveToSAN(const SpellChessMove & move, cons
 	std::string base;
 
 	if (movedPiece == None) 
-		throw std::runtime_error("Illegal Move encountered");
+		throw SpellChessLib::IllegalMoveException(move, context.toFen());
 
 	std::string from_str = squareIndexToString(move.from);
 	std::string to_str = squareIndexToString(move.to);
@@ -124,7 +124,7 @@ BASE_CALCULATED:
 	copy.makeMove(move);
 	char tmp = checkMark(copy);
 	if (tmp) base += tmp;
-	base += ' ';
+
 	return base;
 };
 

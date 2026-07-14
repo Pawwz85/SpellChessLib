@@ -1,5 +1,9 @@
 #include <BoardViewerModel.hpp>
-#include <iostream>
+#include <QClipboard>
+#include <QGuiApplication>
+#include <SpellChess/PGNExporter.h>
+#include <SpellChess/PGN4Exporter.h>
+#include <sstream>
 
 BoardViewer::Model::Model(QObject * parent) : QObject(parent){
     timers.whiteTimer.running = timers.blackTimer.running = false;
@@ -97,5 +101,35 @@ BoardViewer::Model::makeMove(SpellChessLib::SpellChessMove move) {
         documentChanged(*document);
 };
 
+void
+BoardViewer::Model::copyFenToClipBoard() {
+    const SpellChessLib::GameState & state = currentPosition.lock()->getGameState();
+    QString fen = QString::fromStdString(state.toFen()); 
+
+    QClipboard * clipboard = QGuiApplication::clipboard();
+    clipboard->setText(fen);
+}
+
+void BoardViewer::Model::copyPgnToClipBoard() {
+    const SpellChessLib::GameState & state = currentPosition.lock()->getGameState();
+    QString result;
+
+    std::stringstream sstream;
+
+    SpellChessLib::Annotation::GameAnnotations annotations = document->toAnnotations();
+
+    if (state.isSpellChessGame()) {
+        SpellChessLib::PGN4Exporter exporter(&sstream);
+        exporter.exportPGN4(annotations.root, annotations);
+    } else {
+        SpellChessLib::PGNExporter exporter(&sstream);
+        exporter.exportPGN(annotations);
+    }
+
+    result = QString::fromStdString(sstream.str());
+
+    QClipboard * clipboard = QGuiApplication::clipboard();
+    clipboard->setText(result);
+};
 
 #include <moc_BoardViewerModel.cpp>

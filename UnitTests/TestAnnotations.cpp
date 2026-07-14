@@ -90,7 +90,7 @@ TEST(AnnotatedSequence, pushingBackComment) {
 	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
 	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
 	annotations.annotatedSequence.pushBack("Book Move");
-	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 {Book Move}*");
+	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 {Book Move} *");
 }
 
 TEST(AnnotatedSequence, pushingBackNag) {
@@ -133,14 +133,14 @@ TEST(AnnotatedSequence, addingRecursiveVariation) {
 
 	auto i = annotations.annotatedSequence.begin();
 
-	for (i; i != annotations.annotatedSequence.end(); ++i) {
+	for ((void)i; i != annotations.annotatedSequence.end(); ++i) {
 		auto& element = std::get<Annotation::AnnotatedSequenceElement>(*i);
-		if (spellChessMoveToString(std::get<SpellChessMove>(element)) == "e7e5") {
+		if (spellChessMoveToString(std::get<SpellChessMove>(element)) == "g1f3") {
 			annotations.annotatedSequence.insertVariationAfter(i, std::move(alternative));
 			break;
 		}
 	}
-	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 (2.Bc4 Bc5 )2.Nf3 Nc6 *");
+	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 2.Nf3 ( 2.Bc4 Bc5 ) Nc6 *");
 }
 
 TEST(AnnotatedSequence, addingRecursiveVariationWithIllegalLeadingMove) {
@@ -166,7 +166,7 @@ TEST(AnnotatedSequence, addingRecursiveVariationWithIllegalLeadingMove) {
 
 	auto i = annotations.annotatedSequence.begin();
 
-	for (i; i != annotations.annotatedSequence.end(); ++i) {
+	for ((void)i; i != annotations.annotatedSequence.end(); ++i) {
 		auto& element = std::get<Annotation::AnnotatedSequenceElement>(*i);
 		if (spellChessMoveToString(std::get<SpellChessMove>(element)) == "e7e5") {
 			annotations.annotatedSequence.insertVariationAfter(i, std::move(alternative));

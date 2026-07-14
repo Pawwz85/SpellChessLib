@@ -63,6 +63,10 @@ namespace BoardViewer {
         void changed(const Model & model);
         void documentChanged(const SpellChessLib::SpellChessDocument & document);
         void onTimerChanged(const SpellChessLib::TimerPairState & timers);
+
+        public slots:
+        void copyFenToClipBoard();
+        void copyPgnToClipBoard();
     };
 
     
