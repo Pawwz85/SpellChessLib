@@ -16,10 +16,10 @@ TEST(SpellChessDocument, createEmptyNoParams) {
 TEST(SpellChessDocument, makeMove) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, "e2e4");
 
     ASSERT_EQ(doc->getTail().lock(), nextPos.lock());
-    ASSERT_EQ(rootHandle.lock()->getChildByMove(parseMove("e2e4")).lock(), nextPos.lock());
+    ASSERT_EQ(rootHandle.lock()->getChildByMove("e2e4").lock(), nextPos.lock());
     ASSERT_TRUE(doc->getTail().lock()->isLeaf());
     ASSERT_FALSE(doc->getRoot().lock()->isLeaf());
     
@@ -30,9 +30,9 @@ TEST(SpellChessDocument, makeMove) {
 TEST(SpellChessDocument, makeMoveIsIdempotent) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, "e2e4");
     (void)doc->clearDirtyFlag(); // clear dirty flag
-    SpellChessDocument::Handle nextPos2 = doc->makeMove(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos2 = doc->makeMove(rootHandle, "e2e4");
 
     ASSERT_EQ(nextPos.lock(), nextPos2.lock());
     ASSERT_FALSE(doc->isDirty());
@@ -41,21 +41,21 @@ TEST(SpellChessDocument, makeMoveIsIdempotent) {
 TEST(SpellChessDocument, makeMoveSetsDirtyFlag) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, parseMove("e2e4"));
+    SpellChessDocument::Handle nextPos = doc->makeMove(rootHandle, "e2e4");
     ASSERT_TRUE(doc->isDirty());
 };
 
 TEST(SpellChessDocument, getChildByMoveReturnsEmptyIfNoCHildPresent) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();
-    auto h = rootHandle.lock()->getChildByMove(parseMove("e2e4"));
+    auto h = rootHandle.lock()->getChildByMove("e2e4");
 
     ASSERT_FALSE(h.lock());
 };
 
 TEST(SpellChessDocument, makeMoveThrowsOnIllegalMove) {
     auto doc = createEmptySpellChessDocument();
-    ASSERT_ANY_THROW(doc->makeMove(doc->getRoot(), parseMove("e1e2")));
+    ASSERT_ANY_THROW(doc->makeMove(doc->getRoot(), "e1e2"));
 };
 
 TEST(SpellChessDocument, badHandle1) {
@@ -121,9 +121,9 @@ TEST(SpellChessDocument, enumeratePositions) {
     auto doc = createEmptySpellChessDocument();
 
     auto root = doc->getRoot();
-    auto pos1 = doc->makeMove(root, parseMove("e2e4"));
-    auto pos2 = doc->makeMove(root, parseMove("d2d4"));
-    auto pos3 = doc->makeMove(root, parseMove("c2c4"));
+    auto pos1 = doc->makeMove(root, "e2e4");
+    auto pos2 = doc->makeMove(root, "d2d4");
+    auto pos3 = doc->makeMove(root, "c2c4");
 
     auto moves = doc->getChildren(root);
     ASSERT_EQ(moves.size(), 3);
@@ -137,20 +137,20 @@ Annotation::GameAnnotations createModelAnnotations() {
     Annotation::AnnotatedSequence variation;
 
     // some base
-    seq.pushBack(parseMove("e2e4"));
-    seq.pushBack(parseMove("e7e5"));
-    seq.pushBack(parseMove("f1b5"));
-    seq.pushBack("Attacking the king");
+    seq.appendMove("e2e4");
+    seq.appendMove("e7e5");
+    seq.appendMove("f1b5");
+    seq.appendComment("Attacking the king");
 
-    variation.pushBack(parseMove("freeze@b5&c7c6"));
-    variation.pushBack("blunder");
-    variation.pushBack(parseMove("freeze@g7&d1h5"));
+    variation.appendMove("freeze@b5&c7c6");
+    variation.appendComment("blunder");
+    variation.appendMove("freeze@g7&d1h5");
 
     // main variation
-    seq.pushBack(parseMove("freeze@b5&f8b4"));
+    seq.appendMove("freeze@b5&f8b4");
 
     // put variation
-    seq.pushBack(std::move(variation));
+    seq.appendVariation(std::move(variation));
 
 
     auto roster = Annotation::beginSevenTagRooster("ExampleEvent", "localhost", "1");

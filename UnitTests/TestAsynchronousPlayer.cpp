@@ -17,12 +17,12 @@ TEST(AsynchronousPlayer, make_result) {
 
     std::thread resolveThread([&player]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        player.resolveCurrentMovePromise(SpellChessLib::parseMove("e2e4"));
+        player.resolveCurrentMovePromise("e2e4");
     });
 
     auto result = player.makeResult(game, std::chrono::milliseconds(100));
     resolveThread.join();
-    ASSERT_EQ(result.getBestMove(), SpellChessLib::parseMove("e2e4"));
+    ASSERT_EQ(result.getBestMove(), "e2e4");
 };
 
 TEST(AsynchronousPlayer, make_result_timeout) {
@@ -48,7 +48,7 @@ TEST(AsynchronousPlayer, calling_make_result_twice_throws) {
 
 TEST(AsynchronousPlayer, resolving_move_promise_without_previous_call_throws) {
     SpellChessLib::AsynchronousPlayer player;
-    ASSERT_ANY_THROW(player.resolveCurrentMovePromise(SpellChessLib::parseMove("e2e4")));
+    ASSERT_ANY_THROW(player.resolveCurrentMovePromise("e2e4"));
 };
 
 TEST(AsynchronousPlayer, interrupt_sets_exception_on_promise) {
@@ -76,7 +76,7 @@ TEST(AsynchronousPlayer, resolve_move_promise_after_interrupt_no_throws) {
 
     std::thread resolvingThread([&player]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        ASSERT_NO_THROW(player.resolveCurrentMovePromise(SpellChessLib::parseMove("e2e4")));
+        ASSERT_NO_THROW(player.resolveCurrentMovePromise("e2e4"));
     });
 
     try {
@@ -106,8 +106,8 @@ TEST(AsynchronousPlayer, resolving_move_twice_throws) {
 
     std::thread resolveThread([&player]() {
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        player.resolveCurrentMovePromise(SpellChessLib::parseMove("e2e4"));
-        ASSERT_ANY_THROW(player.resolveCurrentMovePromise(SpellChessLib::parseMove("d2d4")));
+        player.resolveCurrentMovePromise("e2e4");
+        ASSERT_ANY_THROW(player.resolveCurrentMovePromise("d2d4"));
     });
 
     auto result = player.makeResult(game, std::chrono::milliseconds(100));
@@ -119,5 +119,5 @@ TEST(AsynchronousPlayer, resolving_promise_with_illegal_move_throws) {
     SpellChessLib::Game game = gameFixture();
 
     auto result = player.makeResult(game, std::chrono::milliseconds(100));
-    ASSERT_ANY_THROW(player.resolveCurrentMovePromise(SpellChessLib::parseMove("e7e5")));
+    ASSERT_ANY_THROW(player.resolveCurrentMovePromise("e7e5"));
 };

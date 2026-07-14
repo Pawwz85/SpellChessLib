@@ -205,7 +205,7 @@ public:
 	RecordedPlayer(const std::vector<SpellChessMove>& moves) : moves(moves) {};
 	RecordedPlayer(const std::initializer_list<char*>& moves) {
 		for (auto c : moves)
-			this->moves.push_back(parseMove(c));
+			this->moves.push_back(c);
 	}
 	// Odziedziczono za po�rednictwem elementu Player
 	Result makeResult(const Game& game, const std::chrono::milliseconds& timeOut) override{

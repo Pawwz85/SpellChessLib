@@ -36,11 +36,11 @@ TEST(PGNExport, export_from_custom_fen) {
     document->setTag("Date", "2026.07.12");
     
 
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("d7c6"));
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("a7c6"));
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("c7c8q"));
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("c6b8"));
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("c8b7"));
+    document->makeMove(document->getTail(), "d7c6");
+    document->makeMove(document->getTail(), "a7c6");
+    document->makeMove(document->getTail(), "c7c8q");
+    document->makeMove(document->getTail(), "c6b8");
+    document->makeMove(document->getTail(), "c8b7");
 
     document->setGameResult(SpellChessLib::Annotation::WhiteWon);
 
@@ -52,15 +52,15 @@ TEST(PGNExport, export_with_comments) {
     auto document = SpellChessLib::createEmptySpellChessDocument(SpellChessLib::START_POS);
     document->setTag("Date", "2026.07.12");
     
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("e2e4"));
+    document->makeMove(document->getTail(), "e2e4");
     document->setComment(document->getTail(), "Best by test");
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("e7e5"));
+    document->makeMove(document->getTail(), "e7e5");
     document->setComment(document->getTail(), "Clearly the best response");
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("g1f3"));
+    document->makeMove(document->getTail(),  "g1f3");
     document->setComment(document->getTail(), "Attacking the pawn");
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("b8c6"));
+    document->makeMove(document->getTail(), "b8c6");
     document->setComment(document->getTail(), "Defending the pawn");
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("f1c4"));
+    document->makeMove(document->getTail(),  "f1c4");
     document->setComment(document->getTail(), "Developing the bishop");
 
     std::string exported = exportToPGN(document);
@@ -71,21 +71,21 @@ TEST(PGNExport, export_with_variations) {
     auto document = SpellChessLib::createEmptySpellChessDocument(SpellChessLib::START_POS);
     document->setTag("Date", "2026.07.12");
 
-    auto pos = document->makeMove(document->getRoot(), SpellChessLib::parseMove("e2e4"));
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("e7e5"));
-    document->makeMove(document->getTail(), SpellChessLib::parseMove("g1f3"));
+    auto pos = document->makeMove(document->getRoot(), "e2e4");
+    document->makeMove(document->getTail(), "e7e5");
+    document->makeMove(document->getTail(), "g1f3");
 
-    auto it = document->makeMove(pos, SpellChessLib::parseMove("d7d5"));
-    it = document->makeMove(it, SpellChessLib::parseMove("e4d5"));
-    it = document->makeMove(it, SpellChessLib::parseMove("d8d5"));
+    auto it = document->makeMove(pos, "d7d5");
+    it = document->makeMove(it, "e4d5");
+    it = document->makeMove(it, "d8d5");
 
-    it = document->makeMove(pos, SpellChessLib::parseMove("c7c5"));
-    it = document->makeMove(it, SpellChessLib::parseMove("g1f3"));
-    it = document->makeMove(it, SpellChessLib::parseMove("d7d6"));
+    it = document->makeMove(pos, "c7c5");
+    it = document->makeMove(it, "g1f3");
+    it = document->makeMove(it, "d7d6");
 
-    it = document->makeMove(pos, SpellChessLib::parseMove("b8c6"));
-    it = document->makeMove(it, SpellChessLib::parseMove("d2d4"));
-    it = document->makeMove(it, SpellChessLib::parseMove("d7d5"));
+    it = document->makeMove(pos, "b8c6");
+    it = document->makeMove(it,  "d2d4");
+    it = document->makeMove(it, "d7d5");
 
     std::string exported = exportToPGN(document);
     EXPECT_EQ(exported, loadAnswerFromFile("variations.pgn"));

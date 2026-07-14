@@ -318,20 +318,20 @@ SpellChessLib::SpellChessDocument::writeNodeToAnnotatedSequence(const Node & nod
     std::scoped_lock<std::mutex> guard(node.mut);
 
     if(!node.comment.empty())
-        seq.pushBack(node.comment);
+        seq.appendComment(node.comment);
 
     if(node.transitions.empty())
         return;
 
-    seq.pushBack(node.transitions[0].move);
+    seq.appendMove(node.transitions[0].move);
 
     size_t debug_s = node.transitions.size();
 
     for (size_t i = 1; i < node.transitions.size(); ++i){
         Annotation::AnnotatedSequence variation;
-        variation.pushBack(node.transitions[i].move);
+        variation.appendMove(node.transitions[i].move);
         writeNodeToAnnotatedSequence(*node.transitions[i].child, variation);
-        seq.pushBack(std::move(variation));
+        seq.appendVariation(std::move(variation));
     }
 
     writeNodeToAnnotatedSequence(*node.transitions[0].child, seq);      

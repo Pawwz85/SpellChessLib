@@ -24,7 +24,7 @@ TEST(GameRunnerConfigurationBuilder, settingStartPosAndPondering) {
 
 	ASSERT_EQ(config.rootFen, "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2");
 	ASSERT_EQ(config.rootMoves.size(), 1);
-	SpellChessMove testMove = parseMove("g1f3");
+	SpellChessMove testMove = "g1f3";
 	ASSERT_TRUE(std::memcmp(&config.rootMoves.at(0), &testMove, sizeof(SpellChessMove)) == 0);
 	ASSERT_TRUE(config.allowPondering);
 }

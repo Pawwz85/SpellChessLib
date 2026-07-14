@@ -1,7 +1,7 @@
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <SpellChess/StringTokenizer.h>
 void SpellChessLib::SpellChessMoveMarshaler::loadInto(const std::string& token, SpellChessMove & target) const {
-	target = parseMove(token.c_str());
+	target = token;
 }
 
 std::string SpellChessLib::StateFormatter::toFen() const

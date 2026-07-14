@@ -312,7 +312,16 @@ SpellChessMove SpellChessLib::parseMove(const char* str)
     return result;
 }
 
+SpellChessLib::SpellChessMove::SpellChessMove(const char * stringValue) {
+    *this = parseMove(stringValue);
+};
 
+SpellChessLib::SpellChessMove::SpellChessMove(const std::string & token) {
+    *this = parseMove(token.c_str());
+};
+
+SpellChessLib::SpellChessMove::SpellChessMove(uint8_t from, uint8_t to, uint8_t freezeSquare, uint8_t jumpSquare, PieceType promoteTo) :
+    from(from), to(to), freezeSquare(freezeSquare), jumpSquare(jumpSquare), promoteTo(promoteTo) {};
 
 
 void SpellChessLib::validateSpellChessMove(const SpellChessMove& move)

@@ -78,7 +78,7 @@ class GrimoireInfoReceiver : public UCILoader::EventReceiver {
                 moves.clear();
                 for(size_t i = 1; i < tokens.size(); ++i) 
                         try {
-                            moves.push_back(SpellChessLib::parseMove(tokens[i].c_str()));
+                            moves.push_back(tokens[i]);
                         } catch (std::exception ignored) {};
             };
             

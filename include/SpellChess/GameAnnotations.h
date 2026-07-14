@@ -128,10 +128,10 @@ namespace SpellChessLib {
 			void insertAnnotationGlyphAfter(iterator pos, const NumericAnnotationGlyph& glyph);
 			void insertCommentAfter(iterator pos, const std::string& comment);
 
-			void pushBack(AnnotatedSequence && variation);
-			void pushBack(const NumericAnnotationGlyph& glyph);
-			void pushBack(const SpellChessMove& move);
-			void pushBack(const std::string& comment);
+			void appendVariation(AnnotatedSequence && variation);
+			void appendGlyph(const NumericAnnotationGlyph& glyph);
+			void appendMove(const SpellChessMove& move);
+			void appendComment(const std::string& comment);
 
 			AnnotatedSequence & operator=(const AnnotatedSequence & other);
 			bool operator==(const AnnotatedSequence & other) const;

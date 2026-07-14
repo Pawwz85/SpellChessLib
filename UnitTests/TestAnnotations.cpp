@@ -16,9 +16,9 @@ TEST(AnnotatedSequence, constructingSequence) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(parseMove("g1f3"));
+	annotations.annotatedSequence.appendMove("e2e4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendMove("g1f3");
 	
 	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 2.Nf3 *");
 }
@@ -34,10 +34,10 @@ TEST(AnnotatedSequence, foolMate) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("f2f4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(parseMove("g2g4"));
-	annotations.annotatedSequence.pushBack(parseMove("d8h4"));
+	annotations.annotatedSequence.appendMove("f2f4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendMove("g2g4");
+	annotations.annotatedSequence.appendMove("d8h4");
 	annotations.terminationReason = Annotation::BlackWon;
 	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.f4 e5 2.g4 Qh4# 0-1");
 }
@@ -53,10 +53,10 @@ TEST(AnnotatedSequence, check) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("f2f4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(parseMove("c2c3"));
-	annotations.annotatedSequence.pushBack(parseMove("d8h4"));
+	annotations.annotatedSequence.appendMove("f2f4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendMove("c2c3");
+	annotations.annotatedSequence.appendMove("d8h4");
 
 	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.f4 e5 2.c3 Qh4+ *");
 }
@@ -72,7 +72,7 @@ TEST(AnnotatedSequence, illegalMove) {
 		Annotation::Unknown,
 		root
 	};
-	annotations.annotatedSequence.pushBack(parseMove("e1e3"));
+	annotations.annotatedSequence.appendMove("e1e3");
 	ASSERT_THROW(Annotation::validateAnnotatedSequenceMoveLegality(annotations.root, annotations.annotatedSequence), IllegalMoveException);
 }
 
@@ -87,9 +87,9 @@ TEST(AnnotatedSequence, pushingBackComment) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack("Book Move");
+	annotations.annotatedSequence.appendMove("e2e4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendComment("Book Move");
 	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 {Book Move} *");
 }
 
@@ -104,9 +104,9 @@ TEST(AnnotatedSequence, pushingBackNag) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(Annotation::NumericAnnotationGlyph(11));
+	annotations.annotatedSequence.appendMove("e2e4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendGlyph(11);
 	ASSERT_EQ(toInlinePgnMoveText(annotations), "1.e4 e5 $11 *");
 }
 
@@ -121,15 +121,15 @@ TEST(AnnotatedSequence, addingRecursiveVariation) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(parseMove("g1f3"));
-	annotations.annotatedSequence.pushBack(parseMove("b8c6"));
+	annotations.annotatedSequence.appendMove("e2e4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendMove("g1f3");
+	annotations.annotatedSequence.appendMove("b8c6");
 
 
 	Annotation::AnnotatedSequence alternative;
-	alternative.pushBack(parseMove("f1c4"));
-	alternative.pushBack(parseMove("f8c5"));
+	alternative.appendMove("f1c4");
+	alternative.appendMove("f8c5");
 
 	auto i = annotations.annotatedSequence.begin();
 
@@ -154,15 +154,15 @@ TEST(AnnotatedSequence, addingRecursiveVariationWithIllegalLeadingMove) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(parseMove("g1f3"));
-	annotations.annotatedSequence.pushBack(parseMove("b8c6"));
+	annotations.annotatedSequence.appendMove("e2e4");
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendMove("g1f3");
+	annotations.annotatedSequence.appendMove("b8c6");
 
 
 	Annotation::AnnotatedSequence alternative;
-	alternative.pushBack(parseMove("f1f2"));
-	alternative.pushBack(parseMove("f8c5"));
+	alternative.appendMove("f1f2");
+	alternative.appendMove("f8c5");
 
 	auto i = annotations.annotatedSequence.begin();
 
@@ -188,9 +188,9 @@ TEST(AnnotatedSequence, blackMovesFirst) {
 		root
 	};
 
-	annotations.annotatedSequence.pushBack(parseMove("e7e5"));
-	annotations.annotatedSequence.pushBack(parseMove("e2e4"));
-	annotations.annotatedSequence.pushBack(parseMove("b8c6"));
+	annotations.annotatedSequence.appendMove("e7e5");
+	annotations.annotatedSequence.appendMove("e2e4");
+	annotations.annotatedSequence.appendMove("b8c6");
 
 	ASSERT_EQ(toInlinePgnMoveText(annotations), "1...e5 2.e4 Nc6 *");
 }

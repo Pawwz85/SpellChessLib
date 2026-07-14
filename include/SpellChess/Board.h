@@ -85,6 +85,13 @@ namespace SpellChessLib {
 		uint8_t jumpSquare;
 		PieceType promoteTo;
 
+		SpellChessMove() = default;
+		SpellChessMove(const SpellChessMove &) = default;
+		SpellChessMove(SpellChessMove &&) = default;
+		SpellChessMove(const char * stringValue);
+		SpellChessMove(const std::string & stringValue);
+		SpellChessMove(uint8_t from, uint8_t to, uint8_t freezeSquare, uint8_t jumpSquare, PieceType promoteTo = SpellChessLib::None);
+
 		inline bool operator==(const SpellChessMove & other) const {
 			return  this->from == other.from &&
 					this->to  == other.to &&
@@ -96,6 +103,8 @@ namespace SpellChessLib {
 		inline bool operator!=(const SpellChessMove & other) const {
 			return !(*this == other); 
 		}
+
+		inline SpellChessMove & operator=(const SpellChessMove &) = default;
 	};
 	
 

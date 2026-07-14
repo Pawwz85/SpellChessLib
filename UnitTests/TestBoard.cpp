@@ -395,7 +395,7 @@ TEST(FenParser, standardChess3) {
 TEST(MoveParser, e2e4) {
 	SpellChessMove move;
 
-	move = parseMove("e2e4");
+	move = "e2e4";
 	ASSERT_EQ(move.from, Parsing::parseSquareIndex("e2"));
 	ASSERT_EQ(move.to, Parsing::parseSquareIndex("e4"));
 	ASSERT_EQ(move.freezeSquare, NoSquare);
@@ -406,30 +406,30 @@ TEST(MoveParser, e2e4) {
 TEST(MoveParser, valid_promotions) {
 	SpellChessMove move;
 
-	move = parseMove("e7e8q");
+	move = "e7e8q";
 	ASSERT_EQ(move.from, Parsing::parseSquareIndex("e7"));
 	ASSERT_EQ(move.to, Parsing::parseSquareIndex("e8"));
 	ASSERT_EQ(move.freezeSquare, NoSquare);
 	ASSERT_EQ(move.jumpSquare, NoSquare);
 	ASSERT_EQ(move.promoteTo, Queen);
 
-	move = parseMove("e7e8n");
+	move = "e7e8n";
 	ASSERT_EQ(move.promoteTo, Knight);
-	move = parseMove("e7e8b");
+	move = "e7e8b";
 	ASSERT_EQ(move.promoteTo, Bishop);
-	move = parseMove("e7e8r");
+	move = "e7e8r";
 	ASSERT_EQ(move.promoteTo, Rook);
 }
 
 TEST(MoveParser, invalid_promotion) {
 	SpellChessMove move;
 
-	ASSERT_THROW(move = parseMove("e7e8k"), Parsing::ParsingError);
+	ASSERT_THROW(move = "e7e8k", Parsing::ParsingError);
 }
 
 TEST(MoveParser, moveWithFreezeSQ) {
 	SpellChessMove move;
-	move = parseMove("freeze@f6&c1g5");
+	move = "freeze@f6&c1g5";
 	ASSERT_EQ(move.freezeSquare, Parsing::parseSquareIndex("f6"));
 	ASSERT_EQ(move.jumpSquare, NoSquare);
 	ASSERT_EQ(move.from, Parsing::parseSquareIndex("c1"));
@@ -439,7 +439,7 @@ TEST(MoveParser, moveWithFreezeSQ) {
 
 TEST(MoveParser, moveWithJumpSq) {
 	SpellChessMove move;
-	move = parseMove("jump@h2&h1h7");
+	move = "jump@h2&h1h7";
 	ASSERT_EQ(move.freezeSquare, NoSquare);
 	ASSERT_EQ(move.jumpSquare, Parsing::parseSquareIndex("h2"));
 	ASSERT_EQ(move.from, Parsing::parseSquareIndex("h1"));
@@ -449,19 +449,19 @@ TEST(MoveParser, moveWithJumpSq) {
 
 TEST(MoveParser, emptySpellStrings) {
 	SpellChessMove move;
-	ASSERT_THROW(move = parseMove("@e2e4"), Parsing::ParsingError);
-	ASSERT_THROW(move = parseMove("&e2e4"), Parsing::ParsingError);
+	ASSERT_THROW(move = "@e2e4", Parsing::ParsingError);
+	ASSERT_THROW(move = "&e2e4", Parsing::ParsingError);
 }
 
 TEST(MoveParser, usesSpellButSquareIsEmpty) {
 	SpellChessMove move;
-	ASSERT_THROW(move = parseMove("freeze@-&e2e4"), Parsing::ParsingError);
+	ASSERT_THROW(move = "freeze@-&e2e4", Parsing::ParsingError);
 }
 
 TEST(make_move, non_pawn_piece_can_not_take_enpassant) {
 	FenParser parser;
 	GameState s = parser.fromStandardChessFen("rnb1k1nr/ppp1bppp/8/3p4/3PN3/4PN2/PPP1KPPP/R1BQ1B2 w kq d6 0 1");
-	s.makeMove(parseMove("e4d6"));
+	s.makeMove("e4d6");
 
 	auto enpassant_pawn = s.getSquare(Parsing::parseSquareIndex("d5")).piece;
 	

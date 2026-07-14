@@ -195,19 +195,19 @@ void SpellChessLib::Annotation::AnnotatedSequence::insertCommentAfter(iterator p
     this->nodes.insert(pos, comment);
 }
 
-void SpellChessLib::Annotation::AnnotatedSequence::pushBack(AnnotatedSequence&& variation){
+void SpellChessLib::Annotation::AnnotatedSequence::appendVariation(AnnotatedSequence&& variation){
     this->nodes.push_back(variation);
 }
 
-void SpellChessLib::Annotation::AnnotatedSequence::pushBack(const NumericAnnotationGlyph & glyph) {
+void SpellChessLib::Annotation::AnnotatedSequence::appendGlyph(const NumericAnnotationGlyph & glyph) {
     this->nodes.push_back(glyph);
 }
 
-void SpellChessLib::Annotation::AnnotatedSequence::pushBack(const SpellChessMove & move) {
+void SpellChessLib::Annotation::AnnotatedSequence::appendMove(const SpellChessMove & move) {
     this->nodes.push_back(move);
 }
 
-void SpellChessLib::Annotation::AnnotatedSequence::pushBack(const std::string& comment){
+void SpellChessLib::Annotation::AnnotatedSequence::appendComment(const std::string& comment){
     this->nodes.push_back(comment);
 }
 
