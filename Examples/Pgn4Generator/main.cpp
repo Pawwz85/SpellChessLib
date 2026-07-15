@@ -18,10 +18,7 @@ class RandomPlayerFactory : public SpellChessLib::Factory<SpellChessLib::Player>
 };
 
 SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player> makeRandomPlayer(){
-    using Allocator = typename SpellChessLib::Scheduler::DefaultObjectAllocator<SpellChessLib::Player>;
-    static std::shared_ptr<Allocator> alloc = std::make_shared<Allocator>(std::make_shared<RandomPlayerFactory>());
-    
-    return alloc->retrieve();
+    return SpellChessLib::Scheduler::makeResource<SpellChessLib::Player>(std::make_shared<RandomPlayerFactory>());
 };
 
 int main(int argc, char ** argv) {

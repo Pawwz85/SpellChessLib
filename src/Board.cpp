@@ -73,38 +73,51 @@ void SpellChessLib::GameState::makeCastling(const PlayerColor& playerColor, cons
     }
 }
 
+inline char to_symbol(const SpellChessLib::Piece & piece) {
+    static char bl_piece_symbols[7] = { ' ', 'p', 'n', 'b', 'r', 'q', 'k' };
+    static char wh_piece_symbols[7] = { ' ', 'P', 'N', 'B', 'R', 'Q', 'K' };
+    auto & symbol_table = (piece.owner == White ? wh_piece_symbols : bl_piece_symbols);
+    return symbol_table[piece.type];
+};
+
 std::string SpellChessLib::GameState::makePieceFenStringFragment() const
 {
-    char bl_piece_symbols[7] = { ' ', 'p', 'n', 'b', 'r', 'q', 'k' };
-    char wh_piece_symbols[7] = { ' ', 'P', 'N', 'B', 'R', 'Q', 'K' };
+    class Accumulator {
+        uint8_t val = 0;
+        std::string* result;
+        public:
 
-    std::string result = "";
-    
-    uint8_t index;
-    uint8_t acc = 0;
+        Accumulator(std::string & result) : result(&result){}
+        ~Accumulator() { flush(); }
+
+        Accumulator& operator++() {
+            val++;
+            return *this;
+        }
+
+        void flush() {
+            if(val) 
+                *result += std::to_string(val);
+            val = 0;
+        }
+    };
+
+    std::string result;
+
     for (uint8_t y = 0; y < 8; ++y) {
+        Accumulator acc = result;
 
         if (y) result += "/";
 
         for (uint8_t x = 0; x < 8; ++x) {
-            index = 8 * y + x;
+            uint8_t index = 8 * y + x;
             if (!board[index].isEmpty()) {
-                if (acc) {
-                    result += std::to_string(acc);
-                    acc = 0;
-                }
-                result += (board[index].piece.owner == White ? wh_piece_symbols : bl_piece_symbols)[board[index].piece.type];
+                acc.flush();
+                result += to_symbol(board[index].piece);
             }
             else 
                 ++acc;
-             
         }
-
-        if (acc) {
-            result += std::to_string(acc);
-            acc = 0;
-        }
-    
     }
 
     return result;
@@ -225,7 +238,7 @@ std::string SpellChessLib::spellChessMoveToString(const SpellChessMove& move)
 
     std::string result = fromSq + toSq;
 
-    if (move.promoteTo != Nobody && move.promoteTo != Pawn && move.promoteTo != King) {
+    if (move.promoteTo != None && move.promoteTo != Pawn && move.promoteTo != King) {
         result += promotionTargets[move.promoteTo - 2];
     }
 

@@ -117,5 +117,10 @@ namespace SpellChessLib {
 			return *this;
 		}
 
+		template <class Object>
+		ResourcePointer<Object> makeResource(std::shared_ptr<Factory<Object>> factory) {
+			auto a = std::make_shared<DefaultObjectAllocator<Object>>(factory);
+			return a->retrieve();
+		}
 	}
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdexcept>
-#include "DataTables.h"
 #include "SpellChessGame.h"
 
 namespace SpellChessLib {

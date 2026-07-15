@@ -123,11 +123,10 @@ SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player> makeCPUPlayer(c
 
 
 SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player> makeHumanPlayer(const BoardViewer::PlayerDefinition &def, const BoardViewer::OpenSessionRequest & request) {
-    using PlayerAlloc = typename SpellChessLib::Scheduler::DefaultObjectAllocator<SpellChessLib::Player>;  
     using PlayerFactory = typename SpellChessLib::Factory<SpellChessLib::Player>;
     using AsyncPlayerFactory = typename SpellChessLib::DefaultFactory<SpellChessLib::AsynchronousPlayer>;
     static auto factory = std::make_shared<AsyncPlayerFactory>();
-    return std::make_shared<PlayerAlloc>(std::reinterpret_pointer_cast<PlayerFactory>(factory))->retrieve();
+    return SpellChessLib::Scheduler::makeResource(std::reinterpret_pointer_cast<PlayerFactory>(factory));
 };
 
 BoardViewer::GameViewerModel::PlayerPointer BoardViewer::GameViewerModel::playerFromDef(const PlayerDefinition &def, const OpenSessionRequest &request){
