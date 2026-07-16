@@ -17,6 +17,9 @@ void App::openSession(const BoardViewer::OpenSessionRequest &request){
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
 
+    QString pgnVersion = model->getCurrentState().isSpellChessGame() ? "PGN4" : "PGN";
+    copyPgn->setText("Copy " + pgnVersion);
+
     this->mainWindow->setCentralWidget(view);
 }
 

@@ -9,7 +9,6 @@ set( headears
 )
 
 set ( src_files 
-    "src/ChessGui.cpp"
     "src/EngineRepository.cpp"
     "src/Form.cpp"
     "src/GameRunnerConfigurationDialog.cpp"
