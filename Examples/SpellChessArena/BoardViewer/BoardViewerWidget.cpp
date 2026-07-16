@@ -190,16 +190,18 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
 
     whiteTimer = new PlayerTimer(this);
     blackTimer = new PlayerTimer(this);
-
-    SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
-    SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
     
     layout->addWidget(board, 1, 1, 8, 8);
     layout->addWidget(moveList, 1, 9, 8, 3);
-    layout->addWidget(blPanel, 0, 6, 1, 2);
-    layout->addWidget(whPanel, 9, 6, 1, 2);
     layout->addWidget(blackTimer, 0, 1, 1, 2);
     layout->addWidget(whiteTimer, 9, 1, 1, 2);
+    
+    if (model->getCurrentState().isSpellChessGame()) {
+        SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
+        SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
+        layout->addWidget(blPanel, 0, 6, 1, 2);
+        layout->addWidget(whPanel, 9, 6, 1, 2);
+    }
 
     setLayout(layout);
 
