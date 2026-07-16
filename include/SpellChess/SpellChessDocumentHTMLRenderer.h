@@ -96,9 +96,13 @@ namespace SpellChessLib {
 
         class CommentToken : public LeafElement {
             std::string text;
+            SpellChessDocument::Handle pos;
+
+            bool isCurrentPos = false;
             public:
-            CommentToken(const std::string & text);
+            CommentToken(const std::string & text, SpellChessDocument::Handle position);
             std::string toText() const override;
+            void onCurrentPosChanged(SpellChessDocument::Handle currentPos) override;
         };
 
         enum BlockType {

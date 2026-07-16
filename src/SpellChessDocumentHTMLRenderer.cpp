@@ -113,11 +113,19 @@ namespace SpellChessLib {
             this->type = tp;
         }
 
-        CommentToken::CommentToken(const std::string & text) : text(text) {
+        CommentToken::CommentToken(const std::string & text, SpellChessDocument::Handle position) :
+         text(text), pos(position) {
+        }
+
+        void CommentToken::onCurrentPosChanged(SpellChessDocument::Handle currentPos) {
+            isCurrentPos = currentPos.lock() == pos.lock();
         }
 
         std::string CommentToken::toText() const {
-            return "<i style=\"color: orange;\">" + text + "</i>";
+
+            std::string color = isCurrentPos ? "orange" : "gray";
+
+            return "<i style=\"color:" + color + ";\">" + text + "</i>";
         }
 
         std::string MoveToken::openAnchor(SpellChessDocument::Handle pos) const {
@@ -161,7 +169,7 @@ namespace SpellChessLib {
 
         std::string currentComment = document.getComment(arc.node);
         if(!currentComment.empty())
-                parent.pushBack(std::make_unique<HTML::CommentToken>(currentComment));
+                parent.pushBack(std::make_unique<HTML::CommentToken>(currentComment, arc.node));
     };
 
     void singleBlockDocumentScan(HTML::ContainerElement & scope, const SpellChessDocument & document, SpellChessDocument::Handle currentPos) {
@@ -285,8 +293,7 @@ namespace SpellChessLib {
 
         std::string rootComment = document.getComment(currentPos);
         if(!rootComment.empty())
-                result->pushBack(std::make_unique<HTML::CommentToken>(rootComment));
-    
+                result->pushBack(std::make_unique<HTML::CommentToken>(rootComment, currentPos));
 
         singleBlockDocumentScan(*result, document, currentPos);
         eraseEmptyBlocks(*result);
