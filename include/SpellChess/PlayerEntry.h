@@ -18,6 +18,7 @@ namespace SpellChessLib {
 		int32_t id;			// unique id assigned to the current player, used by GameRunnerPool to ensure simultaneous game policies of the players involved
 		SimultaneousGamesPolicy simultaneousGamesPolicy;
 		std::string name;
+		std::string executable; // executable of the provided player. Leave empty if the given player doesn't use any executable
 		std::shared_ptr<Factory<Player>> instanceFactory;
 	};
 

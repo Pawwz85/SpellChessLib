@@ -21,6 +21,7 @@ PlayerEntry makeEngineEntry(const std::string& path) {
 		0,
 		PlayerEntry::SIMULTANEOUS_GAMES_SUPPORTED,
 		path,
+		path,
 		std::make_shared<UCIPlayerFactory>(path)
 	};
 }

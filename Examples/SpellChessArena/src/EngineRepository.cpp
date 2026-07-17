@@ -62,6 +62,7 @@ SpellChessLib::PlayerEntry EnginePlayerRepository::playerEntryFromEngineEntryLis
         -1, // id, will be set by player registry repository
         engineEntry.simGamesPolicy, // simoultanous game policy
         engineEntry.name, // name
+        engineEntry.pathToEngine, // executable
         std::make_shared<SpellChessLib::UCIPlayerFactory>(engineEntry.pathToEngine)
     };
 }
