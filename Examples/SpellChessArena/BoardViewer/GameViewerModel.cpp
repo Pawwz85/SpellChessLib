@@ -4,6 +4,8 @@
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/OpeningBookPlayerWrapper.h>
 
+#include <EngineTools/RunningEnginesService.hpp>
+
 BoardViewer::GameViewerModel::GameViewerModel(std::shared_ptr<SpellChessLib::TimerService> timeServ, const OpenSessionRequest &request, QCoreApplication *app) : runnerAdapter(app, this),
                                                                                                                                                                  application(app)
 {

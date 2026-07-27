@@ -26,10 +26,13 @@ set (all_files
     ${src_files}
 )
 
+add_compile_definitions(QT_NO_EMIT)
+
 add_subdirectory(Misc)
 add_subdirectory(SpriteSet)
 add_subdirectory(BoardGrid)
 add_subdirectory(SpellButton)
+add_subdirectory(EngineTools)
 add_subdirectory(BoardViewer)
 
 qt_add_executable( arena ${src_files} )

@@ -1,5 +1,6 @@
 #include <SpellChess/PlayerRegistry.h>
 #include <EngineRepository.hpp>
+#include <EngineTools/RunningEnginesService.hpp>
 
 #include <fstream>
 #include <vector>
@@ -63,7 +64,7 @@ SpellChessLib::PlayerEntry EnginePlayerRepository::playerEntryFromEngineEntryLis
         engineEntry.simGamesPolicy, // simoultanous game policy
         engineEntry.name, // name
         engineEntry.pathToEngine, // executable
-        std::make_shared<SpellChessLib::UCIPlayerFactory>(engineEntry.pathToEngine)
+        RunningEnginesService::makeEnginePlayerFactory(QString::fromStdString(engineEntry.name), {engineEntry.pathToEngine})
     };
 }
 

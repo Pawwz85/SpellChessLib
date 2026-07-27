@@ -19,7 +19,7 @@ set ( sources
 
 qt_add_library(BoardViewer STATIC ${sources})
 
-target_link_libraries(BoardViewer PUBLIC Misc Qt6::Widgets Qt6::Gui spellchess BoardGrid SpriteSet)
+target_link_libraries(BoardViewer PUBLIC Misc Qt6::Widgets Qt6::Gui spellchess BoardGrid SpriteSet EngineTools)
 target_include_directories( BoardViewer INTERFACE include )
 target_include_directories( BoardViewer PRIVATE include/BoardViewer )
 

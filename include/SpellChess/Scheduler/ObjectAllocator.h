@@ -101,9 +101,11 @@ namespace SpellChessLib {
 
 		template<class Object>
 		inline void ResourcePointer<Object>::realoc(){
-			if(obj)
-				this->allocator->destroy(obj);
-			obj = this->allocator->retrieve().release();
+			if (allocator){
+				if(obj)
+					this->allocator->destroy(obj);
+				obj = this->allocator->retrieve().release();
+			}
 		}
 
 		template<class Object>
