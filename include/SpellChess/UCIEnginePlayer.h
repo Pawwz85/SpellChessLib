@@ -14,9 +14,7 @@ namespace SpellChessLib {
 
 		Result waitForResult();
 	public: 
-		UCIEnginePlayer(std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance) : instance(instance), searchConnection(nullptr) {
-			instance->sync();
-		};
+		UCIEnginePlayer(std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance) : instance(instance), searchConnection(nullptr) {};
 	
 		// Odziedziczono za po�rednictwem elementu Player
 		Result makeResult(const Game& game, const std::chrono::milliseconds& timeOut) override;

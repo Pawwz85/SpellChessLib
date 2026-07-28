@@ -103,7 +103,6 @@ class EnginePlayerFactory: public SpellChessLib::Factory<SpellChessLib::Player> 
         auto entry = service.openEngine(args, workingDirectory);
 
         auto engineInstance = entry.engine;
-        engineInstance->sync();
 
         QString entryLabel = label.isEmpty() ? QString::fromStdString(engineInstance->getName()) : label;
 

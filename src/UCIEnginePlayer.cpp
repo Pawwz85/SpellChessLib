@@ -48,6 +48,7 @@ void SpellChessLib::UCIEnginePlayer::kill(){
 
 void SpellChessLib::UCIEnginePlayer::onNewGame()
 {
+   instance->sync();
    instance->ucinewgame();
 }
 
