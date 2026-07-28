@@ -21,12 +21,12 @@ class EngineLogger : public QObject {
     void appendLine(const QString & line);
 
     public:
-    EngineLogger(size_t maximumLineCount = 1024);
+    EngineLogger(size_t maximumLineCount = 128);
     void log(const std::string & msg);
     QString getContent() const;
 
     signals:
-    void contentChanged(const QString & content);
+    void newLineLogged(const QString & line);
 };
 
 class EngineLogsWidget : public QWidget {
@@ -34,7 +34,7 @@ class EngineLogsWidget : public QWidget {
     QTextEdit * textEdit;
 
     private slots:
-    void onLogsContentChanged(const QString & content);
+    void onNewLineLogged(QString line);
 
     public:
     EngineLogsWidget(EngineLogger & logger, QWidget* parent = nullptr );

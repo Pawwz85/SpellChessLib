@@ -12,6 +12,7 @@
 #include <BoardViewer/OpenSessionRequest.hpp>
 #include <BoardViewer/GameRunnerBridge.hpp>
 
+#include <EngineTools/RunningEnginesService.hpp>
 
 /*!
     Class responsible for storing configuration of current application instance
@@ -30,6 +31,9 @@ class App : public QObject {
 
     QAction * copyFen;
     QAction * copyPgn;
+    
+    void engineLogs(EngineServiceEntry engine);
+    std::function<void()> openTool(void (App::*)(EngineServiceEntry));
 
     public:
 

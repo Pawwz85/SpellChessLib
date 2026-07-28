@@ -1,4 +1,5 @@
 #include <EngineLogger.hpp>
+#include <QVBoxLayout>
 
 EngineLogger::EngineLogger(size_t maximumLineCount) : maximumLineCount(maximumLineCount){
 };
@@ -25,29 +26,33 @@ void EngineLogger::appendLine(const QString & line) {
 
 void EngineLogger::log(const std::string & msg){
     appendLine(QString::fromStdString(msg)); 
-    contentChanged(getContent());
+    newLineLogged(QString::fromStdString(msg));
 };
 
 QString EngineLogger::getContent() const {
     QString result;
 
     for (size_t i = headIndex; i < currentLineCount; ++i)
-        result += lines[i] + "\n";
+        result += lines[i];
 
     for (size_t i = 0; i < headIndex; ++i)
-        result += lines[i] + "\n";        
+        result += lines[i];        
 
     return result;
 };
 
-void EngineLogsWidget::onLogsContentChanged(const QString & content) {
-    textEdit->setText(content);
+void EngineLogsWidget::onNewLineLogged(QString line) {
+    line.chop(1); // remove the trailing newline character
+    textEdit->append(line);
 }
 
 EngineLogsWidget::EngineLogsWidget(EngineLogger & logger, QWidget * parent) : QWidget(parent) {
-    textEdit = new QTextEdit();
-    textEdit->setEnabled(false);
-    connect(&logger, &EngineLogger::contentChanged, this, &EngineLogsWidget::onLogsContentChanged);
+    textEdit = new QTextEdit(this);
+    auto layout = new QVBoxLayout(this);
+    layout->addWidget(textEdit);
+    textEdit->setPlainText(logger.getContent());
+    textEdit->setReadOnly(true);
+    connect(&logger, &EngineLogger::newLineLogged, this, &EngineLogsWidget::onNewLineLogged);
 };
 
 #include <moc_EngineLogger.cpp>

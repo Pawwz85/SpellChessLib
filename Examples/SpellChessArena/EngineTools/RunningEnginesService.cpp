@@ -20,8 +20,9 @@ EngineServiceEntry RunningEnginesService::openEngine(const std::vector<std::stri
 
     auto engineProcess = std::unique_ptr<UCILoader::ProcessWrapper>(UCILoader::openProcess(args, workingDirectory)); 
 
+    using namespace UCILoader::LoggerTraits;
     ChessEngine * engineInstance = SpellChessLib::SpellChessEngineInstanceBuilder->build(engineProcess.release(),
-        std::move(logger_wrapper)  | UCILoader::LoggerTraits::Pretty | UCILoader::LoggerTraits::Timestamp
+        std::move(logger_wrapper)  | Timestamp | Pretty
     );
 
     unsigned int id = getNextId();
