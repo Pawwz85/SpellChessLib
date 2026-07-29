@@ -15,6 +15,10 @@
 #include <optional>
 
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
+
+    // Remove unused engines lingering from the last game
+    RunningEnginesService::getInstance().clear();
+
     BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
 

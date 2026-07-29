@@ -1,5 +1,6 @@
 #include <SpellChess/SpellChessDocument.h>
 #include <SpellChess/MoveGen.h> // for move legality check
+#include <stdexcept>
 
 SpellChessLib::SpellChessDocument::Node::Node(
     const GameState & state,
