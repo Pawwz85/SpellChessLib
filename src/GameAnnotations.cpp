@@ -141,10 +141,10 @@ void SpellChessLib::Annotation::AnnotatedSequence::deepcopy(const AnnotatedSeque
     for(auto & node : other.nodes) {
         switch (node.index())
         {
-        case 0:
+        case (size_t)Contants::AnnotatedSequenceNodeType::Variation:
             this->nodes.push_back(AnnotatedSequence(std::get<Annotation::AnnotatedSequence>(node)));
             break;
-        case 1:
+        case (size_t)Contants::AnnotatedSequenceNodeType::Element:
             this->nodes.push_back(std::get<Annotation::AnnotatedSequenceElement>(node));
         default:
             break;
@@ -218,13 +218,13 @@ void SpellChessLib::Annotation::validateAnnotatedSequenceMoveLegality(const Game
     for (const auto& node : seq) {
         switch (node.index())
         {
-        case 0:
+        case (size_t)Contants::AnnotatedSequenceNodeType::Variation:
             validateAnnotatedSequenceMoveLegality(parentPos, std::get<Annotation::AnnotatedSequence>(node));
             break;
-        case 1:
+        case (size_t)Contants::AnnotatedSequenceNodeType::Element:
             element = std::get<AnnotatedSequenceElement>(node);
 
-            if (element.index() == 2) {
+            if (element.index() == (size_t)Contants::AnnotatedSequenceItemType::Move) {
                 MoveGenerator gen(currentPos);
                 const SpellChessMove& m = std::get<SpellChessMove>(element);
                 if (!gen.isMoveLegal(m))

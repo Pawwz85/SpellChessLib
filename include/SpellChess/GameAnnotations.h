@@ -103,6 +103,21 @@ namespace SpellChessLib {
 
 		class AnnotatedSequence;
 
+		namespace Contants {
+			enum class AnnotatedSequenceNodeType : size_t{
+				Variation = 0,
+				Element = 1
+			};
+
+			enum class AnnotatedSequenceItemType : size_t {
+				Comment = 0,
+				NumericAnnotationGlyph = 1,
+				Move = 2
+			};
+		};
+
+		
+
 		using AnnotatedSequenceNode = typename std::variant<AnnotatedSequence, AnnotatedSequenceElement>;
 
 

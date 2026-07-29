@@ -431,29 +431,23 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
 
     if (isCastling) {
         makeCastling(sideToMove, move.to > move.from ? Kingside : QueenSide);
-        goto CounterUpdate;
+    } else {
+        enpassantSquare = (type == Pawn && std::abs(move.from - move.to) == 16) ? (move.from + move.to) / 2 : NoSquare;
+        board[move.to].piece = (move.promoteTo != None) ? Piece({move.promoteTo, sideToMove}) : board[move.from].piece;
+        board[move.from].piece = { None, Nobody };
+        
+        if (isEnpassant) 
+            board[calculateEnpassantPawnIndex(move.from, move.to)].piece = {None, Nobody};
+        
+        if (type == King) 
+            castlingRights[sideToMove - 1][0] = castlingRights[sideToMove - 1][1] = false;
+
+        if (type == Rook)
+            revokeCastlingRightsAssociatedWithGivenRook(sideToMove, move.from);
+
+        if (capturedType == Rook)
+            revokeCastlingRightsAssociatedWithGivenRook(flipColor(sideToMove), move.to);
     }
-
-
-    enpassantSquare = (type == Pawn && std::abs(move.from - move.to) == 16) ? (move.from + move.to) / 2 : NoSquare;
-
-
-    board[move.to].piece = (move.promoteTo != None) ? Piece({move.promoteTo, sideToMove}) : board[move.from].piece;
-    board[move.from].piece = { None, Nobody };
-    
-    if (isEnpassant) 
-        board[calculateEnpassantPawnIndex(move.from, move.to)].piece = {None, Nobody};
-    
-    if (type == King) 
-        castlingRights[sideToMove - 1][0] = castlingRights[sideToMove - 1][1] = false;
-
-    if (type == Rook)
-        revokeCastlingRightsAssociatedWithGivenRook(sideToMove, move.from);
-
-    if (capturedType == Rook)
-        revokeCastlingRightsAssociatedWithGivenRook(flipColor(sideToMove), move.to);
-
-    CounterUpdate:
 
     halfMoveRuleCounter = resetHalfMoveCounter ? 0 : (halfMoveRuleCounter + 1);
     if (sideToMove == Black) 
