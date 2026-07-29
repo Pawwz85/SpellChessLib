@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-double normalCDFInverseAproximation(double t)
+double normalCDFInverseApproximation(double t)
 {
     // Based on Abramowitz and Stegun formula 26.2.23.
     double c[] = {2.515517, 0.802853, 0.010328};
@@ -18,8 +18,8 @@ double NormalCDFInverse(double p)
 	}
 
     return (p < 0.5) ?
-        -normalCDFInverseAproximation( std::sqrt(-2.0*std::log(p))) :
-    	normalCDFInverseAproximation( std::sqrt(-2.0*std::log(1-p)) );
+        -normalCDFInverseApproximation( std::sqrt(-2.0*std::log(p))) :
+    	normalCDFInverseApproximation( std::sqrt(-2.0*std::log(1-p)) );
 }
 
 double SpellChessLib::Stats::getScore(const TrinomialModel& model) {

@@ -13,8 +13,8 @@ namespace SpellChessLib {
         Scheduler::ResourcePointer<Player> wrapped;
         std::shared_ptr<OpeningBook> book;
         
-        Result makeResult(const Game& game, const std::chrono::milliseconds & timeOut) override {};
-		Result handlePonderHit() override {};
+        Result makeResult(const Game& game, const std::chrono::milliseconds & timeOut) override;
+		Result handlePonderHit() override;
 		void startPondering(const Game& game, const SpellChessMove & ponderMove) override {};
 		void cancelPondering() override {};
 

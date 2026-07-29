@@ -5,6 +5,14 @@ SpellChessLib::PlayerWithOpeningBook::PlayerWithOpeningBook(Scheduler::ResourceP
 {
 }
 
+SpellChessLib::Player::Result SpellChessLib::PlayerWithOpeningBook::makeResult(const Game& game, const std::chrono::milliseconds & timeOut) {
+    return Result({}); // return invalid move, as this player does not generate moves on its own
+};
+
+SpellChessLib::Player::Result SpellChessLib::PlayerWithOpeningBook::handlePonderHit() {
+    return Result({}); // return invalid move, as this player does not generate moves on its own
+};
+
 bool SpellChessLib::PlayerWithOpeningBook::supportsPondering() const {
     return wrapped->supportsPondering();
 };

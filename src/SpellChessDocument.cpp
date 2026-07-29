@@ -118,7 +118,7 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
         if (index == 1) {
             const Annotation::AnnotatedSequenceElement & element = std::get<Annotation::AnnotatedSequenceElement>(*it);
             size_t element_index = element.index();
-            std::shared_ptr<Node> child = nullptr;
+            std::shared_ptr<Node> child;
             switch (element_index)
             {
             case 0: // comment
@@ -200,9 +200,7 @@ SpellChessLib::SpellChessDocument::isTail(Handle node) const {
 
 bool
 SpellChessLib::SpellChessDocument::has(Handle node) const {
-    auto node_ = node.lock();
-    if(!node_) return false;
-
+    auto node_ = tryHandle(node);
     return idMap.find(node_->getNodeId()) != idMap.end();
 };
 
@@ -219,58 +217,44 @@ SpellChessLib::SpellChessDocument::getTail() const {
 
 SpellChessLib::SpellChessDocument::Handle
 SpellChessLib::SpellChessDocument::getPreviousNode(Handle handle) const {
-    if (auto node = handle.lock()) 
-        return node->parent;
-    throw BadHandle();    
+   return tryHandle(handle)->parent;
 };
 
 SpellChessLib::SpellChessDocument::Handle
 SpellChessLib::SpellChessDocument::getNextNode(Handle handle) const {
-    if (auto node = handle.lock()) {
-        std::scoped_lock<std::mutex> guard(node->mut);
-        return node->transitions.empty() ? Handle() : node->transitions[0].child;
-    } 
-    throw BadHandle();
+    auto node = tryHandle(handle);
+    std::scoped_lock<std::mutex> guard(node->mut);
+    return node->transitions.empty() ? Handle() : node->transitions[0].child;
 };
 
 std::vector<SpellChessLib::SpellChessDocument::Handle>
 SpellChessLib::SpellChessDocument::getChildren(Handle handle) const {
     std::vector<Handle> result;
-
-    if (auto node = handle.lock()) {
-        std::scoped_lock<std::mutex> guard(node->mut);
-        for(const auto & link : node->transitions)
-            result.push_back(link.child);
-        return result;
-    } 
-    throw BadHandle();
+    auto node = tryHandle(handle);
+    std::scoped_lock<std::mutex> guard(node->mut);
+    for(const auto & link : node->transitions)
+        result.push_back(link.child);
+    return result;
 };
 
 std::vector<SpellChessLib::SpellChessDocument::Arc>
 SpellChessLib::SpellChessDocument::getArcs(Handle handle) const {
     std::vector<Arc> result;
-
-    if (auto node = handle.lock()) {
-        std::scoped_lock<std::mutex> guard(node->mut);
-        for(const auto & link : node->transitions)
-            result.push_back({link.child, link.move});
-        return result;
-    } 
-    throw BadHandle();
+    auto node = tryHandle(handle);
+    std::scoped_lock<std::mutex> guard(node->mut);
+    for(const auto & link : node->transitions)
+        result.push_back({link.child, link.move});
+    return result;
 };
 
 SpellChessLib::GameState
 SpellChessLib::SpellChessDocument::getGameState(Handle handle) const {
-    if (auto node = handle.lock())
-        return node->gameState;
-    throw BadHandle();
+    return tryHandle(handle)->gameState;
 };
 
 std::string
 SpellChessLib::SpellChessDocument::getComment(Handle handle) const {
-    if (auto node = handle.lock()) 
-        return node->getComment();
-   throw BadHandle();
+    return tryHandle(handle)->getComment();
 };
 
 void
@@ -284,16 +268,14 @@ SpellChessLib::SpellChessDocument::setComment(Handle where, const std::string & 
 SpellChessLib::SpellChessDocument::Node & 
 SpellChessLib::SpellChessDocument::referenceNodeByHandle(Handle h) {
     std::shared_ptr<Node> result;
-    if (auto node = h.lock()) {
-        std::scoped_lock<std::mutex> guard(mut);
-        auto it = idMap.find(node->getNodeId());
+    auto node = tryHandle(h);
+    std::scoped_lock<std::mutex> guard(mut);
+    
+    auto it = idMap.find(node->getNodeId());
+    if(it == idMap.end())
+        throw BadHandle();
 
-        if(it == idMap.end())
-            throw BadHandle();
-
-        return *it->second;
-    };
-    throw BadHandle();
+    return *it->second;
 };
 
 SpellChessLib::SpellChessDocument::Handle
@@ -337,6 +319,15 @@ SpellChessLib::SpellChessDocument::writeNodeToAnnotatedSequence(const Node & nod
 
     writeNodeToAnnotatedSequence(*node.transitions[0].child, seq);      
 };
+
+std::shared_ptr<const SpellChessLib::SpellChessDocument::Node>
+SpellChessLib::SpellChessDocument::tryHandle(Handle handle) const{
+    if (auto node = handle.lock()) 
+        return node;
+    throw BadHandle();
+}
+
+
 
 SpellChessLib::Annotation::GameAnnotations
 SpellChessLib::SpellChessDocument::toAnnotations() const {

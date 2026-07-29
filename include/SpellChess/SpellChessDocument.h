@@ -83,7 +83,7 @@ namespace SpellChessLib {
         void writeNodeToAnnotatedSequence(const Node & node, Annotation::AnnotatedSequence & seq) const;
         std::shared_ptr<Node> makeChildNode(std::shared_ptr<Node> node, const SpellChessMove & move);
         Node & referenceNodeByHandle(Handle h);
-
+        std::shared_ptr<const Node> tryHandle(Handle h) const;
         public:
 
         // empty document constructor

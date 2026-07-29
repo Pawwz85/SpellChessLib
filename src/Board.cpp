@@ -253,12 +253,12 @@ std::string SpellChessLib::spellChessMoveToString(const SpellChessMove& move)
     return result;
 }
 
-SpellChessMove SpellChessLib::parseMove(const char* str)
+SpellChessMove SpellChessLib::parseMove(std::string_view str)
 {
     
     // Grammar {freeze@[sq]&, jump@[sq]&}[sq][sq]
     SpellChessMove result = {NoSquare, NoSquare, NoSquare, NoSquare, None};
-    size_t len = strlen(str);
+    size_t len = str.size();
     size_t spellSepPos = 0;
    
     std::string spell = "";
@@ -292,17 +292,17 @@ SpellChessMove SpellChessLib::parseMove(const char* str)
     from = tmp.substr(0, 2);
     to = tmp.substr(2, 2);
 
-    result.from = Parsing::parseSquareIndex(from.c_str());
-    result.to = Parsing::parseSquareIndex(to.c_str());
+    result.from = Parsing::parseSquareIndex(from);
+    result.to = Parsing::parseSquareIndex(to);
 
     if (!spell.empty() && spellTarget == "-")
         throw Parsing::ParsingError();
 
     if (spell == "freeze") {
-        result.freezeSquare = Parsing::parseSquareIndex(spellTarget.c_str());
+        result.freezeSquare = Parsing::parseSquareIndex(spellTarget);
     }
     else if (spell == "jump" ) {
-        result.jumpSquare = Parsing::parseSquareIndex(spellTarget.c_str());
+        result.jumpSquare = Parsing::parseSquareIndex(spellTarget);
     }
     else if (!spell.empty() || specialSymbolEncounter)
         throw Parsing::ParsingError();
@@ -330,7 +330,7 @@ SpellChessLib::SpellChessMove::SpellChessMove(const char * stringValue) {
 };
 
 SpellChessLib::SpellChessMove::SpellChessMove(const std::string & token) {
-    *this = parseMove(token.c_str());
+    *this = parseMove(token);
 };
 
 SpellChessLib::SpellChessMove::SpellChessMove(uint8_t from, uint8_t to, uint8_t freezeSquare, uint8_t jumpSquare, PieceType promoteTo) :
@@ -470,26 +470,26 @@ int SpellChessLib::GameState::countPiece(Piece piece) const{
 };
 
 
-void SpellChessLib::FenValidator::throwIfInvalid(const char* fen) const
+void SpellChessLib::FenValidator::throwIfInvalid(std::string_view fen) const
 {
-    if (!isValidFen(fen)) {
-        throw InvalidFenException(fen);
-    }
+    if (!isValidFen(fen)) 
+        throw InvalidFenException(std::string(fen));
 }
 
-size_t SpellChessLib::StandardChessFenValidator::countCharactersToWhiteSpace(const char* str, size_t strlen) const
+size_t SpellChessLib::StandardChessFenValidator::countCharactersToWhiteSpace(std::string_view str) const
 {
     size_t res = 0;
-    for (; res < strlen; ++res) 
-        if (isspace(str[res]))
+    for (auto c: str) 
+        if (isspace(c))
             return res;
+        else
+            ++res;
     return res;
 }
 
 
-bool SpellChessLib::StandardChessFenValidator::validatePieceList(const char* pieceList, size_t characterCount) const
+bool SpellChessLib::StandardChessFenValidator::validatePieceList(std::string_view pieceList) const
 {
-    char c;
     int squaresVisited = 0;
     int squaresInCurrentRow = 0;
     int rowsCount = 1;
@@ -499,8 +499,7 @@ bool SpellChessLib::StandardChessFenValidator::validatePieceList(const char* pie
     bool lastCharWasDigit = false;
 
 
-    for (auto i = 0; i < characterCount; ++i) {
-        c = pieceList[i];
+    for (auto c : pieceList) {
         
         for (auto token : allowedTokens)
             if (token == c)
@@ -537,16 +536,20 @@ bool SpellChessLib::StandardChessFenValidator::validatePieceList(const char* pie
     return squaresVisited == 64 && rowsCount == 8;
 }
 
-bool SpellChessLib::StandardChessFenValidator::validateCastlingRightsString(const char* str, size_t characterCount) const
+bool SpellChessLib::StandardChessFenValidator::validateCastlingRightsString(std::string_view str) const
 {
-    if (characterCount == 0) return false;
-    if (*str == '-') return characterCount == 1;
+    if (str.empty())
+        return false;
+    
+    if (str.at(0) == '-')
+        return str.size() == 1;
     
     int occurence_count[4] = { 0, 0, 0, 0 };
     size_t placements[4] = { 0, 0, 0, 0 };
     char allowedCharacters[4] = {'K', 'Q', 'k', 'q'};
     bool validChar;
-    for (size_t i = 0; i < characterCount; ++i) {
+    
+    for (size_t i = 0; i < str.size(); ++i) {
         validChar = false;
         for(size_t j = 0; j < 4; ++j)
             if (str[i] == allowedCharacters[j]) {
@@ -570,33 +573,31 @@ bool SpellChessLib::StandardChessFenValidator::validateCastlingRightsString(cons
     return true;
 }
 
-bool SpellChessLib::StandardChessFenValidator::validateSquareString(const char* str, size_t characterCount) const
+bool SpellChessLib::StandardChessFenValidator::validateSquareString(std::string_view str) const
 {
-    char* buf = new char[characterCount + 1];
-    strcpy_s(buf, characterCount + 1, str);
-    bool result = Parsing::validateSquareIndexString(buf);
+    bool result = Parsing::validateSquareIndexString(str);
     return result;
 }
 
-bool SpellChessLib::StandardChessFenValidator::validateSideToMove(const char* str, size_t characterCount) const
+bool SpellChessLib::StandardChessFenValidator::validateSideToMove(std::string_view str) const
 {
-    return characterCount == 1 && (*str == 'w' || *str == 'b');
+    return str.size() == 1 && (str[0] == 'w' || str[0] == 'b');
 }
 
 bool SpellChessLib::StandardChessFenValidator::validateTokenized(const std::vector<std::string>& tokens) const
 {
     if (tokens.size() != 6) return false;
 
-    if (!validatePieceList(tokens[0].c_str(), tokens[0].size()))
+    if (!validatePieceList(tokens[0]))
         return false;
 
-    if (!validateSideToMove(tokens[1].c_str(), tokens[1].size()))
+    if (!validateSideToMove(tokens[1]))
         return false;
 
-    if (!validateCastlingRightsString(tokens[2].c_str(), tokens[2].size()))
+    if (!validateCastlingRightsString(tokens[2]))
         return false;
 
-    if (!validateSquareString(tokens[3].c_str(), tokens[3].size()))
+    if (!validateSquareString(tokens[3]))
         return false;
 
     int tmp;
@@ -610,21 +611,20 @@ bool SpellChessLib::StandardChessFenValidator::validateTokenized(const std::vect
     return true;
 }
 
-bool SpellChessLib::StandardChessFenValidator::isValidFen(const char* fen) const
+bool SpellChessLib::StandardChessFenValidator::isValidFen(std::string_view fen) const
 {
     // 
     // <pieceList> w/b <CastlingRights> <enp> <half_moves> <full_moves>
-
     auto tokens = Parsing::tokenizeStringBySpace(fen);
     return validateTokenized(tokens);
 }
 
 
-bool SpellChessLib::SpellChessFenValidator::validateSpell(const char* str, size_t characterCount) const
+bool SpellChessLib::SpellChessFenValidator::validateSpell(std::string_view str) const
 {
     // example: "F00/J00/f00/j00"
 
-    if (characterCount < 15) return false;
+    if (str.size() < 15) return false;
     
     char c, spell = 0;
 
@@ -656,7 +656,7 @@ bool SpellChessLib::SpellChessFenValidator::validateSpell(const char* str, size_
     return true;
 }
 
-bool SpellChessLib::SpellChessFenValidator::isValidFen(const char* fen) const
+bool SpellChessLib::SpellChessFenValidator::isValidFen(std::string_view fen) const
 {
     StandardChessFenValidator standardChessValidator;
     auto tokens = Parsing::tokenizeStringBySpace(fen);
@@ -671,13 +671,13 @@ bool SpellChessLib::SpellChessFenValidator::isValidFen(const char* fen) const
     if (!standardChessValidator.validateTokenized(standardChessTokens))
         return false;
 
-    if (!standardChessValidator.validateSquareString(tokens[6].c_str(), tokens[6].size()))
+    if (!standardChessValidator.validateSquareString(tokens[6]))
         return false;
 
-    if (!standardChessValidator.validateSquareString(tokens[7].c_str(), tokens[7].size()))
+    if (!standardChessValidator.validateSquareString(tokens[7]))
         return false;
 
-    if (!validateSpell(tokens[8].c_str(), tokens[8].size()))
+    if (!validateSpell(tokens[8]))
         return false;
 
     return true;

@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <cstring> // for memcpy
 #include <vector>
 
@@ -114,7 +115,7 @@ namespace SpellChessLib {
 
 #define CORDINATE_BOUNDARY_CHECK(x) (x < 8 && x >= 0)
 
-	extern SpellChessMove parseMove(const char* str);
+	extern SpellChessMove parseMove(std::string_view str);
 
 	extern void validateSpellChessMove(const SpellChessMove& move);
 	class InvalidMoveException : public std::exception {
@@ -143,37 +144,37 @@ namespace SpellChessLib {
 			const char* what() const noexcept override { return msg.c_str(); };
 		};
 
-		virtual bool isValidFen(const char* fen) const = 0;
-		virtual void throwIfInvalid(const char* fen) const;
+		virtual bool isValidFen(std::string_view fen) const = 0;
+		virtual void throwIfInvalid(std::string_view fen) const;
 	};
 
 	class SpellChessFenValidator; // declare friend of StandardChessFenValidator
 	class StandardChessFenValidator : public FenValidator {
 		friend SpellChessFenValidator;
 		
-		size_t countCharactersToWhiteSpace(const char* str, size_t strlen) const;
+		size_t countCharactersToWhiteSpace(std::string_view str) const;
 	protected:
 
-		bool validatePieceList(const char* pieceList, size_t characterCount) const;
-		bool validateCastlingRightsString(const char* str, size_t characterCount) const;
-		bool validateSquareString(const char* str, size_t characterCount) const;
-		bool validateSideToMove(const char* str, size_t characterCount) const;
+		bool validatePieceList(std::string_view pieceList) const;
+		bool validateCastlingRightsString(std::string_view str) const;
+		bool validateSquareString(std::string_view str) const;
+		bool validateSideToMove(std::string_view str) const;
 
 		bool validateTokenized(const std::vector<std::string>& tokens) const;
 
 	public:
 
 		// Odziedziczono za po�rednictwem elementu FenValidator
-		bool isValidFen(const char* fen) const override;
+		bool isValidFen(std::string_view fen) const override;
 
 	};
 
 	class SpellChessFenValidator : public FenValidator {
 	protected:
-		bool validateSpell(const char* str, size_t characterCount) const;
+		bool validateSpell(std::string_view str) const;
 	public:
 		// Odziedziczono za po�rednictwem elementu FenValidator
-		bool isValidFen(const char* fen) const override;
+		bool isValidFen(std::string_view fen) const override;
 	};
 
 
@@ -277,7 +278,16 @@ namespace SpellChessLib {
 
 		// copy constructor
 		GameState(const GameState & other) {
-			memcpy(this, &other, sizeof(GameState));
+			this->spellChessMode = other.spellChessMode;
+			this->sideToMove = other.sideToMove;
+			this->enpassantSquare = other.enpassantSquare;
+			this->frozeSquare = other.frozeSquare;
+			this->jumpSquare = other.jumpSquare;
+			this->halfMoveRuleCounter = other.halfMoveRuleCounter;
+			this->fullMoveCounter = other.fullMoveCounter;
+			memcpy(this->board, other.board, sizeof(BoardSquare) * 64);
+			memcpy(this->castlingRights, other.castlingRights, sizeof(bool) * 4);
+			memcpy(this->spells, other.spells, sizeof(SpellCounter) * 4);
 		};
 
 		// getters
