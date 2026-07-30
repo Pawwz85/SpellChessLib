@@ -11,13 +11,13 @@ void SpellChessLib::PGN4Exporter::writeTagLine(const Annotation::TagPair& tagPai
 void SpellChessLib::PGN4Exporter::writeAnnotationSequenceElement(const Annotation::AnnotatedSequenceElement& element, std::ostream& out){
 	std::string token;
 	switch (element.index()) {
-	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Comment: 
+	case (size_t)Annotation::AnnotatedSequenceElementType::Comment: 
 		out << " {" << std::get<std::string>(element) << "}";
 		break;
-	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::NumericAnnotationGlyph:
+	case (size_t)Annotation::AnnotatedSequenceElementType::NumericAnnotationGlyph:
 		// not supported yet
 		break;
-	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Move:
+	case (size_t)Annotation::AnnotatedSequenceElementType::Move:
 
 		if (!firstMoveWritten && currentState.getSideToMove() == Black) {
 			out << std::endl << currentState.getFullMoveCounter() - moveCounterOffset << ". ";
@@ -43,9 +43,9 @@ void SpellChessLib::PGN4Exporter::writeAnnotationSequenceElement(const Annotatio
 void SpellChessLib::PGN4Exporter::writeSequence(const Annotation::AnnotatedSequence& sequence, std::ostream& out){
 	for (const Annotation::AnnotatedSequenceNode& element : sequence) {
 		switch (element.index()) {
-		case (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Variation:
+		case (size_t)Annotation::AnnotatedSequenceNodeType::Variation:
 			break;
-		case (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Element:
+		case (size_t)Annotation::AnnotatedSequenceNodeType::Element:
 			writeAnnotationSequenceElement(std::get<Annotation::AnnotatedSequenceElement>(element), out);
 			break;
 

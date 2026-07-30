@@ -103,18 +103,17 @@ namespace SpellChessLib {
 
 		class AnnotatedSequence;
 
-		namespace Constants {
-			enum class AnnotatedSequenceNodeType : size_t{
+		enum class AnnotatedSequenceNodeType : size_t{
 				Variation = 0,
 				Element = 1
-			};
+		};
 
-			enum class AnnotatedSequenceItemType : size_t {
+		enum class AnnotatedSequenceElementType : size_t {
 				Comment = 0,
 				NumericAnnotationGlyph = 1,
 				Move = 2
-			};
 		};
+		
 
 		
 
