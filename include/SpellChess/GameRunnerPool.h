@@ -12,6 +12,7 @@
 namespace SpellChessLib {
 
 	class GameRunnerPool {
+		constexpr static auto SCHEDULER_POLL_INTERVAL = std::chrono::milliseconds{250};
 	public:
 	
 		struct GameRunRequest {

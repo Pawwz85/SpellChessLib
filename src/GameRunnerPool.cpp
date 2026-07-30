@@ -1,4 +1,5 @@
 #include <SpellChess/GameRunnerPool.h>
+#include <memory>
 
 inline void updateSevenTagRooster(SpellChessLib::GameRunner& runner, const SpellChessLib::GameRunnerPool::GameRunRequest & request) {
 	auto roster = runner.getGame().getRoster();
@@ -10,14 +11,14 @@ std::function<void()> SpellChessLib::GameRunnerPool::jobFromScheduler()
 	auto timerServicePointer = this->timerService;
 	auto schedulerPointer = this->scheduler;
 	return [timerServicePointer, schedulerPointer]() {
-		Scheduler::GameSchedulerEntry* scheduledGameEntry = nullptr;
+		std::unique_ptr<Scheduler::GameSchedulerEntry> scheduledGameEntry = nullptr;
 		do {
-			scheduledGameEntry = schedulerPointer->getNextGame().release();
+			scheduledGameEntry = std::move(schedulerPointer->getNextGame());
 			if (scheduledGameEntry == nullptr)
-				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				std::this_thread::sleep_for(SCHEDULER_POLL_INTERVAL);
 		} while (scheduledGameEntry == nullptr);
 		
-		GameRunRequest* request = (GameRunRequest*)scheduledGameEntry->context;
+		auto request = std::unique_ptr<GameRunRequest>((GameRunRequest*)scheduledGameEntry->context);
 		
 		try {
 			Scheduler::ResourcePointer<Player> whPlayer = schedulerPointer->getPlayerInstance(scheduledGameEntry->whitePlayerId);
@@ -32,10 +33,6 @@ std::function<void()> SpellChessLib::GameRunnerPool::jobFromScheduler()
 		catch (const std::exception & e) {
 			request->crashCallback(*request, e);
 		}
-
-		
-		delete request;
-		delete scheduledGameEntry;
 	};
 }
 
