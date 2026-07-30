@@ -12,7 +12,7 @@ namespace SpellChessLib {
 		std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance;
 		std::shared_ptr<UCILoader::SearchConnection<SpellChessMove>> searchConnection;
 
-		Result waitForResult();
+		Result waitForResult(std::chrono::milliseconds duration);
 	public: 
 		UCIEnginePlayer(std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> instance) : instance(instance), searchConnection(nullptr) {};
 	

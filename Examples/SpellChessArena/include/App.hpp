@@ -33,6 +33,7 @@ class App : public QObject {
     QAction * copyPgn;
     
     void engineLogs(EngineServiceEntry engine);
+    void engineControlPanel(EngineServiceEntry engine);
     std::function<void()> openTool(void (App::*)(EngineServiceEntry));
 
     public:

@@ -1,5 +1,3 @@
-#pragma once
-
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <SpellChess/UCIEnginePlayer.h>
 #include <RunningEnginesService.hpp>

@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <SpellChess/PlayerEntry.h>
 #include <SpellChess/Board.h>

@@ -3,6 +3,7 @@ project( EngineTools
         LANGUAGES CXX)
 
 set ( sources 
+    "EngineControlPanel.cpp"
     "EngineLogger.cpp"
     "RunningEnginesService.cpp"
 )

@@ -113,12 +113,12 @@ void SpellChessLib::GameRunner::run(){
                 if (allowPondering && currentPlayer->supportsPondering() && result.hasPonderMove())
                     currentPlayer->ponder(*game, result.getPonderMove());
             }
-            catch (...) {
+            catch (std::exception e) {
                 game->resign(flipColor(movingSide), ExceptionThrownByAPlayer);
                 break;
             }  
         }
-        catch (...) {
+        catch (std::exception e) {
             game->resign(movingSide, ExceptionThrownByAPlayer);
             break;
         }

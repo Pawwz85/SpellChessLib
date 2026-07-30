@@ -2,22 +2,26 @@
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <UCILoader/Logger.h>
 
-SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult()
+SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult(std::chrono::milliseconds duration)
 {
-    searchConnection->waitFor(std::chrono::seconds(10));
+    if (duration.count() != 0)
+        searchConnection->waitFor(duration + std::chrono::seconds(1));
+    else
+        searchConnection->waitFor(std::chrono::milliseconds::max());
+
     auto res = searchConnection->getResult();
     return (res.ponderMove == nullptr) ? *res.bestMove : SpellChessLib::Player::Result(*res.bestMove, *res.ponderMove);
 }
 
 SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::makeResult(const Game& game, const std::chrono::milliseconds& timeOut) {
     searchConnection = instance->search(game.getGoParams(), StateFormatter(game.getRoot()), game.getMovesSinceRoot());
-    return waitForResult();
+    return waitForResult(timeOut);
 }
 
 SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::handlePonderHit()
 {
     searchConnection->ponderhit();
-    return waitForResult();
+    return waitForResult(std::chrono::milliseconds(0));
 }
 
 void SpellChessLib::UCIEnginePlayer::startPondering(const Game& game, const SpellChessMove& ponderMove){

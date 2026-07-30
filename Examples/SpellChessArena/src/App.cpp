@@ -12,6 +12,7 @@
 #include <QDialogButtonBox>
 
 #include <EngineTools/EngineLogger.hpp>
+#include <EngineTools/EngineControlPanel.hpp>
 #include <optional>
 
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
@@ -110,6 +111,13 @@ void App::engineLogs(EngineServiceEntry engine){
     logsWidget->show();
 }
 
+void App::engineControlPanel(EngineServiceEntry engine) {
+    EngineControlPanel * controlPanel = new EngineControlPanel(engine.engine);
+    controlPanel->setWindowTitle(QObject::tr("Engine options: %1").arg(engine.name));
+    controlPanel->resize(800, 600);
+    controlPanel->show();
+};
+
 App::App(QCoreApplication * coreApp) {
     coreQApp = coreApp;
     timerService = std::make_shared<SpellChessLib::TimerService>();
@@ -132,6 +140,9 @@ App::App(QCoreApplication * coreApp) {
 
     QAction * showEngineLogs = toolsMenu->addAction(tr("Debug engine", "Show UCI protocol of an engine"));
     connect(showEngineLogs, &QAction::triggered, this, openTool(&App::engineLogs));
+
+    QAction * showEngineOptions = toolsMenu->addAction(tr("Engine Options", "Show detected options of UCI engine"));
+    connect(showEngineOptions, &QAction::triggered, this, openTool(&App::engineControlPanel));
 
     QMenu * settingsMenu = menuBar->addMenu(tr("Settings"));
 
