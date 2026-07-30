@@ -41,7 +41,7 @@ void SpellChessLib::PGNExporter::writeSequence(const Annotation::AnnotatedSequen
 		currentState = this->currentState;
 		parentState = this->parentState;
 		switch (element.index()) {
-		case 0: // element is another AnnotatedSequenceNode
+		case (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Variation: 
 			this->currentState = this->parentState;
 			writeToken("( ", out);
 			writeSequence(std::get<Annotation::AnnotatedSequence>(element), out);
@@ -49,7 +49,7 @@ void SpellChessLib::PGNExporter::writeSequence(const Annotation::AnnotatedSequen
 			this->currentState = currentState;
 			this->parentState = parentState;
 			break;
-		case 1: // element is of type Annotation::AnnotatedSequenceElement
+		case (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Element: 
 			writeAnnotationSequenceElement(std::get<Annotation::AnnotatedSequenceElement>(element), out);
 			break;
 		
@@ -63,15 +63,15 @@ void SpellChessLib::PGNExporter::writeAnnotationSequenceElement(const Annotation
 {
 	std::string token;
 	switch (element.index()) {
-	case 0:
+	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Comment:
 		writeToken("{", out);
 		writeToken(std::get<std::string>(element), out);
 		writeToken("} ", out);
 		break;
-	case 1: // Annotation Glyph 
+	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::NumericAnnotationGlyph:
 		writeNumericAnnotationGlyph(std::get<Annotation::NumericAnnotationGlyph>(element), out);
 		break;
-	case 2:
+	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Move:
 		if (currentState.getSideToMove() == White || !firstMoveWritten)
 			writeNumberIdentification(Annotation::MoveIndication(currentState.getFullMoveCounter()), out);
 		

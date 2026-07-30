@@ -109,26 +109,26 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
         size_t index = it->index();
 
         // Annotated sequence (variation)
-        if (index == (size_t)Annotation::Contants::AnnotatedSequenceNodeType::Variation) {
+        if (index == (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Variation) {
             variations.push_back(&std::get<Annotation::AnnotatedSequence>(*it));
             continue;
         }
 
         // Annotated sequence element
-        if (index == (size_t)Annotation::Contants::AnnotatedSequenceNodeType::Element) {
+        if (index == (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Element) {
             const Annotation::AnnotatedSequenceElement & element = std::get<Annotation::AnnotatedSequenceElement>(*it);
             size_t element_index = element.index();
             std::shared_ptr<Node> child;
             switch (element_index)
             {
-            case (size_t)Annotation::Contants::AnnotatedSequenceItemType::Comment: 
+            case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Comment: 
                 node->comment = std::get<std::string>(element);
                 break;
             
-            case (size_t)Annotation::Contants::AnnotatedSequenceItemType::NumericAnnotationGlyph:
+            case (size_t)Annotation::Constants::AnnotatedSequenceItemType::NumericAnnotationGlyph:
                 break;
             
-            case (size_t)Annotation::Contants::AnnotatedSequenceItemType::Move:
+            case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Move:
                 SpellChessMove move = std::get<SpellChessMove>(element);
                 child = makeChildNode(node, move);
                 initNodeFromAnnotations(child, node, ++it, end);
@@ -147,12 +147,12 @@ SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node>
             auto it = var->begin();
 
             // skip empty variations and variations that start with another variation 
-            if(it == var->end() || it->index() == (size_t)Annotation::Contants::AnnotatedSequenceNodeType::Variation) 
+            if(it == var->end() || it->index() == (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Variation) 
                 continue;
 
             const auto & element = std::get<Annotation::AnnotatedSequenceElement>(*it);
 
-            if (element.index() != (size_t)Annotation::Contants::AnnotatedSequenceItemType::Move)
+            if (element.index() != (size_t)Annotation::Constants::AnnotatedSequenceItemType::Move)
                 continue;
 
             SpellChessMove move = std::get<SpellChessMove>(element);

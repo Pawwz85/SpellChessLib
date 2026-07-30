@@ -2,6 +2,7 @@
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/StringTokenizer.h>
 #include <SpellChess/MoveLegality.h>
+#include <stdexcept>
 
 void SpellChessLib::PGN4Exporter::writeTagLine(const Annotation::TagPair& tagPair, std::ostream& out){
 	out << '[' << tagPair.name << " \"" << tagPair.value << "\"]\n";
@@ -10,13 +11,13 @@ void SpellChessLib::PGN4Exporter::writeTagLine(const Annotation::TagPair& tagPai
 void SpellChessLib::PGN4Exporter::writeAnnotationSequenceElement(const Annotation::AnnotatedSequenceElement& element, std::ostream& out){
 	std::string token;
 	switch (element.index()) {
-	case 0: // string comment
+	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Comment: 
 		out << " {" << std::get<std::string>(element) << "}";
 		break;
-	case 1: // Annotation Glyph 
+	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::NumericAnnotationGlyph:
 		// not supported yet
 		break;
-	case 2:
+	case (size_t)Annotation::Constants::AnnotatedSequenceItemType::Move:
 
 		if (!firstMoveWritten && currentState.getSideToMove() == Black) {
 			out << std::endl << currentState.getFullMoveCounter() - moveCounterOffset << ". ";
@@ -35,21 +36,21 @@ void SpellChessLib::PGN4Exporter::writeAnnotationSequenceElement(const Annotatio
 		out << token;
 		break;
 	default:
-		throw std::exception("Unknown Sequence element");
+		throw std::logic_error("Unknown Sequence element");
 	}
 }
 
 void SpellChessLib::PGN4Exporter::writeSequence(const Annotation::AnnotatedSequence& sequence, std::ostream& out){
 	for (const Annotation::AnnotatedSequenceNode& element : sequence) {
 		switch (element.index()) {
-		case 0: // element is another AnnotatedSequenceNode
+		case (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Variation:
 			break;
-		case 1: // element is of type Annotation::AnnotatedSequenceElement
+		case (size_t)Annotation::Constants::AnnotatedSequenceNodeType::Element:
 			writeAnnotationSequenceElement(std::get<Annotation::AnnotatedSequenceElement>(element), out);
 			break;
 
 		default:
-			throw std::exception("Unknown Sequence element");
+			throw std::logic_error("Unknown Sequence element");
 		}
 	}
 }
