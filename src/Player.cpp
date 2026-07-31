@@ -3,7 +3,7 @@
 
 bool SpellChessLib::Player::ponderhit(const SpellChessMove& move) const {
     if (ponderMove == nullptr) return false;
-    return memcmp(&move, ponderMove.get(), sizeof(SpellChessMove)) == 0;
+    return move == *ponderMove;
 }
 
 void SpellChessLib::Player::setPonderMove(const SpellChessMove& move){
@@ -19,8 +19,10 @@ SpellChessLib::Player::Result SpellChessLib::Player::search(const Game& game)
             clearPonderMove();
             cancelPondering();
         }
-        else
-           return handlePonderHit();
+        else {
+            clearPonderMove();
+            return handlePonderHit();
+        } 
     }
 
     return makeResult(game, game.getRemainingTime(game.getGameState().getSideToMove()));

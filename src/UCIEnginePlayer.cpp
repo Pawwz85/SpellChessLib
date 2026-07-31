@@ -35,6 +35,9 @@ void SpellChessLib::UCIEnginePlayer::startPondering(const Game& game, const Spel
 
 void SpellChessLib::UCIEnginePlayer::cancelPondering(){
     interrupt();
+    while(searchConnection->getStatus() == UCILoader::Stopped) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    };
 }
 
 bool SpellChessLib::UCIEnginePlayer::supportsPondering() const{

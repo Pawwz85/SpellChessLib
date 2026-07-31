@@ -114,7 +114,7 @@ void SpellChessLib::GameRunner::run(){
                     currentPlayer->ponder(*game, result.getPonderMove());
             }
             catch (std::exception e) {
-                game->resign(flipColor(movingSide), ExceptionThrownByAPlayer);
+                game->resign(movingSide, ExceptionThrownByAPlayer);
                 break;
             }  
         }
