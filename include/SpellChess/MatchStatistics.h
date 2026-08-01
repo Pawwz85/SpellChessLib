@@ -103,6 +103,12 @@ namespace SpellChessLib {
 			Calculate upper LLR threshold.  If calculateLLR returns value higher than that, we should accept the null hypothesis about elo difference
 		*/
 		extern double calculateLLRUpperThreshold(double alpha, double beta);
+
+		/*!
+			Calculate expected number of games left to reach any LLR threshold
+		*/
+		extern double estimateGamesLeft(const TrinomialModel & model, const double& elo0, const double& elo1, double alpha, double beta);
+
 	}
 
 }

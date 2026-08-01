@@ -113,6 +113,18 @@ double SpellChessLib::Stats::calculateLLRUpperThreshold(double alpha, double bet
 	return log((1 - beta) / alpha);
 }
 
+double SpellChessLib::Stats::estimateGamesLeft(const TrinomialModel & model, const double& elo0, const double& elo1, double alpha, double beta) {
+	unsigned int N = getNumberOfGames(model);
+	double currentLLR = calculateLLR(model, elo0, elo1); // Throws EmptyModelError if empty
+	double LLRPerGame = currentLLR / N;
+	double deltaLLR = (currentLLR > 0) ?
+		 (calculateLLRUpperThreshold(alpha, beta) - currentLLR) :
+		(calculateLLRLowerThreshold(alpha, beta) - currentLLR);
+	
+	return deltaLLR / LLRPerGame;
+};
+
+
 void SpellChessLib::Stats::PlayerOutcomeTable::init(int playerId)
 {
 	this->playerId = playerId;

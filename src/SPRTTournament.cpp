@@ -24,7 +24,8 @@ SpellChessLib::GameRunnerPool::GameRunRequest SpellChessLib::SPRTPTournament::ma
 void SpellChessLib::SPRTPTournament::displayStats() const
 {
     std::cout << "\033[2J\033[1;1H";
-    std::cout << "Total games = " << Stats::getNumberOfGames(tournamentModel) << '\n';
+    std::cout << "Total games =" << Stats::getNumberOfGames(tournamentModel) << '\n';
+    std::cout << "About ~ " << (unsigned int) Stats::estimateGamesLeft(tournamentModel, elo0, elo1, alpha, beta) <<" games left\n";
     std::cout << "Win ratio = " << Stats::winRatio(tournamentModel) << '\n';
     std::cout << "Draw ratio = " << Stats::drawRatio(tournamentModel) << '\n';
     std::cout << "Elo difference = " << Stats::eloDiff(tournamentModel) << " +- " << Stats::eloDiffConfidenceInterval(tournamentModel) <<"\n";
