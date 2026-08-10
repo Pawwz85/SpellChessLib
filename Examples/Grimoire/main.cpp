@@ -68,6 +68,16 @@ int main(int argc, char ** argv) {
         return EXIT_FAILURE;
     };
 
+    if(engineInstance->options.contains("GrimoireBounds")) {
+        try {
+            engineInstance->options["GrimoireBounds"] = int(config->evalBounds);
+        } catch(UCILoader::EngineOptionProxy::WrongTypeError e) {
+        std::cerr << "(Warning) Failed to set bounds" << std::endl;
+        }
+    } else {
+        std::cerr << "(Warning) Engine doesn't support bounds" << std::endl;
+    }
+
 
     Grimoire::GameNode * root = Grimoire::createRoot();
     std::cout << "Started building game tree..." << std::endl;

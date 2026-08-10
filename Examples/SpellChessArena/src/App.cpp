@@ -13,6 +13,8 @@
 
 #include <EngineTools/EngineLogger.hpp>
 #include <EngineTools/EngineControlPanel.hpp>
+#include <EngineTools/PrincipalVariationsPanel.hpp>
+
 #include <optional>
 
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
@@ -118,6 +120,14 @@ void App::engineControlPanel(EngineServiceEntry engine) {
     controlPanel->show();
 };
 
+void App::principalVariationPanel(EngineServiceEntry engine) {
+    PrincipalVariationPanel * panel = new PrincipalVariationPanel(engine.engine, 3);
+    panel->setWindowTitle(QObject::tr("Engine variations: %1").arg(engine.name));
+    panel->resize(400, 300);
+    panel->show();
+}
+
+
 App::App(QCoreApplication * coreApp) {
     coreQApp = coreApp;
     timerService = std::make_shared<SpellChessLib::TimerService>();
@@ -143,6 +153,9 @@ App::App(QCoreApplication * coreApp) {
 
     QAction * showEngineOptions = toolsMenu->addAction(tr("Engine Options", "Show detected options of UCI engine"));
     connect(showEngineOptions, &QAction::triggered, this, openTool(&App::engineControlPanel));
+
+    QAction * showPvPanel = toolsMenu->addAction(tr("Principal variation"));
+    connect(showPvPanel, &QAction::triggered, this, openTool(&App::principalVariationPanel));
 
     QMenu * settingsMenu = menuBar->addMenu(tr("Settings"));
 

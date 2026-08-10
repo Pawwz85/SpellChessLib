@@ -5,6 +5,7 @@ project( EngineTools
 set ( sources 
     "EngineControlPanel.cpp"
     "EngineLogger.cpp"
+    "PrincipalVariationsPanel.cpp"
     "RunningEnginesService.cpp"
 )
 

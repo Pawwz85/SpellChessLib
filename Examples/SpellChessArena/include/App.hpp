@@ -34,6 +34,7 @@ class App : public QObject {
     
     void engineLogs(EngineServiceEntry engine);
     void engineControlPanel(EngineServiceEntry engine);
+    void principalVariationPanel(EngineServiceEntry engine);
     std::function<void()> openTool(void (App::*)(EngineServiceEntry));
 
     public:

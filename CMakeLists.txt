@@ -50,7 +50,7 @@ include(FetchContent)
 
 FetchContent_Declare(
 		UCILoader
-		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.1.3.zip
+		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v.1.2.0.zip
 )
 
 FetchContent_MakeAvailable(UCILoader)
