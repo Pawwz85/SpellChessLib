@@ -6,6 +6,21 @@
 #include <SpellChess/Board.h>
 #include <cmath> // for abs
 
+const QString evaluationLabelStylesheet = QString() +
+                                   "background-color: %1; color: %2;" +
+                                   "border-radius: 8px;" + 
+                                   "padding: 6px;" +
+                                   "font-size: 14pt;" +
+                                   "min-height: 0px;";
+
+const QString evalLineStyleSheet = QString()+
+                                 "background-color: #1e1e1e;" +
+                                 "border-radius: 8px;" + 
+                                 "padding: 6px;" +
+                                 "font-size: 14pt;" +
+                                 "color: #e0e0e0;" +
+                                 "min-height: 0px;";
+                                   
 QString formatEvaluation(UCILoader::UciScore score) {
     if (score.getUnit() == UCILoader::UciScore::Centipawn) {
         return QString::number(score.getValue() * 0.01f, '.', 2);
@@ -17,12 +32,10 @@ QString formatEvaluation(UCILoader::UciScore score) {
 }
 
 QColor pickForegroundColorForEvaluation(QColor backgroundColor) {
-    if (backgroundColor == Qt::GlobalColor::white) {
+   if (backgroundColor.value() > 200) { // Light background -> dark text
         return Qt::GlobalColor::black;
-    } else if (backgroundColor == Qt::GlobalColor::black) {
+    } else { // Dark background -> light text
         return Qt::GlobalColor::white;
-    } else {
-        return Qt::GlobalColor::black;
     }
 
 }
@@ -54,6 +67,9 @@ QColor pickBackgroundColorForEvaluation(UCILoader::UciScore score, SpellChessLib
 VariationLineWidget::VariationLineWidget(QWidget * parent) : QWidget(parent) {
     QHBoxLayout * layout = new QHBoxLayout(this);
 
+    // Set overall widget styling
+    setStyleSheet("border: 1px solid white;");
+
     evaluationLabel = new QLabel(this);
     evaluationLabel->setFixedWidth(50);
     evaluationLabel->setMaximumHeight(50);
@@ -62,6 +78,10 @@ VariationLineWidget::VariationLineWidget(QWidget * parent) : QWidget(parent) {
     variationLine = new QLineEdit(this);
     variationLine->setReadOnly(true);
     
+    // Style the move notation line with rounded corners and subtle shadow effect  
+    variationLine->setStyleSheet(evalLineStyleSheet);
+    
+
     layout->addWidget(evaluationLabel);
     layout->addWidget(variationLine);
 
@@ -76,11 +96,13 @@ void VariationLineWidget::evalChanged(UCILoader::UciScore score, const SpellChes
     evaluationLabel->setFrameStyle(QFrame::Box);
     QColor evalBackground = pickBackgroundColorForEvaluation(score, context);
     QColor evalForehround = pickForegroundColorForEvaluation(evalBackground);
-    evaluationLabel->setStyleSheet(QString("background-color: %1; color: %2;").arg(evalBackground.name()).arg(evalForehround.name()));
+    
+    evaluationLabel->setStyleSheet(evaluationLabelStylesheet.arg(evalBackground.name()).arg(evalForehround.name()));
 };
 
 void VariationLineWidget::variationChanged(const std::string & variation) {
     variationLine->setText(QString::fromStdString(variation));
+    variationLine->setCursorPosition(0);
 }
 
 std::string PrincipalVariationPanel::formatVariationLine(const std::vector<SpellChessLib::SpellChessMove> & moves) {
