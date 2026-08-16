@@ -106,6 +106,10 @@ void EnginePlayerRepository::swapEntriesAt(qsizetype index1, qsizetype index2){
 }
 
 void EnginePlayerRepository::replaceEntryAt(qsizetype index, const EngineListEntry & entry) {
+    auto playerEntry = playerEntryFromEngineEntryList(entry);
+    SpellChessLib::PlayerRegistry->registerEntry(playerEntry);
+    entry.entry_id = playerEntry.id;
+
     entries[index] = entry;
     persist();
     listChanged(entries);
@@ -200,7 +204,7 @@ void EnginePlayerRepositoryView::editCurrentItem() {
 
         connect(dialog, &QDialog::accepted, this, [this, dialog, currRow](){
             auto & repo = getEnginePlayerRepositoryInstance();
-            repo[currRow] = dialog->getResult();
+            repo.replaceEntryAt(currRow, dialog->getResult());
             onListChanged(repo.getAll());
             // TODO: test if path provided by user is still valid engine path
         });
