@@ -51,6 +51,11 @@ SpellChessLib::Annotation::TagSection::TagSection(const SevenTagRoster & roster)
      {"Result", roster.result}}
 ) {};
 
+SpellChessLib::Annotation::TagSection & 
+SpellChessLib::Annotation::TagSection::operator=(const TagSection & other) {
+    this->tagPairs = other.tagPairs;
+    return *this;
+};
 
 SpellChessLib::Annotation::TagSection::iterator SpellChessLib::Annotation::TagSection::find(const std::string& tagName)
 {

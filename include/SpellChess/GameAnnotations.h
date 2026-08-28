@@ -98,7 +98,7 @@ namespace SpellChessLib {
 			std::string& operator[] (const std::string& tagName);
 			bool operator==(const TagSection & other) const;
 			bool operator!=(const TagSection & other) const;
-
+			TagSection & operator=(const TagSection & other);
 		};
 
 		class AnnotatedSequence;

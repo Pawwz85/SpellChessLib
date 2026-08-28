@@ -10,6 +10,7 @@ namespace SpellChessLib {
 	
 	namespace Parsing {
 		extern  std::vector<std::string> tokenizeStringBySpace(std::string_view str);
+        extern  std::vector<std::string_view> splitString(std::string_view str, char delim);
 
 		class ParsingError: public std::exception {};
 		constexpr bool validateSquareIndexString(std::string_view str);

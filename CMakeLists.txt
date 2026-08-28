@@ -24,6 +24,7 @@ set(source_files
 	"src/OpeningBookPositionSupplier.cpp"
 	"src/PGNExporter.cpp"
 	"src/PGN4Exporter.cpp"
+	"src/PGN4Parser.cpp"
 	"src/Player.cpp"
 	"src/PlayerRegistry.cpp"
 	"src/PositionSupplier.cpp"
@@ -60,7 +61,9 @@ FetchContent_MakeAvailable(UCILoader)
 enable_testing()
 
 target_include_directories( spellchess PUBLIC include )
+target_include_directories( spellchess PRIVATE ThirdParty )
 target_link_libraries(spellchess PUBLIC uciloader)
+
 
 add_subdirectory("Examples/TournamentRunner")
 add_subdirectory("Examples/SpellChessArena")

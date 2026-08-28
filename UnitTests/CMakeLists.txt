@@ -20,6 +20,7 @@ set ( test_files
         "TestGameRunnerConfiguration.cpp"
         "TestMoveGen.cpp"
         "TestObserver.cpp"
+        "TestPGN4Parser.cpp"
         "TestPgnExporter.cpp"
         "TestPlayerTimerService.cpp"
         "TestSchedulerModule.cpp"
