@@ -95,7 +95,16 @@ SpellChessLib::SpellChessDocument::SpellChessDocument(const Annotation::GameAnno
                 root = std::make_shared<Node>(annotations.root, Handle(), *this);
                 const Annotation::AnnotatedSequence & sequence = annotations.annotatedSequence;
                 initNodeFromAnnotations(root, nullptr, sequence.begin(), sequence.end());
+                resolveTail();
             }; 
+
+void
+SpellChessLib::SpellChessDocument::resolveTail(){
+    std::shared_ptr<Node> currentNode = root;
+    while(!currentNode->isLeaf())
+        currentNode = currentNode->transitions[0].child;
+    tail = currentNode;
+}
 
 void 
 SpellChessLib::SpellChessDocument::initNodeFromAnnotations(std::shared_ptr<Node> node,

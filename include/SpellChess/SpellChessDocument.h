@@ -79,6 +79,7 @@ namespace SpellChessLib {
         Annotation::TagSection tags;
         Annotation::GameTermination gameResult;
 
+        void resolveTail();
         void initNodeFromAnnotations(std::shared_ptr<Node> node, std::shared_ptr<Node> parent, Annotation::AnnotatedSequence::const_iterator it, Annotation::AnnotatedSequence::const_iterator end);
         void writeNodeToAnnotatedSequence(const Node & node, Annotation::AnnotatedSequence & seq) const;
         std::shared_ptr<Node> makeChildNode(std::shared_ptr<Node> node, const SpellChessMove & move);
