@@ -218,7 +218,7 @@ void SpellChessLib::Annotation::AnnotatedSequence::appendComment(const std::stri
 
 void SpellChessLib::Annotation::validateAnnotatedSequenceMoveLegality(const GameState& root, const Annotation::AnnotatedSequence& seq){
     GameState currentPos = root;
-    GameState parentPos;
+    GameState parentPos = currentPos;
     AnnotatedSequenceElement element;
     for (const auto& node : seq) {
         switch (node.index())
@@ -231,7 +231,7 @@ void SpellChessLib::Annotation::validateAnnotatedSequenceMoveLegality(const Game
 
             if (element.index() == (size_t)AnnotatedSequenceElementType::Move) {
                 MoveGenerator gen(currentPos);
-                const SpellChessMove& m = std::get<SpellChessMove>(element);
+                SpellChessMove m = std::get<SpellChessMove>(element);
                 if (!gen.isMoveLegal(m))
                     throw IllegalMoveException(m, currentPos.toFen());
                 parentPos = currentPos;

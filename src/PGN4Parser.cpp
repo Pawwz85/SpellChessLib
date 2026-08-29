@@ -451,8 +451,10 @@ namespace SpellChessLib {
             
             std::array<BoardSquare, 64> result;
 
-            for (size_t i = 0; i < 64; ++i)
+            for (size_t i = 0; i < 64; ++i) {
                 result[i].piece = {None, Nobody};
+                result[i].frozen = result[i].jumpable = false;
+            }
 
             if (rows.size() != 14)
                 throw InvalidPGN4("Invalid StartFen4: invalid piece list");
