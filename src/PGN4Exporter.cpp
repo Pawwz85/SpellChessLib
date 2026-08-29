@@ -128,6 +128,7 @@ std::string SpellChessLib::PGN4Exporter::makeTokenFromMoveAndAdvance(const Spell
 		result += std::string("jump@") + SquareIndexToToken(move.jumpSquare) + "&";
 
 	PieceType movedPiece = currentState.getSquare(move.from).piece.type;
+	PieceType capturedPiece = currentState.getSquare(move.to).piece.type;
 
 	if (movedPiece == King) {
 		int castlingDirection = isMoveCastling(currentState, move.from, move.to);
@@ -142,11 +143,15 @@ std::string SpellChessLib::PGN4Exporter::makeTokenFromMoveAndAdvance(const Spell
 		}
 	}
 
-	if (currentState.getSquare(move.from).piece.type > Pawn)
-		result.push_back(pieceSymbols[currentState.getSquare(move.from).piece.type]);
+	if (movedPiece > Pawn)
+		result.push_back(pieceSymbols[movedPiece]);
 	
 	result += SquareIndexToToken(move.from);
 	result += (!currentState.getSquare(move.to).isEmpty() || move.to == currentState.getEnppassantSquare()) ? 'x' : '-';
+	
+	if (capturedPiece > Pawn)
+		result.push_back(pieceSymbols[capturedPiece]);
+
 	result += SquareIndexToToken(move.to);
 
 	if (move.promoteTo != None) {
