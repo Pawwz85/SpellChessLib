@@ -5,6 +5,7 @@
 #include <sstream>
 #include <array>
 #include <map>
+#include <iostream> // for cerr
 #include <nlohmann/json.hpp> // we need to parse some inline json in PGN4
 
 namespace SpellChessLib {
@@ -290,7 +291,15 @@ namespace SpellChessLib {
             out.from = parsePgn4Square(move_view.substr(0, sqSepPos));
 
             size_t toSqEnd = move_view.find_last_of("0123456789");
-            out.to   = parsePgn4Square(move_view.substr(sqSepPos + 1, toSqEnd - sqSepPos));
+            size_t toSqStart = sqSepPos + 1;
+
+            if (move_view[toSqStart] >= 'A' && move_view[toSqStart] <= 'Z')
+                ++toSqStart;
+
+            if (toSqStart >= toSqEnd)
+                throw InvalidPGN4("Invalid move: " + part);
+
+            out.to   = parsePgn4Square(move_view.substr(toSqStart, toSqEnd - toSqStart + 1));
 
             size_t promotionPos = move_view.find_last_of("=");
             if (promotionPos != std::string_view::npos && promotionPos + 1 < move_view.size()){
@@ -361,6 +370,14 @@ namespace SpellChessLib {
 
         Annotation::AnnotatedSequence parseMoveList(const std::vector<Token> & tokens, const GameState & root) {
             size_t index = 0;
+
+            for (size_t i = 0; i < tokens.size(); ++i)
+                if (tokens[i].type == TokenType::square_bracket_close)
+                    index = i + 1;
+
+            if (index == tokens.size())
+                return {};
+
             auto result = parseMoveListPrivate(tokens, index, root);
             if (index != tokens.size())
                 throw InvalidPGN4("Unexpected token: )");
@@ -376,7 +393,7 @@ namespace SpellChessLib {
             if (c == 'R')
                 return SpellChessLib::White;
             if (c == 'Y')
-                return SpellChessLib::White;
+                return SpellChessLib::Black;
 
             throw InvalidPGN4("Invalid StartFen4: side to move was " + std::string(part));
         };
@@ -481,6 +498,9 @@ namespace SpellChessLib {
                     case ')':
                         result.push_back(']');
                         break;
+                    case '\'':
+                        result.push_back('"');
+                        break;
                     default:
                         result.push_back(c);
                         break;
@@ -494,7 +514,12 @@ namespace SpellChessLib {
             std::string fixed = fixJsonBrackets(part);
 
             // step 2. Parse
-            return nlohmann::json::parse(fixed);
+            try {
+                return nlohmann::json::parse(fixed);
+            } catch(std::exception e) {
+                std::cerr << "Failed to parse json: " << e.what() << std::endl;
+                throw InvalidPGN4("Couldn't decode the following: " + std::string(part));
+            }
         };
 
         void loadSpellString(const std::string & string, std::array<SpellCounter, 4>::iterator it) {
@@ -522,14 +547,14 @@ namespace SpellChessLib {
 
                 if (spellIndex == FreezeSpell) {
                     it[0].spellId = (SpellIdentificator)spellIndex;
-                    it[0].usagesLeft = string[9] - '0';
-                    it[0].cooldown   = string[7] - '0';
+                    it[0].usagesLeft = part[9] - '0';
+                    it[0].cooldown   = part[7] - '0';
                 }
 
                 if (spellIndex == JumpSpell) {
                     it[1].spellId = (SpellIdentificator)spellIndex;
-                    it[1].usagesLeft = string[7] - '0';
-                    it[1].cooldown   = string[5] - '0';
+                    it[1].usagesLeft = part[7] - '0';
+                    it[1].cooldown   = part[5] - '0';
                 }
             }
 
@@ -543,7 +568,9 @@ namespace SpellChessLib {
             
             auto spells = jsonObject["spells"];
 
-            if(!spells.is_array() || spells.array().size() != 4)
+            size_t arrSize = spells.size();
+
+            if(!spells.is_array() || arrSize != 4)
                 throw InvalidPGN4("Invalid StartFen4: invalid spells");
 
             std::string whiteSpells = spells[0];
@@ -583,8 +610,7 @@ namespace SpellChessLib {
 
             auto castlingRights = concatCastlingRights(kingsideCastlings, queensideCastlings);
             auto spells = extractSpellInfoFromJson(jsonObject); 
-            // TODO: construct GameState object
-            return GameState(board.data(), sideToMove, castlingRights.data(), NoSquare, halfMoveCounter, 0, NoSquare, NoSquare, spells.data());
+            return GameState(board.data(), sideToMove, castlingRights.data(), NoSquare, halfMoveCounter, 1, NoSquare, NoSquare, spells.data());
         };
         
         Annotation::GameAnnotations parsePgn4(std::string_view source) {
@@ -593,7 +619,13 @@ namespace SpellChessLib {
             result.tagSection = parseTags(tokens);
             result.root = parseFen4(result.tagSection["StartFen4"]);
             result.annotatedSequence = parseMoveList(tokens, result.root);
-       
+            
+            try {
+                Annotation::validateAnnotatedSequenceMoveLegality(result.root, result.annotatedSequence);
+            } catch (IllegalMoveException e) {
+                throw InvalidPGN4(std::string("PGN4 contains an invalid move: ") + e.what());
+            }
+
             std::string gameResult = result.tagSection["Result"];
             
             if (gameResult == "1-0")

@@ -93,6 +93,8 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
     });
 
     setLayout(layout);
+
+    HtmlDocument.reset(SpellChessLib::toHtml(*SpellChessLib::createEmptySpellChessDocument()).release());
 }
 
 #include <moc_MoveList.cpp>

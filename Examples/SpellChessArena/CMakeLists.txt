@@ -15,6 +15,7 @@ set ( src_files
     "src/EmptyBoardWidget.cpp"
     "src/App.cpp"
     "src/main.cpp"
+    "src/PastePGN4Dialog.cpp"
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Gui  Concurrent)

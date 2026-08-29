@@ -213,6 +213,9 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
         this->updateLinter();
     });
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
+
+    handleDocumentChanged(*model->getDocument()); // neccessary for document viewer to display correctly
+    handleModelChanged(*model);
 }
 
 BoardViewer::BoardViewerWidget::~BoardViewerWidget(){

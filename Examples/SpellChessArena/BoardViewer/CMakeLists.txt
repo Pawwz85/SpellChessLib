@@ -6,6 +6,7 @@ set ( sources
     "BoardLinter.cpp"
     "BoardViewerModel.cpp"
     "BoardViewerWidget.cpp"
+    "DocumentViewerModel.cpp"
     "MoveList.cpp"
     "GameRunnerBridge.cpp"
     "GameViewerModel.cpp"

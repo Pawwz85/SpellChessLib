@@ -11,6 +11,8 @@
 
 #include <BoardViewer/OpenSessionRequest.hpp>
 #include <BoardViewer/GameRunnerBridge.hpp>
+#include <BoardViewer/DocumentViewerModel.hpp>
+
 
 #include <EngineTools/RunningEnginesService.hpp>
 
@@ -32,9 +34,11 @@ class App : public QObject {
     QAction * copyFen;
     QAction * copyPgn;
     
+    void openBoardViewer(BoardViewer::Model * model);
     void engineLogs(EngineServiceEntry engine);
     void engineControlPanel(EngineServiceEntry engine);
     void principalVariationPanel(EngineServiceEntry engine);
+    
     std::function<void()> openTool(void (App::*)(EngineServiceEntry));
 
     public:
@@ -43,6 +47,7 @@ class App : public QObject {
 
     
     void openSession(const BoardViewer::OpenSessionRequest & request); // create new game session from request
+    void openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document); // open document in viewer
 
     inline QMainWindow * getWindow() {
         return mainWindow;
@@ -50,5 +55,6 @@ class App : public QObject {
 
     public slots:
     void showNewSessionBuilder();  
+    void showPGN4Pastebin();
     void showEngineManager();
 };

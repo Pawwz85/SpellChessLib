@@ -2,27 +2,30 @@
 #include <GameRunnerConfigurationDialog.hpp>
 #include <EmptyBoardWidget.hpp>
 #include <EngineRepository.hpp>
+#include <PastePGN4Dialog.hpp>
 
 #include <BoardViewer/GameViewerModel.hpp>
 #include <BoardViewer/BoardViewerWidget.hpp>
+#include <BoardViewer/DocumentViewerModel.hpp>
 
 
 #include <QMenuBar>
 #include <QMenu>
 #include <QDialogButtonBox>
+#include <QMessageBox>
 
 #include <EngineTools/EngineLogger.hpp>
 #include <EngineTools/EngineControlPanel.hpp>
 #include <EngineTools/PrincipalVariationsPanel.hpp>
 
+#include <SpellChess/PGN4Parser.h>
+
 #include <optional>
 
-void App::openSession(const BoardViewer::OpenSessionRequest &request){
-
+void App::openBoardViewer(BoardViewer::Model * model) {
     // Remove unused engines lingering from the last game
     RunningEnginesService::getInstance().clear();
 
-    BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
 
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
@@ -33,6 +36,18 @@ void App::openSession(const BoardViewer::OpenSessionRequest &request){
 
     this->mainWindow->setCentralWidget(view);
 }
+
+
+void App::openSession(const BoardViewer::OpenSessionRequest &request){
+    BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
+    openBoardViewer(model);
+}
+
+void App::openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document) {
+    BoardViewer::Model * model = new BoardViewer::DocumentViewerModel(document);
+    openBoardViewer(model);
+}
+
 
 void App::showNewSessionBuilder() {
 
@@ -127,6 +142,31 @@ void App::principalVariationPanel(EngineServiceEntry engine) {
     panel->show();
 }
 
+void App::showPGN4Pastebin() {
+    PastePGN4Dialog * dialog = new PastePGN4Dialog(mainWindow->centralWidget());
+    auto result = dialog->exec();
+
+    if (result != QDialog::Accepted)
+        return;
+
+    std::optional<SpellChessLib::Annotation::GameAnnotations> annotations = std::nullopt;
+
+    try {
+        annotations = SpellChessLib::PGN4Parser::parsePgn4(dialog->getPGN4());
+    } catch (SpellChessLib::InvalidPGN4 e) {
+        QMessageBox * alert = new QMessageBox(dialog);
+        alert->setText(e.what());
+        alert->exec();
+        return;
+    }
+
+    if (annotations.has_value()) {
+        auto document = std::make_shared<SpellChessLib::SpellChessDocument>(annotations.value());
+        openDocument(document);
+    };
+
+}
+
 
 App::App(QCoreApplication * coreApp) {
     coreQApp = coreApp;
@@ -141,10 +181,12 @@ App::App(QCoreApplication * coreApp) {
     QMenu * playMenu = menuBar->addMenu(tr("Game"));
     
     QAction * newGameAction = playMenu->addAction(tr("New game", "Play new game"));
+    QAction * openPGN4Action = playMenu->addAction(tr("Load PGN4", "Load PGN4 document"));
     copyFen = playMenu->addAction(tr("Copy FEN"));
     copyPgn = playMenu->addAction(tr("Copy PGN"));
 
     connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
+    connect(openPGN4Action, &QAction::triggered, this, &App::showPGN4Pastebin);
 
     QMenu * toolsMenu = menuBar->addMenu(tr("Views"));
 
