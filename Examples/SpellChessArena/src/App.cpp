@@ -24,8 +24,6 @@
 
 void App::openBoardViewer(BoardViewer::Model * model) {
     // Remove unused engines lingering from the last game
-    RunningEnginesService::getInstance().clear();
-
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
 
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
@@ -39,11 +37,13 @@ void App::openBoardViewer(BoardViewer::Model * model) {
 
 
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
+    RunningEnginesService::getInstance().clear();
     BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     openBoardViewer(model);
 }
 
 void App::openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document) {
+    RunningEnginesService::getInstance().clear();
     BoardViewer::Model * model = new BoardViewer::DocumentViewerModel(document);
     openBoardViewer(model);
 }
