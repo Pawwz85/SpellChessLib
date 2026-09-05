@@ -13,7 +13,7 @@
 #include <BoardViewer/GameRunnerBridge.hpp>
 #include <BoardViewer/DocumentViewerModel.hpp>
 
-
+#include <EngineAnalisysConfigDialog.hpp> // For EngineAnalisysConfig struct
 #include <EngineTools/RunningEnginesService.hpp>
 
 /*!
@@ -34,12 +34,16 @@ class App : public QObject {
     QAction * copyFen;
     QAction * copyPgn;
     
+    
     void openBoardViewer(BoardViewer::Model * model);
     void engineLogs(EngineServiceEntry engine);
     void engineControlPanel(EngineServiceEntry engine);
     void principalVariationPanel(EngineServiceEntry engine);
     
     std::function<void()> openTool(void (App::*)(EngineServiceEntry));
+
+    signals:
+    void onAnalisisRequested(EngineAnalisysConfig config);
 
     public:
 
@@ -57,4 +61,5 @@ class App : public QObject {
     void showNewSessionBuilder();  
     void showPGN4Pastebin();
     void showEngineManager();
+    void showAnalisisConfigDialog();
 };

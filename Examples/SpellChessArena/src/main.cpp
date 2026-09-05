@@ -46,5 +46,6 @@ int main(int argc, char *argv[]) {
     warmUpTextRendering();
     App app(&qt_app);
     app.getWindow()->show();
+    app.openDocument(SpellChessLib::createEmptySpellChessDocument());
     return qt_app.exec();
 }

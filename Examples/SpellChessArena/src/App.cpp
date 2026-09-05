@@ -29,6 +29,27 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
 
+    connect(this, &App::onAnalisisRequested, model, [this, model](const EngineAnalisysConfig & config) {
+        try {
+            auto entry = getEnginePlayerRepositoryInstance().findById(config.engineId);
+            auto runningEngineEntry = RunningEnginesService::getInstance().openEngine({entry.pathToEngine}, ".");
+
+            SpellChessLib::PositionAnalizer analizer = (config.mode == EngineAnalisysMode::FixedDepth) ?
+                SpellChessLib::makeFixedDetphAnalizer(runningEngineEntry.engine, config.depthLimit) :
+                SpellChessLib::makeFixedTimeAnalizer(runningEngineEntry.engine, std::chrono::milliseconds(config.timeLimitMs));
+
+            SpellChessLib::MoveClassifier moveClassifier = SpellChessLib::SimplePositionClassifier;
+
+            auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier);
+            model->analyzeDocument(annotator);
+        } catch (const std::exception & e) {
+            QMessageBox * alert = new QMessageBox(this->mainWindow->centralWidget());
+            alert->setText(QObject::tr("Error while trying to start engine: %1").arg(e.what()));
+            alert->exec();
+        }
+        
+    });
+
     QString pgnVersion = model->getCurrentState().isSpellChessGame() ? "PGN4" : "PGN";
     copyPgn->setText("Copy " + pgnVersion);
 
@@ -64,6 +85,17 @@ void App::showEngineManager() {
     EnginePlayerRepositoryView * view = new EnginePlayerRepositoryView();
     mainWindow->setCentralWidget(view);
 };
+
+ void App::showAnalisisConfigDialog() {
+    EngineAnalisisConfigDialog * dialog = new EngineAnalisisConfigDialog(mainWindow->centralWidget());
+
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+
+    auto config = dialog->getAnalisisConfig();
+
+    onAnalisisRequested(config);
+ }
 
 std::optional<EngineServiceEntry> querryUserForEngineInstance() {
     const auto entries = RunningEnginesService::getInstance().getAll();
@@ -184,9 +216,11 @@ App::App(QCoreApplication * coreApp) {
     QAction * openPGN4Action = playMenu->addAction(tr("Load PGN4", "Load PGN4 document"));
     copyFen = playMenu->addAction(tr("Copy FEN"));
     copyPgn = playMenu->addAction(tr("Copy PGN"));
+    QAction * analiseGameAction = playMenu->addAction(tr("Analise game", "Request computer analisis"));
 
     connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
     connect(openPGN4Action, &QAction::triggered, this, &App::showPGN4Pastebin);
+    connect(analiseGameAction,  &QAction::triggered, this, &App::showAnalisisConfigDialog);
 
     QMenu * toolsMenu = menuBar->addMenu(tr("Views"));
 

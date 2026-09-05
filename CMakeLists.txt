@@ -9,6 +9,7 @@ set(source_files
 	"src/AsynchronousPlayer.cpp"
 	"src/Board.cpp"
 	"src/ControlFlowManager.cpp"
+	"src/DocumentAnnotator.cpp"
 	"src/GameAnnotations.cpp"
 	"src/GameMonitor.cpp"
 	"src/GameRunner.cpp"
@@ -38,6 +39,7 @@ set(source_files
 	"src/ThreadPool.cpp"
 	"src/TimerService.cpp"
 	"src/UCIEnginePlayer.cpp"
+	"src/UCIHelpers.cpp"
 	"src/ZobristHash.cpp"
 )
 

@@ -20,6 +20,7 @@ namespace SpellChessLib {
         struct NodeTransition {
             const std::shared_ptr<Node> child;
             SpellChessMove move;
+            Annotation::MoveClassification classification = Annotation::MoveClassification::NoClassification;
         };
 
         public:
@@ -30,6 +31,7 @@ namespace SpellChessLib {
         struct Arc {
             Handle node;
             SpellChessMove move;
+            Annotation::MoveClassification classification = Annotation::MoveClassification::NoClassification;
         };
 
         class BadHandle : public std::exception {
@@ -37,9 +39,17 @@ namespace SpellChessLib {
             const char * what() const noexcept override;
         };
 
+        class ArcNotFoundError : public std::exception {
+            SpellChessMove move;
+            public:
+            ArcNotFoundError(const SpellChessMove & move);
+            const char * what() const noexcept override;
+        };
+
         class IllegalMoveError : public std::exception {
             std::string fen;
             SpellChessMove move;
+            std::string msg;
             public:
             IllegalMoveError(const GameState & state, const SpellChessMove & move);
             const char * what() const noexcept override;
@@ -126,8 +136,14 @@ namespace SpellChessLib {
         // get arcs of a node
         std::vector<Arc> getArcs(Handle node) const;
 
+        // manually mark document as dirty. This is useful when document is modified outside of SpellChessDocument API.
+        void markAsDirty();
+
         // Set comment on selected node 
         void setComment(Handle where, const std::string & comment);
+        
+        // Set move classification
+        void setMoveClassification(Handle where, const SpellChessMove & move, Annotation::MoveClassification cathegory);
 
         // Make move and return the handle to resulting position.
         // If the move leads to one of existing children, the handle to this will child will be returned.

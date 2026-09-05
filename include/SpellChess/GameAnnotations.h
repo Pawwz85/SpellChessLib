@@ -30,14 +30,16 @@ namespace SpellChessLib {
 		};
 
 		// planned to used by gui project, currently not integrated with game annotation system 
-		enum MoveClassification {
-			BookMove,
+		enum class MoveClassification {
+			NoClassification,
 			Blunder,
 			Mistake,
 			Inaccuraccy,
 			GoodMove,
 			BrilliantMove
 		};
+		
+		std::string toToken(MoveClassification cathegory);
 
 		class MoveIndication {
 			unsigned int value;
@@ -55,6 +57,7 @@ namespace SpellChessLib {
 			bool operator==(const NumericAnnotationGlyph & other) const;
 			bool operator!=(const NumericAnnotationGlyph & other) const;
 
+			static NumericAnnotationGlyph fromMoveClassification(MoveClassification classification);
 		};
 
 		using AnnotatedSequenceElement = typename std::variant<std::string, NumericAnnotationGlyph, SpellChessMove>;

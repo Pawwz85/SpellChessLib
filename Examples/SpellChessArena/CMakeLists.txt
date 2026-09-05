@@ -9,11 +9,12 @@ set( headears
 )
 
 set ( src_files 
+    "src/App.cpp"
+    "src/EmptyBoardWidget.cpp"
+    "src/EngineAnalisysConfigDialog.cpp"
     "src/EngineRepository.cpp"
     "src/Form.cpp"
     "src/GameRunnerConfigurationDialog.cpp"
-    "src/EmptyBoardWidget.cpp"
-    "src/App.cpp"
     "src/main.cpp"
     "src/PastePGN4Dialog.cpp"
 )

@@ -4,6 +4,7 @@
 #include <SpellChess/PGNExporter.h>
 #include <SpellChess/PGN4Exporter.h>
 #include <sstream>
+#include <thread>
 
 BoardViewer::Model::Model(QObject * parent) : QObject(parent){
     timers.whiteTimer.running = timers.blackTimer.running = false;
@@ -131,5 +132,27 @@ void BoardViewer::Model::copyPgnToClipBoard() {
     QClipboard * clipboard = QGuiApplication::clipboard();
     clipboard->setText(result);
 };
+
+bool
+BoardViewer::Model::canUserAnalizeDocumentNow() const {
+    // Default behabiour:
+    // User can analyze document if it is not empty
+
+    bool isEmpty = !document || document->getRoot().lock()->isLeaf();
+    return !isEmpty;
+}
+
+void
+BoardViewer::Model::analyzeDocument(std::shared_ptr<SpellChessLib::DocumentAnnotator> annotator) {
+
+    assert(canUserAnalizeDocumentNow());
+    
+    auto doc = this->document;
+    std::thread analysisThread([this, doc, annotator](){
+        (*annotator)(doc);
+    });
+
+    analysisThread.detach();
+}
 
 #include <moc_BoardViewerModel.cpp>

@@ -147,6 +147,9 @@ namespace SpellChessLib {
 
         MoveToken::MoveToken(const SpellChessDocument::Arc & arc) : arc(arc){
             tokenValue = spellChessMoveToUnicodeString(arc.move, arc.node.lock()->getParentNode().lock()->getGameState());
+        
+            if (arc.classification != Annotation::MoveClassification::NoClassification)
+                tokenValue += Annotation::toToken(arc.classification);
         }
 
 

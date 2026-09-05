@@ -7,6 +7,7 @@
 
 #include <SpellChess/SpellChessDocument.h>
 #include <SpellChess/SpellChessGame.h> // for TimerPairState
+#include <SpellChess/DocumentAnnotator.h> 
 
 #include <QObject>
 
@@ -58,6 +59,8 @@ namespace BoardViewer {
         virtual SpellChessLib::GameState getCurrentState() const; 
         virtual std::shared_ptr<const SpellChessLib::SpellChessDocument> getDocument() const = 0;
         virtual bool canUserSubmitMove() = 0;
+        virtual bool canUserAnalizeDocumentNow() const;
+        virtual void analyzeDocument(std::shared_ptr<SpellChessLib::DocumentAnnotator> annotator);
 
         signals:
         void changed(const Model & model);

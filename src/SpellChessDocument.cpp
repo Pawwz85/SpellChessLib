@@ -47,12 +47,21 @@ SpellChessLib::SpellChessDocument::BadHandle::what() const noexcept {
     return "Bad or expired node handle";
 };
 
+SpellChessLib::SpellChessDocument::ArcNotFoundError::ArcNotFoundError(const SpellChessMove & move) : move(move) {};
+
+const char *
+SpellChessLib::SpellChessDocument::ArcNotFoundError::what() const noexcept {
+    return "Application tried to modify document arc that don't exist";
+} 
+
 SpellChessLib::SpellChessDocument::IllegalMoveError::IllegalMoveError(const GameState & state, const SpellChessMove & move):
-fen(state.toFen()), move(move) {};
+fen(state.toFen()), move(move) {
+    msg =  "Move {" + spellChessMoveToString(this->move) + "} is illegal in position: " + this->fen; 
+};
 
 const char * 
 SpellChessLib::SpellChessDocument::IllegalMoveError::what() const noexcept {
-    std::string result = "Move {" + spellChessMoveToString(this->move) + "} is illegal in position: " + this->fen;
+    return msg.c_str();
 };
 
 SpellChessLib::SpellChessDocument::Handle 
@@ -252,9 +261,13 @@ SpellChessLib::SpellChessDocument::getArcs(Handle handle) const {
     auto node = tryHandle(handle);
     std::scoped_lock<std::mutex> guard(node->mut);
     for(const auto & link : node->transitions)
-        result.push_back({link.child, link.move});
+        result.push_back({link.child, link.move, link.classification});
     return result;
 };
+
+void SpellChessLib::SpellChessDocument::markAsDirty() {
+    dirty.store(true);
+}
 
 SpellChessLib::GameState
 SpellChessLib::SpellChessDocument::getGameState(Handle handle) const {
@@ -273,6 +286,25 @@ SpellChessLib::SpellChessDocument::setComment(Handle where, const std::string & 
     dirty.store(true);
     node.comment = comment;
 };
+
+void
+SpellChessLib::SpellChessDocument::setMoveClassification(Handle where, const SpellChessMove & move, Annotation::MoveClassification cathegory) {
+    Node & node = referenceNodeByHandle(where);
+    std::scoped_lock<std::mutex> guard(node.mut);
+    dirty.store(true);
+    bool foundLink = false;
+    for (auto & link : node.transitions) 
+        if (link.move == move) {
+            foundLink = true;
+            link.classification = cathegory;
+            break;
+        }
+    
+    if (!foundLink) {
+        // Document was asked to annotate move that was not stored in the document at that point.
+        throw ArcNotFoundError(move);
+    }
+}
 
 SpellChessLib::SpellChessDocument::Node & 
 SpellChessLib::SpellChessDocument::referenceNodeByHandle(Handle h) {

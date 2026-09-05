@@ -15,6 +15,44 @@ const unsigned int& SpellChessLib::Annotation::NumericAnnotationGlyph::getGlyphC
     return glyphCode;
 }
 
+SpellChessLib::Annotation::NumericAnnotationGlyph 
+SpellChessLib::Annotation::NumericAnnotationGlyph::fromMoveClassification(MoveClassification classification){
+    switch (classification) {
+        case MoveClassification::NoClassification:
+            return 0;
+        case MoveClassification::Blunder:
+            return 4;
+        case MoveClassification::Mistake:
+            return 2;
+        case MoveClassification::Inaccuraccy:
+            return 6;
+        case MoveClassification::GoodMove:
+            return 1;
+        case MoveClassification::BrilliantMove:
+            return 3;
+    };
+};
+
+std::string
+SpellChessLib::Annotation::toToken(MoveClassification cathegory) {
+    switch (cathegory)
+    {
+        case MoveClassification::Blunder:
+            return "??";
+        case MoveClassification::Mistake:
+            return "?";
+        case MoveClassification::Inaccuraccy:
+            return "?!";
+        case MoveClassification::GoodMove:
+            return "!";
+        case MoveClassification::BrilliantMove:
+            return "!!";
+        default:
+            return "";
+    }
+};
+
+
 bool SpellChessLib::Annotation::NumericAnnotationGlyph::operator==(const NumericAnnotationGlyph & other) const {
     return glyphCode == other.glyphCode;
 };
