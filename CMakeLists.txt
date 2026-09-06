@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(source_files 
+	"src/Arbiter.cpp"
 	"src/AsynchronousPlayer.cpp"
 	"src/Board.cpp"
 	"src/ControlFlowManager.cpp"

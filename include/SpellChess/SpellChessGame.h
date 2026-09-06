@@ -5,6 +5,7 @@
 #include "TimerService.h"
 #include "SpellChessDocument.h"
 #include "ZobristHash.h"
+#include "Arbiter.h"
 #include <mutex>
 #include <memory>
 #include <functional>
@@ -40,7 +41,7 @@ namespace SpellChessLib {
 		PlayerTimerState blackTimer;
 	};
 
-	class Game {
+	class Game : private GameHistory {
 	public:
 		class ResultObserver;
 	private:
@@ -62,10 +63,8 @@ namespace SpellChessLib {
 		void writeComment(const std::string & string);
 		virtual void exportGoParams(UCILoader::GoParamsBuilder<SpellChessMove>& target) const;
 
-		bool has3FoldRepetition() const;
-
 		std::string make_result_comment(const PlayerColor & winner, const GameStatusCode & outcome);
-
+		size_t countOccurences(const GameState & position) const override;
 
 	protected:
 		mutable std::mutex lock;

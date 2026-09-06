@@ -1,6 +1,7 @@
 #include <SpellChess/SpellChessGame.h>
 #include <SpellChess/MoveLegality.h>
 #include <cassert>
+#include <stdexcept>
 
 void SpellChessLib::Game::notifyResultObservers(){
 	for(auto & weakPointer : resultObservers)
@@ -88,11 +89,10 @@ std::chrono::milliseconds SpellChessLib::Game::getRemainingTime(const PlayerColo
 	return color == White ? whTimer->getValue() : blTimer->getValue();
 }
 
-bool SpellChessLib::Game::has3FoldRepetition() const {
-	assert(!posHistory.empty());
-	uint64_t pos = posHistory.back();
-	return std::count(posHistory.begin(), posHistory.end(), pos) >= 3;
-}
+size_t SpellChessLib::Game::countOccurences(const GameState & position) const {
+	uint64_t hash = calculateHash(position);
+	return std::count(posHistory.begin(), posHistory.end(), hash);
+};
 
 std::string SpellChessLib::Game::make_result_comment(const PlayerColor &winner, const GameStatusCode &outcome){
 
@@ -121,6 +121,29 @@ std::string SpellChessLib::Game::make_result_comment(const PlayerColor &winner, 
     return prefix[winner] + reason[outcome];
 }
 
+SpellChessLib::GameStatusCode gameStatusCodeFromArbiterVerdict(SpellChessLib::ArbiterVerdict verdict) {
+	switch (verdict)
+	{
+	case SpellChessLib::ArbiterVerdict::None:
+		return SpellChessLib::GameStatusCode::StillOngoing;
+	case SpellChessLib::ArbiterVerdict::Checkmate:
+		return SpellChessLib::GameStatusCode::CheckMate;
+	case SpellChessLib::ArbiterVerdict::KingCapture:
+		return SpellChessLib::GameStatusCode::KingCaptured;
+	case SpellChessLib::ArbiterVerdict::Stalemate:
+		return SpellChessLib::GameStatusCode::Stalemate;
+	case SpellChessLib::ArbiterVerdict::DrawByFiftyMoveRule:
+		return SpellChessLib::GameStatusCode::DrawBy50MoveRule;
+	case SpellChessLib::ArbiterVerdict::DrawByInsufficientMaterial:
+		return SpellChessLib::GameStatusCode::InsufficientMaterial;
+	case SpellChessLib::ArbiterVerdict::ThreefoldRepetition:
+		return SpellChessLib::GameStatusCode::DrawBy3FoldRepetition;
+	}
+
+	throw std::logic_error("Unrecognised arbiter verdict");
+}
+
+
 void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 	auto movingSide = state.getSideToMove();
 	if (!MoveGenerator(state).isMoveLegal(move)) {
@@ -144,35 +167,13 @@ void SpellChessLib::Game::makeMove(const SpellChessMove& move) {
 
 	gameDocument->makeMove(gameDocument->getTail(), move);
 
-	if (capturedPiece.owner != Nobody && capturedPiece.type == King) {
-		setOutcome(movingSide, KingCaptured);
-		return;
-	}
-	
-	if (!state.hasSufficientMatingMaterial(White) && !state.hasSufficientMatingMaterial(Black)) {
-		setOutcome(Nobody, InsufficientMaterial);
-		return;
-	}
+	ArbiterVerdict verdict = arbite(state, *this);
 
-	if (has3FoldRepetition()) {
-		setOutcome(Nobody, DrawBy3FoldRepetition);
-		return;
-	};
-
-	MoveGenerator gen(state);
-	auto moves = gen.generateMoves();
-
-	if (state.getHalfMoveCounter() >= 100) {
-		setOutcome(Nobody, DrawBy50MoveRule);
-		return;
-	}
-
-	if (moves.empty()) {
-		if (gen.isInCheck())
-			setOutcome(movingSide, CheckMate);
-		else
-			setOutcome(Nobody, Stalemate);
-		return;
+	if (verdict != ArbiterVerdict::None) {
+		PlayerColor winner = (verdict == ArbiterVerdict::Checkmate || verdict == ArbiterVerdict::KingCapture)?
+			movingSide : Nobody;
+		setOutcome(winner, gameStatusCodeFromArbiterVerdict(verdict));
+		return;	
 	}
 
 	opponentTimer->resume();

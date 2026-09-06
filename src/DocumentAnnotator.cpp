@@ -1,5 +1,7 @@
 #include <SpellChess/DocumentAnnotator.h>
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/Arbiter.h>
+#include <SpellChess/ZobristHash.h>
 #include <stdexcept>
 #include <cmath>
 
@@ -129,26 +131,53 @@ getPlayerColorFromSearchRequest( const SpellChessLib::GameState & root,
             SpellChessLib::White;
 }
 
-bool isTerminalState( const SpellChessLib::GameState & root, 
+class GameReplay : public SpellChessLib::GameHistory {
+    std::vector<uint64_t> positions;
+    SpellChessLib::GameState state;
+    public:
+    GameReplay(const SpellChessLib::GameState & root, 
         const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
-    auto state = root;
-    for (auto & move : movesSinceRoot)
-        state.makeMove(move);
+            state = root;
+            positions.push_back(SpellChessLib::calculateHash(state));
+            for (auto & move : movesSinceRoot){
+                state.makeMove(move);
+                positions.push_back(SpellChessLib::calculateHash(state));
+            }
+        };
     
-    if (state.countPiece({SpellChessLib::King, SpellChessLib::White}) == 0)
-        return true;
-    
-    if (state.countPiece({SpellChessLib::King, SpellChessLib::Black}) == 0)
-        return true;
+    const SpellChessLib::GameState & getFinalState() const {
+        return state;
+    };
 
-    SpellChessLib::MoveGenerator moveGen(state);
+    size_t countOccurences(const SpellChessLib::GameState & position) const override {
+        uint64_t hash = SpellChessLib::calculateHash(position);
+        return std::count(positions.begin(), positions.end(), hash);
+    }
+};
 
-    if (moveGen.generateMoves().empty())
-            return true;
+SpellChessLib::ArbiterVerdict
+arbiteSequence( const SpellChessLib::GameState & root, 
+        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
+    GameReplay replay(root, movesSinceRoot);
+    return SpellChessLib::arbite(replay.getFinalState(), replay);
+};
+
+SpellChessLib::PositionInsights
+makeInsightsFromArbiterVerdict(SpellChessLib::PlayerColor pov, SpellChessLib::ArbiterVerdict verdict) {
+
+    UCILoader::UciScore score = UCILoader::UciScore::fromCentipawns(0);
+
+    if (verdict == SpellChessLib::ArbiterVerdict::Checkmate || verdict == SpellChessLib::ArbiterVerdict::KingCapture)
+        score = UCILoader::UciScore::fromMateDistance(0);
     
-    // TODO: detect 3 fold repetition here
-        
-    return false;
+        return {
+            "", // comment
+            {pov, score},
+            {}, // best response
+            std::nullopt, // best continuation
+            {} // nag
+        };
+
 };
 
 SpellChessLib::PositionInsights
@@ -160,15 +189,10 @@ analizePositionByEngine(
     ) {
     
     SpellChessLib::PlayerColor pov = getPlayerColorFromSearchRequest(root, movesSinceRoot);
-
-    if (isTerminalState(root, movesSinceRoot)) 
-        return {
-            "", 
-            {pov, UCILoader::UciScore::fromCentipawns(0)},
-            {},
-            std::nullopt,
-            {}
-        };
+    auto arbiterVerdict = arbiteSequence(root, movesSinceRoot);
+    
+    if (arbiterVerdict != SpellChessLib::ArbiterVerdict::None) 
+        return makeInsightsFromArbiterVerdict(pov, arbiterVerdict);
 
     auto receiver = std::make_shared<AnalisisInfoReceiver>();
     engine->connect(receiver);
