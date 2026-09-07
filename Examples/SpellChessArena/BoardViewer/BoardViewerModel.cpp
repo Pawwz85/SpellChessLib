@@ -10,7 +10,15 @@ BoardViewer::Model::Model(QObject * parent) : QObject(parent){
     timers.whiteTimer.running = timers.blackTimer.running = false;
     timers.whiteTimer.showValue = timers.blackTimer.showValue = false;
     timers.whiteTimer.timeLeft = timers.blackTimer.timeLeft = std::chrono::milliseconds(0);
+
+    connect(this, &Model::analisisCompleted, this, &Model::onAnalisisCompleted, Qt::QueuedConnection);
 };
+
+void
+BoardViewer::Model::onAnalisisCompleted() {
+    if (document->clearDirtyFlag())
+        documentChanged(*document);
+}
 
 void 
 BoardViewer::Model::setCurrentPosition(SpellChessLib::SpellChessDocument::Handle newPosition) {
@@ -150,6 +158,7 @@ BoardViewer::Model::analyzeDocument(std::shared_ptr<SpellChessLib::DocumentAnnot
     auto doc = this->document;
     std::thread analysisThread([this, doc, annotator](){
         (*annotator)(doc);
+        this->analisisCompleted();
     });
 
     analysisThread.detach();

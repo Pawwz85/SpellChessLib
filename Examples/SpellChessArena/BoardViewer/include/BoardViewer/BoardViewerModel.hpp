@@ -20,6 +20,12 @@ namespace BoardViewer {
 
         virtual void handleMakeMove(SpellChessLib::SpellChessMove move) = 0;
 
+        signals:
+        void analisisCompleted(); 
+
+        private slots:
+        void onAnalisisCompleted();
+
         protected:
         std::recursive_mutex mut;
         std::shared_ptr<SpellChessLib::SpellChessDocument> document;
