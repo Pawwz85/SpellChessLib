@@ -238,7 +238,7 @@ SpellChessLib::makeFixedTimeAnalizer(std::shared_ptr<UCILoader::EngineInstance<S
 double estimateWinProb(const UCILoader::UciScore & score) {
 
     if (score.getUnit() == UCILoader::UciScore::Mate) {
-        return score.getValue() > 0 ? 1 : 0;
+        return score.getValue() >= 0 ? 1 : 0;
     }
 
     auto centipawns = score.getValue();
