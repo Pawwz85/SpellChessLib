@@ -64,14 +64,17 @@ EngineAnalisisConfigDialog::EngineAnalisisConfigDialog(QWidget * parent): QDialo
             this->config.engineId = engineList[index].entry_id;
     });
 
-    if (!engineList.isEmpty())
+    if (!engineList.isEmpty()) {
         engineSelector->setCurrentIndex(0);
+        this->config.engineId = engineList[0].entry_id;
+    }
 
     QComboBox * modeSelector = new QComboBox(this);
     modeSelector->addItems({tr("Fixed depth mode", "Computer analisys with fixed depth"),
                             tr("Fixed time mode", "Computer analisys with fixed time per position")});
     
-    modeSelector->setCurrentIndex(0);
+    config.mode = EngineAnalisysMode::FixedTimePerNode;
+    modeSelector->setCurrentIndex((int)config.mode);
 
     connect(modeSelector, &QComboBox::currentIndexChanged, this, [this](int index){
         auto oldMode = this->config.mode;
