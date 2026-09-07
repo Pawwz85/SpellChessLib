@@ -3,7 +3,7 @@
 
 namespace SpellChessLib {
     
-    ScorePOV::ScorePOV(PlayerColor color, const UCILoader::UciScore & score) : score(score){
+    ScorePOV::ScorePOV(PlayerColor color, const UCILoader::UciScore & score) : score(score), pov(color) {
         setPOV(color);
     };
 
@@ -22,9 +22,8 @@ namespace SpellChessLib {
 
     ScorePOV
     ScorePOV::flipPOV() const {
-        PlayerColor otherColor = (pov == White) ? Black : White;
         return ScorePOV(
-            otherColor,
+            SpellChessLib::flipColor(pov),
             UCILoader::UciScore(score.getBoundType(), score.getUnit(), -score.getValue())
         );
     };

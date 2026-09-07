@@ -131,12 +131,19 @@ namespace SpellChessLib {
         std::string MoveToken::openAnchor(SpellChessDocument::Handle pos) const {
             int nodeId = pos.lock()->getNodeId();
             std::string result = "<a href=";
+            std::string style;
             result += "\"node" + std::to_string(nodeId) + "\" ";
 
             result += "name=node" + std::to_string(nodeId) +" ";
 
-            result += "style=\"text-decoration:none;\"";
-            result += ">";
+            style = "style=\"text-decoration:none;";
+
+            auto color = HTMLDocumentColorPalete::getInstance().getMoveTokenColor(arc.classification);
+            if (color.has_value())
+                style += "color: " + color.value() + ";"; 
+            style += "\"";
+
+            result += style + ">";
 
             return result;
         };
@@ -305,4 +312,26 @@ namespace SpellChessLib {
 
         return result;
     };
+
+    HTMLDocumentColorPalete::HTMLDocumentColorPalete() {
+        movePallete.insert({Annotation::MoveClassification::BrilliantMove, "aqua"});
+        movePallete.insert({Annotation::MoveClassification::Blunder, "red"});
+        movePallete.insert({Annotation::MoveClassification::Mistake, "orange"});
+        movePallete.insert({Annotation::MoveClassification::GoodMove, "green"});
+        movePallete.insert({Annotation::MoveClassification::Inaccuraccy, "yellow"});
+    };
+
+    HTMLDocumentColorPalete & HTMLDocumentColorPalete::getInstance() {
+        static HTMLDocumentColorPalete instance;
+        return instance;
+    }
+
+    std::optional<std::string> HTMLDocumentColorPalete::getMoveTokenColor(const Annotation::MoveClassification & moveType) {
+        auto it = movePallete.find(moveType);
+        if (it == movePallete.end())
+            return std::nullopt;
+        return it->second;
+    };
+
+
 };

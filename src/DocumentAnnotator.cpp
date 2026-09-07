@@ -126,9 +126,7 @@ getPlayerColorFromSearchRequest( const SpellChessLib::GameState & root,
     if (!flip)
         return root.getSideToMove();
     
-    return (root.getSideToMove() == SpellChessLib::White) ?
-            SpellChessLib::Black :
-            SpellChessLib::White;
+    return SpellChessLib::flipColor(root.getSideToMove());
 }
 
 class GameReplay : public SpellChessLib::GameHistory {
@@ -198,7 +196,7 @@ analizePositionByEngine(
     engine->connect(receiver);
     auto connection = engine->search(parameters, SpellChessLib::StateFormatter(root), movesSinceRoot);
     
-    connection->waitFor(std::chrono::milliseconds::max());
+    connection->waitFor(std::chrono::seconds(10));
     
     if (connection->getStatus() != UCILoader::ResultReady)
         throw std::runtime_error("Analisis engine timed out or crashed");
@@ -221,6 +219,7 @@ SpellChessLib::makeFixedDetphAnalizer(std::shared_ptr<UCILoader::EngineInstance<
     auto params = builder.withDepth(depth).build();
 
     return [engine, params](const GameState & root, const std::vector<SpellChessMove> & moves) {
+        engine->sync();
         return analizePositionByEngine(engine, params, root, moves);
     };
 }
@@ -231,6 +230,7 @@ SpellChessLib::makeFixedTimeAnalizer(std::shared_ptr<UCILoader::EngineInstance<S
     auto params = builder.withMoveTime(timePerPos.count()).build();
 
     return [engine, params](const GameState & root, const std::vector<SpellChessMove> & moves) {
+        engine->sync();
         return analizePositionByEngine(engine, params, root, moves);
     };
 }
@@ -242,7 +242,7 @@ double estimateWinProb(const UCILoader::UciScore & score) {
     }
 
     auto centipawns = score.getValue();
-    const double alpha  = -std::log(10)/4.  ;
+    const double alpha  = -std::log(10)/ 400.; // scaling factor for centipawn to win probability conversion
     return 1. / (1. + exp(centipawns * alpha));
 };
 
@@ -255,7 +255,7 @@ SpellChessLib::SimplePositionClassifier (const GameState & state, const Position
     auto pov = state.getSideToMove();
     ScorePOV eval0 = before.positionScore.toPov(pov);
     ScorePOV eval1 = after.positionScore.toPov(pov);
-    double winProbLoss = estimateWinProb(eval1.getScore()) - estimateWinProb(eval0.getScore());
+    double winProbLoss = estimateWinProb(eval0.getScore()) - estimateWinProb(eval1.getScore());
 
     if (winProbLoss >= 0.20)
         return Annotation::MoveClassification::Blunder;
@@ -263,6 +263,6 @@ SpellChessLib::SimplePositionClassifier (const GameState & state, const Position
         return Annotation::MoveClassification::Mistake;
     else if (winProbLoss >= 0.05)
         return Annotation::MoveClassification::Inaccuraccy;
-    else
+    else 
         return Annotation::MoveClassification::GoodMove;
 }

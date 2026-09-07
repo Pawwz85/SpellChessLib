@@ -3,6 +3,8 @@
 #include "SpellChessDocument.h"
 
 #include <list>
+#include <unordered_map>
+#include <optional>
 #include <memory>
 
 namespace SpellChessLib {
@@ -126,6 +128,18 @@ namespace SpellChessLib {
             void setType(BlockType type);
 
         };
+    };
+
+    class HTMLDocumentColorPalete {
+        std::unordered_map< Annotation::MoveClassification, std::string> movePallete;
+
+        HTMLDocumentColorPalete();
+        public:
+        HTMLDocumentColorPalete(const HTMLDocumentColorPalete &) = delete;
+        HTMLDocumentColorPalete(HTMLDocumentColorPalete &&) = delete;
+        
+        std::optional<std::string> getMoveTokenColor(const Annotation::MoveClassification & moveType);
+        static HTMLDocumentColorPalete & getInstance();
     };
 
     extern std::unique_ptr<HTML::Element> toHtml(const SpellChessDocument & document);

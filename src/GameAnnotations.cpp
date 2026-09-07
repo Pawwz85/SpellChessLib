@@ -44,7 +44,7 @@ SpellChessLib::Annotation::toToken(MoveClassification cathegory) {
         case MoveClassification::Inaccuraccy:
             return "?!";
         case MoveClassification::GoodMove:
-            return "!";
+            return "";
         case MoveClassification::BrilliantMove:
             return "!!";
         default:

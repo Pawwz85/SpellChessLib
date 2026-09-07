@@ -33,7 +33,7 @@ void App::openBoardViewer(BoardViewer::Model * model) {
         try {
             auto entry = getEnginePlayerRepositoryInstance().findById(config.engineId);
             auto runningEngineEntry = RunningEnginesService::getInstance().openEngine({entry.pathToEngine}, ".");
-
+            
             SpellChessLib::PositionAnalizer analizer = (config.mode == EngineAnalisysMode::FixedDepth) ?
                 SpellChessLib::makeFixedDetphAnalizer(runningEngineEntry.engine, config.depthLimit) :
                 SpellChessLib::makeFixedTimeAnalizer(runningEngineEntry.engine, std::chrono::milliseconds(config.timeLimitMs));
