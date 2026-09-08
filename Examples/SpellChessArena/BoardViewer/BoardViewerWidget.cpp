@@ -401,6 +401,7 @@ void BoardViewer::BoardViewerWidget::NoFocus::onPieceDrag(Board::DragHandle<Boar
             widget->board->update();
             return;
         }
+        drag.accept();
         widget->model->makeMove(move);
     };
 };
