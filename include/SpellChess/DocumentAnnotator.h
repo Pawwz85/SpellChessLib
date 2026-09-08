@@ -18,7 +18,7 @@ namespace SpellChessLib {
         std::string         suggestedComment;  
         ScorePOV            positionScore;
         SpellChessMove      bestMove;
-        std::optional<Annotation::AnnotatedSequence> bestContinuation; // PV engine suggested
+        std::vector<SpellChessMove> bestContinuation; // PV engine suggested
         std::vector<Annotation::NumericAnnotationGlyph> nags; // Any additional nags that annotator wants to add
     };
 
@@ -39,6 +39,9 @@ namespace SpellChessLib {
         void analize(const SpellChessDocument & document);
         void annotateInternal(SpellChessDocument & document, SpellChessDocument::Handle pos);
         void annotate(SpellChessDocument & document);
+        void tryWritingAlternative(SpellChessDocument & document, SpellChessDocument::Handle pos);
+        SpellChessDocument::Handle writeVariation(SpellChessDocument & document, SpellChessDocument::Handle pos, const std::vector<SpellChessMove> & moves);
+        
         public:
         DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier);
         void setPositionAnalizedCallback(std::function<void()> callback);

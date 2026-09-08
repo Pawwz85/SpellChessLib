@@ -63,6 +63,12 @@ SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document
         if (!childInsights.has_value())
             continue;
         auto classification = moveClassifier(gameState, insights.value(), childInsights.value());
+
+        if (classification == Annotation::MoveClassification::Blunder  ||
+            classification == Annotation::MoveClassification::Mistake  ||
+            classification == Annotation::MoveClassification::Inaccuraccy )
+            tryWritingAlternative(document, pos);
+
         document.setMoveClassification(pos, arc.move, classification);
     }
 
@@ -76,6 +82,27 @@ SpellChessLib::DocumentAnnotator::annotate(SpellChessDocument & document) {
     annotateInternal(document, document.getRoot());
     document.markAsDirty(); // mark document as dirty after annotations are applied
 }
+
+void
+SpellChessLib::DocumentAnnotator::tryWritingAlternative(SpellChessDocument & document, SpellChessDocument::Handle pos){
+    auto insights = lookupCache(pos);
+
+    if (insights.has_value()) {
+        auto variationEnd = writeVariation(document, pos, insights.value().bestContinuation);
+    };
+
+}
+
+
+SpellChessLib::SpellChessDocument::Handle 
+SpellChessLib::DocumentAnnotator::writeVariation(SpellChessDocument & document, SpellChessDocument::Handle pos, const std::vector<SpellChessMove> & moves){
+    auto currentPos = pos;
+    for (auto & move : moves) {
+        currentPos = document.makeMove(currentPos, move);
+    }
+    return currentPos;
+}
+
 
 SpellChessLib::DocumentAnnotator::DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier) :
     analizer(analizer), moveClassifier(moveClassifier) {
@@ -185,7 +212,7 @@ makeInsightsFromArbiterVerdict(SpellChessLib::PlayerColor pov, SpellChessLib::Ar
             "", // comment
             {pov, score},
             {}, // best response
-            std::nullopt, // best continuation
+            {}, // best continuation
             {} // nag
         };
 
@@ -221,7 +248,7 @@ analizePositionByEngine(
         "",                             // suggested comment
         {pov, receiver->getEval()},     // evaluation
         *searchResult.bestMove,         // best move
-        std::nullopt,                   // best continuation
+        receiver->getPv(),              // best continuation
         {}                              // NAGs
     };
 }
