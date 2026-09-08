@@ -12,6 +12,7 @@ set ( sources
     "GameViewerModel.cpp"
     "OpenSessionRequest.cpp"
     "PlayerTimer.cpp"
+    "SingleItemSquareLayout.cpp"
     "SpellChessMoveBuilder.cpp"
     "SpellPanel.cpp"
     "UserInteractionManager.cpp"

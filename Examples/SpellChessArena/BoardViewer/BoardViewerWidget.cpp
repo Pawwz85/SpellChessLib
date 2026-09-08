@@ -1,5 +1,6 @@
 #include <BoardViewerWidget.hpp>
 #include <BoardLinter.hpp>
+#include <SingleItemSquareLayout.hpp>
 #include <BoardGrid/EntityInitializers.hpp>
 #include <SpellChess/Board.h>
 
@@ -189,13 +190,16 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
     moveList = new MoveListView(this);
 
     whiteTimer = new PlayerTimer(this);
-    blackTimer = new PlayerTimer(this);
+    blackTimer = new PlayerTimer(this); 
     
-    layout->addWidget(board, 1, 1, 8, 8);
-    layout->addWidget(moveList, 1, 9, 8, 3);
+    SingleItemSquareLayout * boardContainer = new SingleItemSquareLayout();
+    boardContainer->addWidget(board);
+    
+    layout->addLayout(boardContainer, 1, 1, 8, 8);
+    layout->addWidget(moveList, 1, 9, 8, 2);
     layout->addWidget(blackTimer, 0, 1, 1, 2);
     layout->addWidget(whiteTimer, 9, 1, 1, 2);
-    
+
     if (model->getCurrentState().isSpellChessGame()) {
         SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
         SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
