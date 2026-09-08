@@ -4,6 +4,9 @@
 #include <BoardGrid/EntityInitializers.hpp>
 #include <SpellChess/Board.h>
 
+#include <QGridLayout>
+#include <QHBoxLayout>
+
 #include <map>
 #include <QKeyEvent>
 class BoardViewer::BoardViewerWidget::NoFocus : public BoardViewer::UserInteractionState {
@@ -186,25 +189,29 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
     moveBuilder = std::make_shared<SpellChessMoveBuilder>();
     
     board = new Board::BoardWidget(this);
-    layout = new QGridLayout(this);
+    layout = new QHBoxLayout(this);
     moveList = new MoveListView(this);
 
     whiteTimer = new PlayerTimer(this);
     blackTimer = new PlayerTimer(this); 
     
+    QGridLayout * gridLayout = new QGridLayout(this);
     SingleItemSquareLayout * boardContainer = new SingleItemSquareLayout();
     boardContainer->addWidget(board);
     
-    layout->addLayout(boardContainer, 1, 1, 8, 8);
-    layout->addWidget(moveList, 1, 9, 8, 2);
-    layout->addWidget(blackTimer, 0, 1, 1, 2);
-    layout->addWidget(whiteTimer, 9, 1, 1, 2);
+    gridLayout->addLayout(boardContainer, 1, 1, 8, 8);
+    gridLayout->addWidget(blackTimer, 0, 1, 1, 2);
+    gridLayout->addWidget(whiteTimer, 9, 1, 1, 2);
+
+    layout->addLayout(gridLayout, 3);
+    layout->addWidget(moveList, 1);
+    moveList->setMaximumWidth(300);
 
     if (model->getCurrentState().isSpellChessGame()) {
         SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
         SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
-        layout->addWidget(blPanel, 0, 6, 1, 2);
-        layout->addWidget(whPanel, 9, 6, 1, 2);
+        gridLayout->addWidget(blPanel, 0, 6, 1, 2);
+        gridLayout->addWidget(whPanel, 9, 6, 1, 2);
     }
 
     setLayout(layout);

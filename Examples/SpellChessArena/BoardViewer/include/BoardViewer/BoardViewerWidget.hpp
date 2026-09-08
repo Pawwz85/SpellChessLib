@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include <QGridLayout>
+#include <QHBoxLayout>
 
 #include <BoardGrid/BoardGridWidget.h>
 
@@ -33,7 +33,7 @@ namespace BoardViewer {
         PlayerTimer * blackTimer;
 
 
-        QGridLayout * layout;
+        QHBoxLayout * layout;
 
         SpellPanelModel whiteSpellPanel;
         SpellPanelModel blackSpellPanel;
