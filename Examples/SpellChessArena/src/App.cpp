@@ -46,7 +46,9 @@ void App::openBoardViewer(BoardViewer::Model * model) {
             pb->setValue(0);
             pb->setWindowModality(Qt::WindowModality::NonModal);
             pb->setCancelButton(nullptr);
-            pb->setLabel(new QLabel("Analising position..."));
+            pb->setLabelText("Analising document");
+            pb->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+            
             pb->show();
 
             auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier);
