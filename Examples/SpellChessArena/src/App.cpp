@@ -23,6 +23,46 @@
 
 #include <optional>
 
+void App::analizeDocument(BoardViewer::Model * model, const EngineAnalisysConfig & config) {
+    try {
+        auto entry = getEnginePlayerRepositoryInstance().findById(config.engineId);
+        auto runningEngineEntry = RunningEnginesService::getInstance().openEngine({entry.pathToEngine}, ".");
+        
+        SpellChessLib::PositionAnalizer analizer = (config.mode == EngineAnalisysMode::FixedDepth) ?
+            SpellChessLib::makeFixedDetphAnalizer(runningEngineEntry.engine, config.depthLimit) :
+            SpellChessLib::makeFixedTimeAnalizer(runningEngineEntry.engine, std::chrono::milliseconds(config.timeLimitMs));
+
+        SpellChessLib::MoveClassifier moveClassifier = SpellChessLib::SimplePositionClassifier;
+
+        QProgressDialog * pb = new QProgressDialog(this->mainWindow->centralWidget());
+        pb->setRange(0, model->getDocument()->size());
+        pb->setValue(0);
+        pb->setWindowModality(Qt::WindowModality::NonModal);
+        pb->setCancelButton(nullptr);
+        pb->setLabelText("Analising document");
+        pb->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+        
+        pb->show();
+
+        auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier);
+
+        annotator->setPositionAnalizedCallback([pb](){
+            int x = pb->value();
+            QMetaObject::invokeMethod(pb, &QProgressDialog::setValue, Qt::QueuedConnection, x + 1);
+        });
+
+        annotator->setFinishCallback([pb](){
+            QMetaObject::invokeMethod(pb, &QProgressDialog::close, Qt::QueuedConnection);
+        });
+
+        model->analyzeDocument(annotator);
+    } catch (const std::exception & e) {
+        QMessageBox * alert = new QMessageBox(this->mainWindow->centralWidget());
+        alert->setText(QObject::tr("Error while trying to start engine: %1").arg(e.what()));
+        alert->exec();
+    }
+}
+
 void App::openBoardViewer(BoardViewer::Model * model) {
     // Remove unused engines lingering from the last game
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
@@ -31,44 +71,7 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
 
     connect(this, &App::onAnalisisRequested, model, [this, model](const EngineAnalisysConfig & config) {
-        try {
-            auto entry = getEnginePlayerRepositoryInstance().findById(config.engineId);
-            auto runningEngineEntry = RunningEnginesService::getInstance().openEngine({entry.pathToEngine}, ".");
-            
-            SpellChessLib::PositionAnalizer analizer = (config.mode == EngineAnalisysMode::FixedDepth) ?
-                SpellChessLib::makeFixedDetphAnalizer(runningEngineEntry.engine, config.depthLimit) :
-                SpellChessLib::makeFixedTimeAnalizer(runningEngineEntry.engine, std::chrono::milliseconds(config.timeLimitMs));
-
-            SpellChessLib::MoveClassifier moveClassifier = SpellChessLib::SimplePositionClassifier;
-
-            QProgressDialog * pb = new QProgressDialog(this->mainWindow->centralWidget());
-            pb->setRange(0, model->getDocument()->size());
-            pb->setValue(0);
-            pb->setWindowModality(Qt::WindowModality::NonModal);
-            pb->setCancelButton(nullptr);
-            pb->setLabelText("Analising document");
-            pb->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-            
-            pb->show();
-
-            auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier);
-
-            annotator->setPositionAnalizedCallback([pb](){
-                int x = pb->value();
-                QMetaObject::invokeMethod(pb, &QProgressDialog::setValue, Qt::QueuedConnection, x + 1);
-            });
-
-            annotator->setFinishCallback([pb](){
-                QMetaObject::invokeMethod(pb, &QProgressDialog::close, Qt::QueuedConnection);
-            });
-
-            model->analyzeDocument(annotator);
-        } catch (const std::exception & e) {
-            QMessageBox * alert = new QMessageBox(this->mainWindow->centralWidget());
-            alert->setText(QObject::tr("Error while trying to start engine: %1").arg(e.what()));
-            alert->exec();
-        }
-        
+        this->analizeDocument(model, config);
     });
 
     QString pgnVersion = model->getCurrentState().isSpellChessGame() ? "PGN4" : "PGN";
