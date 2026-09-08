@@ -20,6 +20,7 @@ SpellChessLib::DocumentAnnotator::lookupCache(SpellChessDocument::Handle pos) {
 void
 SpellChessLib::DocumentAnnotator::analizeInternal(const SpellChessDocument & document, SpellChessDocument::Handle pos, const GameState & root, std::vector<SpellChessMove> & movesSinceRoot){
     PositionInsights insights = analizer(root, movesSinceRoot);
+    onPositionAnalized();
     analizerCache.insert({pos.lock().get(), insights}); // TODO: write helper function tryWriteCache
 
     auto arcs = document.getArcs(pos);
@@ -81,10 +82,22 @@ SpellChessLib::DocumentAnnotator::DocumentAnnotator(PositionAnalizer analizer, M
 
     }
 
+void
+SpellChessLib::DocumentAnnotator::setPositionAnalizedCallback(std::function<void()> callback){
+    onPositionAnalized = callback;
+}
+
+void
+SpellChessLib::DocumentAnnotator::setFinishCallback(std::function<void()> callback){
+    onFinish = callback;
+}
+
+
 void    
 SpellChessLib::DocumentAnnotator::operator()(std::shared_ptr<SpellChessDocument> document){
     analize(*document);
     annotate(*document);
+    onFinish();
 }
 
 class AnalisisInfoReceiver : public UCILoader::EventReceiver {

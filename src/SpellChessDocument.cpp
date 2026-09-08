@@ -222,6 +222,12 @@ SpellChessLib::SpellChessDocument::has(Handle node) const {
     return idMap.find(node_->getNodeId()) != idMap.end();
 };
 
+size_t
+SpellChessLib::SpellChessDocument::size() const {
+    return idMap.size();
+}
+
+
 SpellChessLib::SpellChessDocument::Handle 
 SpellChessLib::SpellChessDocument::getRoot() const {
     return root;

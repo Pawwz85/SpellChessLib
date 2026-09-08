@@ -111,6 +111,9 @@ namespace SpellChessLib {
         bool isRoot(Handle node) const; 
         bool isTail(Handle node) const; 
         bool has(Handle node) const;
+        
+        // return count of nodes in the document
+        size_t size() const;
 
         // get root node of the document
         Handle getRoot() const;

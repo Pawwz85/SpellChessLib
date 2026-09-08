@@ -29,6 +29,9 @@ namespace SpellChessLib {
         PositionAnalizer analizer;
         MoveClassifier moveClassifier;
 
+        std::function<void()> onPositionAnalized = [](){};
+        std::function<void()> onFinish = [](){};
+
         std::map<const SpellChessDocument::Node*, PositionInsights> analizerCache;
 
         std::optional<PositionInsights> lookupCache(SpellChessDocument::Handle pos);
@@ -38,6 +41,8 @@ namespace SpellChessLib {
         void annotate(SpellChessDocument & document);
         public:
         DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier);
+        void setPositionAnalizedCallback(std::function<void()> callback);
+        void setFinishCallback(std::function<void()> callback);
         void operator()(std::shared_ptr<SpellChessDocument> document);
     };
 

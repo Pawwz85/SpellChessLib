@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QDialogButtonBox>
 #include <QMessageBox>
+#include <QProgressDialog>
 
 #include <EngineTools/EngineLogger.hpp>
 #include <EngineTools/EngineControlPanel.hpp>
@@ -40,7 +41,25 @@ void App::openBoardViewer(BoardViewer::Model * model) {
 
             SpellChessLib::MoveClassifier moveClassifier = SpellChessLib::SimplePositionClassifier;
 
+            QProgressDialog * pb = new QProgressDialog(this->mainWindow->centralWidget());
+            pb->setRange(0, model->getDocument()->size());
+            pb->setValue(0);
+            pb->setWindowModality(Qt::WindowModality::NonModal);
+            pb->setCancelButton(nullptr);
+            pb->setLabel(new QLabel("Analising position..."));
+            pb->show();
+
             auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier);
+
+            annotator->setPositionAnalizedCallback([pb](){
+                int x = pb->value();
+                QMetaObject::invokeMethod(pb, &QProgressDialog::setValue, Qt::QueuedConnection, x + 1);
+            });
+
+            annotator->setFinishCallback([pb](){
+                QMetaObject::invokeMethod(pb, &QProgressDialog::close, Qt::QueuedConnection);
+            });
+
             model->analyzeDocument(annotator);
         } catch (const std::exception & e) {
             QMessageBox * alert = new QMessageBox(this->mainWindow->centralWidget());
