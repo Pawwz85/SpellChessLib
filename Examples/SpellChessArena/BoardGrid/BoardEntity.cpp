@@ -55,6 +55,23 @@ void BoardEntity::setSize(const LogicalBoardSize & size) {
     m_size.setHeight(size.height());
 };
 
+void BoardEntity::setRect(const LogicalBoardRect & rect) {
+    setLocation(rect.position());
+    setSize(rect.size());
+}
+
+LogicalBoardPoint BoardEntity::location() const {
+    return LogicalBoardPoint(m_location.x(), m_location.y());
+}
+
+LogicalBoardSize BoardEntity::size() const {
+    return LogicalBoardSize(m_size.width(), m_size.height());
+}
+
+ LogicalBoardRect BoardEntity::boundingRect() const {
+    return {location(), size()};
+}
+
 void BoardEntity::stopSizeAnimation() {
     if( sizeAnimation )
         sizeAnimation->stop();

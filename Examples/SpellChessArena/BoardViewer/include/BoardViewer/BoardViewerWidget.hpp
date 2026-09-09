@@ -67,6 +67,12 @@ namespace BoardViewer {
 
         BoardViewerWidget(Model * model, QWidget * parent = nullptr);
         ~BoardViewerWidget();
+
+        Board::BoardOrientation boardOrientation() const;
+
+        public slots:
+        bool setBoardOrientation(Board::BoardOrientation orientation);
+        bool toggleBoardOrientation();
     };
 
 }

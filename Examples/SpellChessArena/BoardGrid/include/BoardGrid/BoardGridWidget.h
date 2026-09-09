@@ -32,6 +32,7 @@ namespace Board {
         void paintEvent(QPaintEvent * event) override;
         void mouseMoveEvent(QMouseEvent* event) override;
         QSize sizeHint() const override;
+        BoardOrientation orientation() const;
 
         public slots:
         void onModelChanged();
@@ -59,9 +60,7 @@ namespace Board {
         std::vector<const BoardEntity *> renderQueueLower;
         std::vector<const BoardEntity *> renderQueueUpper;
         void boardEntityDrawingRoutine( QPainter & painter,
-                                const std::vector<const BoardEntity *> & renderQueue,
-                                float scalingFactorX,
-                                float scalingFactorY);
+                                const std::vector<const BoardEntity *> & renderQueue);
 
         class DragHandleImpl : public DragHandle<BoardWidget> {
             void reject() override;
@@ -100,6 +99,8 @@ namespace Board {
         
         unsigned int squareIndexFromBoardPos(LogicalBoardPoint pos) const;
         QPointF calculateNormalisedLocation(QPointF rawMousePoint);
+        bool setOrientation(BoardOrientation orientation);
+        bool toggleOrientation();
 
         BoardWidgetSize getBoardSize() const;
 

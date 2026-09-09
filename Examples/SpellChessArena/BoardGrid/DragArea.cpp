@@ -17,7 +17,8 @@ void Board::Internal::MouseFollowAnimation::updateCurrentTime(int currentTime) {
         finished();
         stop();
     } else {
-        updateCurrentValue(info->currentLocation);
+        QPointF value = {info->currentLocation.x(), info->currentLocation.y()};
+        updateCurrentValue(value);
         QPropertyAnimation::updateCurrentTime(currentTime);
     }    
 };

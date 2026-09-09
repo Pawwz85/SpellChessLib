@@ -69,6 +69,7 @@ void App::openBoardViewer(BoardViewer::Model * model) {
 
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
+    connect(flipBoard, &QAction::triggered, view, &BoardViewer::BoardViewerWidget::toggleBoardOrientation);
 
     connect(this, &App::onAnalisisRequested, model, [this, model](const EngineAnalisysConfig & config) {
         this->analizeDocument(model, config);
@@ -245,6 +246,9 @@ App::App(QCoreApplication * coreApp) {
     connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
     connect(openPGN4Action, &QAction::triggered, this, &App::showPGN4Pastebin);
     connect(analiseGameAction,  &QAction::triggered, this, &App::showAnalisisConfigDialog);
+
+    QMenu * boardMenu = menuBar->addMenu(tr("Board", "Menu for chessboard customizations"));
+    flipBoard = boardMenu->addAction(tr("Flip board", "Switch board perspective"));
 
     QMenu * toolsMenu = menuBar->addMenu(tr("Views"));
 

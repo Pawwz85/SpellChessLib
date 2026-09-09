@@ -18,16 +18,12 @@ Board::BoardGridConfig Board::makeDefaultBoardGridConfig() {
     };
 };
 
-BoardGridModel::BoardGridModel() : config(makeDefaultBoardGridConfig()), m_reversed(false) {
+BoardGridModel::BoardGridModel() : config(makeDefaultBoardGridConfig()), m_orientation(BoardOrientation::Normal) {
     data.fill(0);
 };
 
 unsigned int BoardGridModel::getIndex(unsigned int column, unsigned int row) const {
-    if (column >= 8 || row >= 8)
-        return (unsigned int)-1;
-    if (m_reversed)
-        row = 7 - row;
-    return (row << 3) | column;
+    return squareIndexFromDisplayCell(column, row, m_orientation);
 };
 
 void BoardGridModel::setConfig(const Board::BoardGridConfig & config) {
@@ -83,8 +79,19 @@ void BoardGridEditor::commit() {
     }
 };
 
-Board::Perspective BoardGridModel::getPerspective() const {
-    return m_reversed ? BlackPerspective : WhitePerspective;
+BoardOrientation BoardGridModel::orientation() const {
+    return m_orientation;
+}
+
+void BoardGridModel::setOrientation(BoardOrientation value) {
+    if (m_orientation == value)
+        return;
+    m_orientation = value;
+    onOrientationChanged(m_orientation);
+}
+
+void BoardGridModel::toggleOrientation() {
+    setOrientation(m_orientation == BoardOrientation::Normal ? BoardOrientation::Flipped : BoardOrientation::Normal);
 };
 
 

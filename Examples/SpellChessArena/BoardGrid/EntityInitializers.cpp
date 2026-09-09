@@ -16,6 +16,6 @@ void Board::EntityInitializers::initPiece(Board::BoardEntity & entity, PieceColo
     PieceSpriteSet & spriteSet = PieceSpriteSet::getInstance();
 
     entity.setSprite(spriteSet.getSprite(spriteId));
-    entity.setProperty("location", QPointF(0, 0));
+    entity.setProperty("location", QPointF(0.5, 0.5));
     entity.setProperty("size", QSizeF(1.f, 1.f));
 }; 

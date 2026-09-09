@@ -31,7 +31,7 @@
     extern BoardGridConfig makeDefaultBoardGridConfig();
     class BoardGridModel : public QObject {
         Q_OBJECT
-        Q_PROPERTY(bool reversed MEMBER m_reversed NOTIFY onReversed);
+        Q_PROPERTY(BoardOrientation orientation READ orientation WRITE setOrientation NOTIFY onOrientationChanged);
         friend BoardGridEditor;
 
         Board::BoardGridConfig config;
@@ -46,15 +46,17 @@
         inline const Board::BoardGridConfig & getConfig() const;
         unsigned int getIndex(unsigned int column, unsigned int row) const;
         void setConfig(const Board::BoardGridConfig & config);
-        Perspective getPerspective() const;
+        BoardOrientation orientation() const;
+        void setOrientation(BoardOrientation value);
+        void toggleOrientation();
 
         signals:
-        void onReversed();
+        void onOrientationChanged(Board::BoardOrientation orientation);
         void onConfigChanged();
         void onDataChanged();
         
         private:
-        bool m_reversed;
+        BoardOrientation m_orientation;
     };  
 
     class BoardGridEditor {

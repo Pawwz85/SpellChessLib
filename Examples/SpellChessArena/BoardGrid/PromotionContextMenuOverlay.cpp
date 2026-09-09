@@ -7,11 +7,11 @@ void Board::PromotionContextMenuOverlay::setStyle(const PromotionContextMenuStyl
     this->style = style;
 }
 
-void Board::PromotionContextMenuOverlay::setPosition(QPointF location) {
+void Board::PromotionContextMenuOverlay::setPosition(LogicalBoardPoint location) {
     this->overlayPosition = location;
 };
 
-void Board::PromotionContextMenuOverlay::setSize(QSizeF size) {
+void Board::PromotionContextMenuOverlay::setSize(LogicalBoardSize size) {
     this->overlaySize = size;
 }
 
@@ -20,23 +20,20 @@ void  Board::PromotionContextMenuOverlay::setPiecesColor(PieceColor color) {
 };
 
 
-void Board::PromotionContextMenuOverlay::draw(QPainter & painter, QSizeF boardSize) {
+void Board::PromotionContextMenuOverlay::draw(QPainter & painter, BoardWidgetSize boardSize, BoardOrientation orientation) {
 
     if (style == nullptr) {
         qDebug() << "Can not render a promotiom context menu overlay without any style";
         return;
     };
     
-    qreal overlayLeft   =  overlayPosition.x() * boardSize.width()  / 8.f; 
-    qreal overlayTop    =  overlayPosition.y() * boardSize.height() / 8.f;  
-    qreal overlayWidth  =  overlaySize.width() * boardSize.width()  / 8.f;
-    qreal overlayHeight =  overlaySize.height()* boardSize.height() / 8.f;
+    BoardWidgetRect boundingRect = toWidgetCoordinates(LogicalBoardRect{overlayPosition, overlaySize}, boardSize, orientation);
 
-    style->drawOutsideContainer(painter, QRectF(overlayLeft, overlayTop, overlayWidth, overlayHeight));
+    style->drawOutsideContainer(painter, QRectF(boundingRect.left() , boundingRect.top(), boundingRect.width(), boundingRect.height()));
 
-    const qreal containerHeight = overlayHeight / 4.f;
+    const qreal containerHeight = boundingRect.height() / 4.f;
     for (unsigned int actionIndex = 0; actionIndex < 4; ++actionIndex) {
-        QRectF currentContainer(overlayLeft, overlayTop + actionIndex * containerHeight, overlayWidth, containerHeight);
+        QRectF currentContainer(boundingRect.left(), boundingRect.top()  + actionIndex * containerHeight, boundingRect.width(), containerHeight);
         
         style->drawPieceTargetContainer(painter, 
             currentContainer,
@@ -47,19 +44,16 @@ void Board::PromotionContextMenuOverlay::draw(QPainter & painter, QSizeF boardSi
 
 };
 
-void Board::PromotionContextMenuOverlay::onMouseMoved(QPointF position, QSizeF boardSize) {
+void Board::PromotionContextMenuOverlay::onMouseMoved(LogicalBoardPoint position) {
 
-    qreal overlayLeft   =  overlayPosition.x() * boardSize.width()  / 8.f; 
-    qreal overlayTop    =  overlayPosition.y() * boardSize.height() / 8.f;  
-    qreal overlayWidth  =  overlaySize.width() * boardSize.width()  / 8.f;
-    qreal overlayHeight =  overlaySize.height()* boardSize.height() / 8.f;
+    LogicalBoardRect boundingRect = LogicalBoardRect(overlayPosition, overlaySize); 
 
     unsigned int oldIndex = highlightedActionIndex;
 
-    if (    position.x() < overlayLeft ||
-            position.y() < overlayTop ||
-            overlayLeft + overlayWidth < position.x() ||
-            overlayTop + overlayHeight < position.y()
+    if (    position.x() < boundingRect.left() ||
+            position.y() < boundingRect.top()  ||
+            position.x() > boundingRect.right()  ||
+            position.y() > boundingRect.down()
         ) {
             highlightedActionIndex = (unsigned int) -1;
             if (oldIndex != highlightedActionIndex)
@@ -67,7 +61,7 @@ void Board::PromotionContextMenuOverlay::onMouseMoved(QPointF position, QSizeF b
             return;
     };
 
-    int selectedIndex = qFloor((position.y() - overlayTop) / overlayHeight * 4); 
+    int selectedIndex = qFloor((position.y() - boundingRect.top()) / boundingRect.height() * 4); 
 
     if ( selectedIndex < 4 && selectedIndex >= 0 ) {
         highlightedActionIndex = (unsigned int) selectedIndex;
@@ -81,20 +75,17 @@ void Board::PromotionContextMenuOverlay::onMouseMoved(QPointF position, QSizeF b
         onOverlayUpdate();
 };
 
-void Board::PromotionContextMenuOverlay::onMousePressed(QPointF position, QSizeF boardSize) {
-    qreal overlayLeft   =  overlayPosition.x() * boardSize.width()  / 8.f; 
-    qreal overlayTop    =  overlayPosition.y() * boardSize.height() / 8.f;  
-    qreal overlayWidth  =  overlaySize.width() * boardSize.width()  / 8.f;
-    qreal overlayHeight =  overlaySize.height()* boardSize.height() / 8.f;
+void Board::PromotionContextMenuOverlay::onMousePressed(LogicalBoardPoint position) {
+    LogicalBoardRect boundingRect{overlayPosition, overlaySize};
 
-      if (  position.x() < overlayLeft ||
-            position.y() < overlayTop ||
-            overlayLeft + overlayWidth < position.x() ||
-            overlayTop + overlayHeight < position.y()
-        ) 
+    if (    position.x() < boundingRect.left() ||
+            position.y() < boundingRect.top()  ||
+            position.x() > boundingRect.right()  ||
+            position.y() > boundingRect.down()
+        )
         return;
 
-    int selectedIndex = qFloor((position.y() - overlayTop) / overlayHeight * 4); 
+   int selectedIndex = qFloor((position.y() - boundingRect.top()) / boundingRect.height() * 4); 
     if ( selectedIndex < 4 && selectedIndex >= 0 )
         onActionSelected(actions[selectedIndex]);
 };

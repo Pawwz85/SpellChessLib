@@ -33,7 +33,8 @@ class App : public QObject {
 
     QAction * copyFen;
     QAction * copyPgn;
-    
+    QAction * flipBoard;
+
     void analizeDocument(BoardViewer::Model * model, const EngineAnalisysConfig & config);
     void openBoardViewer(BoardViewer::Model * model);
     void engineLogs(EngineServiceEntry engine);
@@ -62,4 +63,5 @@ class App : public QObject {
     void showPGN4Pastebin();
     void showEngineManager();
     void showAnalisisConfigDialog();
+
 };

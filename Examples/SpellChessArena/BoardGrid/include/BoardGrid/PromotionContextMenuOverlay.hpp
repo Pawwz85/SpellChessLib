@@ -1,5 +1,6 @@
 #pragma once
 #include "BoardTypes.hpp"
+#include "CoordinateSystem.h"
 
 #include <QObject>
 #include <QPainter>
@@ -26,8 +27,8 @@
         Q_OBJECT
 
         const PromotionContextMenuStyle * style; 
-        QPointF overlayPosition; // relative to size of a board. Value of 1.f is distant of 1 board square
-        QSizeF overlaySize; // relative size to board. Value of (1.f, 1.f) is size of 1 board square
+        LogicalBoardPoint overlayPosition;  
+        LogicalBoardSize overlaySize; 
         Board::PieceColor pieceColor;
 
         unsigned int highlightedActionIndex = (unsigned int) -1;
@@ -43,13 +44,13 @@
         PromotionContextMenuOverlay()   : style(defaultPromotionContextMenuStyle), overlayPosition(0, 0), overlaySize(1.f, 4.f), pieceColor(Board::White) {};
         
         void setStyle(const PromotionContextMenuStyle * style);
-        void setPosition(QPointF location);
-        void setSize(QSizeF size);
+        void setPosition(LogicalBoardPoint location);
+        void setSize(LogicalBoardSize size);
         void setPiecesColor(PieceColor color);
 
-        void draw(QPainter & painter, QSizeF boardSize);
-        void onMouseMoved(QPointF position, QSizeF boardSize);
-        void onMousePressed(QPointF position, QSizeF boardSize);
+        void draw(QPainter & painter, BoardWidgetSize boardSize, BoardOrientation orientation);
+        void onMouseMoved(LogicalBoardPoint position);
+        void onMousePressed(LogicalBoardPoint position);
 
         signals:
         void onActionSelected(Board::PawnPromotionAction action); 

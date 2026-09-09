@@ -152,7 +152,7 @@ void BoardViewer::BoardViewerWidget::handleGamestateChange(const SpellChessLib::
            auto & newEntity = board->entities.addNewEntity();
            Board::PieceColor color = currentSq.piece.owner == SpellChessLib::White ? Board::White : Board::Black;
            Board::EntityInitializers::initPiece(newEntity, color,libTypeToBoardTypeMap[currentSq.piece.type]);
-           newEntity.setProperty("location", pointFromSquareIndex(sq));
+           newEntity.setLocation(Board::squareCentreFromSquareIndex(sq));
            newEntity.setProperty("size", QSizeF(1.f, 1.f));
            newEntity.setProperty("draggable", (bool)(draggableMask & (1ull << sq)));
         };
@@ -231,6 +231,18 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
 
 BoardViewer::BoardViewerWidget::~BoardViewerWidget(){
     delete model;
+}
+
+Board::BoardOrientation BoardViewer::BoardViewerWidget::boardOrientation() const {
+    return board->orientation();
+}
+
+bool BoardViewer::BoardViewerWidget::setBoardOrientation(Board::BoardOrientation orientation) {
+    return board->setOrientation(orientation);
+}
+
+bool BoardViewer::BoardViewerWidget::toggleBoardOrientation() {
+    return board->toggleOrientation();
 }
 
 void BoardViewer::BoardViewerWidget::updateLinter() {
@@ -456,15 +468,22 @@ void BoardViewer::BoardViewerWidget::PromotionPicker::onPieceDrag(Board::DragHan
 BoardViewer::BoardViewerWidget::PromotionPicker::PromotionPicker(SpellChessLib::SquareIndex anchorIndex, BoardViewerWidget * widget, std::weak_ptr<UserInteractionManager> manager):
     widget(widget), UserInteractionState(manager) {
     auto & menu = widget->board->openPromotionContextMenu();
-    int x = anchorIndex % 8;
-    int y = anchorIndex / 8;
+    Board::LogicalBoardPoint anchorPoint = Board::squareCentreFromSquareIndex(anchorIndex);
+    float x = anchorPoint.x();
+    float top = anchorPoint.y() - 0.5;
+    float down = top + 4;
 
-    if (y  + 4 >= 8)
-        y = 4;
+    if (down > 8) {
+        float correction = down - 8;
+        down -= correction;
+        top -= correction;
+    }
+
+    float y = (top + down) / 2;
 
     widget->moveBuilder->setDestSquare(anchorIndex);
 
-    menu.setPosition(QPointF(x, y));
+    menu.setPosition(Board::LogicalBoardPoint(x, y));
     menu.setPiecesColor(anchorIndex >= 56 ? Board::Black : Board::White);
     menu.connect(&menu, &Board::PromotionContextMenuOverlay::onActionSelected, widget, &BoardViewerWidget::handlePromotionActionSelected);
     

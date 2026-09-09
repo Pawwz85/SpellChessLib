@@ -15,8 +15,8 @@ namespace Board {
             mutable std::mutex lock;
             unsigned int entityId;
             int startingZLevel;
-            QPointF startingLocation;
-            QPointF currentLocation;
+            LogicalBoardPoint startingLocation;
+            LogicalBoardPoint currentLocation;
             bool closed;
             bool paused;
         };
@@ -62,7 +62,7 @@ namespace Board {
         std::shared_ptr<Internal::DragInfo> currentlyDraggedPiece;
 
         protected:
-        void updateDragAnimation(const QPointF & currentMousePosition);
+        void updateDragAnimation(const LogicalBoardPoint & currentMousePosition);
         std::unique_ptr<QPropertyAnimation> getDragAnimation(std::shared_ptr<Internal::DragInfo> info);
 
         public:
@@ -110,22 +110,22 @@ template <class Context>
 inline Board::LogicalBoardPoint Board::DragHandle<Context>::getStartingPosition() const{
     if(info != nullptr) {
         std::lock_guard<std::mutex> guard(info->lock);
-        return LogicalBoardPoint(info->startingLocation.x(), info->startingLocation.y());
+        return info->startingLocation;
     }
     return LogicalBoardPoint();
 }
 
 template <class Context>
 inline Board::LogicalBoardPoint Board::DragHandle<Context>::getFinalPosition() const{
-      if(info != nullptr) {
+    if(info != nullptr) {
         std::lock_guard<std::mutex> guard(info->lock);
-        return LogicalBoardPoint(info->currentLocation.x(), info->currentLocation.y());
+        return info->currentLocation;
     }
     return LogicalBoardPoint();
 };
 
 template <class Context>
-void Board::DragArea<Context>::updateDragAnimation(const QPointF & currentPosition) {
+void Board::DragArea<Context>::updateDragAnimation(const LogicalBoardPoint & currentPosition) {
     if (currentlyDraggedPiece != nullptr) {
         std::lock_guard<std::mutex> guard(currentlyDraggedPiece->lock);
         currentlyDraggedPiece->currentLocation = currentPosition;

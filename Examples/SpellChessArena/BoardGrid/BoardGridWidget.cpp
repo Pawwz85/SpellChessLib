@@ -8,6 +8,7 @@
 #include <mutex>
 #include <algorithm>
 #include <PieceSpriteSet.hpp>
+#include <SpellChess/Board.h> // For SpellChessLib::NoSquare
 
 using namespace Board;
 
@@ -18,7 +19,7 @@ BoardGridWidget::BoardGridWidget(QWidget * parent): QWidget(parent) {
     setSizePolicy(p);
     connect(&boardGridModel, &BoardGridModel::onConfigChanged, this, &BoardGridWidget::onModelChanged);
     connect(&boardGridModel, &BoardGridModel::onDataChanged, this, &BoardGridWidget::onModelChanged);
-    connect(&boardGridModel, &BoardGridModel::onReversed, this, &BoardGridWidget::onModelChanged);
+    connect(&boardGridModel, &BoardGridModel::onOrientationChanged, this, &BoardGridWidget::onModelChanged);
 };
 
 
@@ -175,16 +176,16 @@ QRect BoardGridWidget::getSquareBoundingRect(int col, int row) {
 
 void BoardGridWidget::mouseMoveEvent(QMouseEvent* event) {
     QPointF pos = event->position();
-    int col = qFloor(8 * pos.x() / width());
-    int row = qFloor(8 * pos.y() / height());
+    BoardWidgetPoint widgetPoint (pos.x(), pos.y());
+    BoardWidgetSize widgetSize (width(), height());
+    unsigned int hoveredSquareIndex = squareIndexFromWidgetPoint(widgetPoint, widgetSize, orientation());
 
-    if(col < 0 || row < 0) {
+    if(hoveredSquareIndex >= 64) {
         resetHiglight();
         return;
     }
-    unsigned int hoveredSquareIndex = boardGridModel.getIndex(col, row);
 
-    if (hoveredSquareIndex == (unsigned int) -1 || !boardGridModel.getPropertyValue(hoveredSquareIndex, Board::Interactable)) {
+    if (!boardGridModel.getPropertyValue(hoveredSquareIndex, Board::Interactable)) {
         resetHiglight();
         return;
     }    
@@ -202,6 +203,10 @@ QSize BoardGridWidget::sizeHint() const {
 void BoardGridWidget::onModelChanged(){
     update();
 };
+
+BoardOrientation BoardGridWidget::orientation() const {
+    return boardGridModel.orientation();
+}
 
 void zLevelSplit (  const BoardEntityList & list, 
                     int threshold,
@@ -231,32 +236,25 @@ void BoardWidget::paintEvent(QPaintEvent * event) {
 }
 
 unsigned int Board::BoardWidget::squareIndexFromBoardPos(LogicalBoardPoint pos) const{
-    int x = qFloor(pos.x());
-    int y = qFloor(pos.y());
-
-    if (boardGridModel.property("reversed").toBool())
-        y = 7 - y;
-
-    return 8 * y + x;
+    return squareIndexFromLogicalPoint(pos);
 }
 
 void BoardWidget::boardEntityDrawingRoutine( QPainter & painter,
-                                const std::vector<const BoardEntity *> & renderQueue,
-                                float scalingFactorX,
-                                float scalingFactorY) {
+                                const std::vector<const BoardEntity *> & renderQueue) {
     const QPixmap * sprite;
     painter.save();
     painter.setRenderHint(QPainter::Antialiasing, true);
+    
+    BoardWidgetSize widgetSize = getBoardSize();
+
     for (const auto & piece : renderQueue) {
         if ((sprite = piece->getSpritePointer())) {
-            QSizeF size = piece->property("size").toSizeF();
-            QPointF where  = piece->property("location").toPointF();
+            LogicalBoardRect logicalRect = piece->boundingRect();
+            BoardWidgetRect targetRect = toWidgetCoordinates(logicalRect, widgetSize, orientation());
 
-            QRect target(where.x() * scalingFactorX, where.y() * scalingFactorY,
-              size.width() * scalingFactorX,
-              size.height() * scalingFactorY);
+            QRect target(targetRect.left(), targetRect.top(), targetRect.width(), targetRect.height());
             
-              painter.drawPixmap(target, *sprite);
+            painter.drawPixmap(target, *sprite);
 
         };
     };
@@ -264,31 +262,27 @@ void BoardWidget::boardEntityDrawingRoutine( QPainter & painter,
 }
 
 void BoardWidget::drawPieces(QPainter & painter) {
-    float scalingFactorX = width() / 8.f;
-    float scalingFactorY = height() / 8.f; 
-    boardEntityDrawingRoutine(painter, renderQueueLower, scalingFactorX, scalingFactorY);
+    boardEntityDrawingRoutine(painter, renderQueueLower);
 };
 
 void BoardWidget::drawExtras(QPainter & painter) {
-    float scalingFactorX = width() / 8.f;
-    float scalingFactorY = height() / 8.f; 
-    boardEntityDrawingRoutine(painter, renderQueueUpper, scalingFactorX, scalingFactorY);
+    boardEntityDrawingRoutine(painter, renderQueueUpper);
 
     if (promotionContextMenu)
-        promotionContextMenu->draw(painter, this->size());
+        promotionContextMenu->draw(painter, getBoardSize(), orientation());
 };
 
 void BoardWidget::mousePressEvent(QMouseEvent * event) {
     QPointF pos = event->position();
-    auto boardPoint = BoardWidgetPoint(boardGridModel.getPerspective(), pos.x(), pos.y());
+    auto boardPoint = BoardWidgetPoint(pos.x(), pos.y());
     mouseDragDetector.buttonPressed(boardPoint);
     if (promotionContextMenu)
-        promotionContextMenu->onMousePressed(event->position(), this->size());
+        promotionContextMenu->onMousePressed(toLogicalCoordinates(boardPoint, getBoardSize(), orientation()));
 };
 
 void BoardWidget::mouseReleaseEvent(QMouseEvent * event) {
     QPointF pos = event->position();
-    auto boardPoint = BoardWidgetPoint(boardGridModel.getPerspective(), pos.x(), pos.y());
+    auto boardPoint = BoardWidgetPoint(pos.x(), pos.y());
     mouseDragDetector.buttonReleased(boardPoint);
 };
 
@@ -298,7 +292,7 @@ Board::BoardWidget::DragHandleImpl::DragHandleImpl(BoardWidget & context, std::s
 void Board::BoardWidget::DragHandleImpl::reject(){
     BoardEntity * e = getEntity();
     std::lock_guard<std::mutex> guard(info->lock);
-    e->setProperty("location", info->startingLocation);
+    e->setLocation(info->startingLocation);
     info->closed = true;
 };
 
@@ -327,24 +321,22 @@ QPointF BoardWidget::calculateNormalisedLocation(QPointF rawMousePoint) {
         return QPointF(x, y);
 
     QSizeF entitySize = entity->property("size").toSizeF();
-
-    x -= entitySize.width() / 2;
-    y -= entitySize.height() / 2;
     
     return QPointF(x, y);
 };
 
 BoardEntity * BoardWidget::trySelectDraggedEntity(BoardWidgetPoint rawMousePoint) {
-    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
-    float x = point.x();
-    float y = point.y();
+    LogicalBoardPoint point = toLogicalCoordinates(rawMousePoint, getBoardSize(), orientation());
+    unsigned int squareIndex = squareIndexFromBoardPos(point);
+    if (squareIndex >= 64)
+        return nullptr;
 
     for (Board::BoardEntity & e : entities) {
         qreal eX = e.property("location").toPointF().x();
         qreal eY = e.property("location").toPointF().y();
-        qreal eW = e.property("size").toSizeF().width();
-        qreal eH = e.property("size").toSizeF().height();
-        if (e.property("draggable").toBool() && eX <= x && x < eX + eW && eY <= y && y < eY + eH)
+        if (e.property("draggable").toBool() &&
+            static_cast<unsigned int>(eX) == (squareIndex & 7) &&
+            static_cast<unsigned int>(eY) == (squareIndex >> 3))
             return &e;
     }   
 
@@ -361,7 +353,9 @@ void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
     draggedEntity->setProperty("z_level", 100);
     draggedEntity->setProperty("size", QSizeF(1.4, 1.4));
 
-    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
+    LogicalBoardPoint point = toLogicalCoordinates(rawMousePoint, getBoardSize(), orientation());
+    DragArea::updateDragAnimation(point);
+    draggedEntity->setLocation(point);
     ClickHandle click(this, point);
     onDragStarted(click);
 };
@@ -370,8 +364,8 @@ void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
     if (currentlyDraggedPiece == nullptr) 
         return;
 
-    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
-    currentlyDraggedPiece->currentLocation = QPointF(point.x(), point.y());
+    LogicalBoardPoint point = toLogicalCoordinates(rawMousePoint, getBoardSize(), orientation());
+    currentlyDraggedPiece->currentLocation = point;
     
     DragHandle<BoardWidget> * dragHandle = new DragHandleImpl(*this,currentlyDraggedPiece);
     BoardEntity * draggedEntity = dragHandle->getEntity(); 
@@ -391,7 +385,7 @@ void BoardWidget::tryStartDragAction(BoardWidgetPoint rawMousePoint) {
  };
 
 void BoardWidget::onClickAction(BoardWidgetPoint rawMousePoint) {
-    LogicalBoardPoint point = logicalPointFromWidgetPoint(rawMousePoint, getBoardSize());
+    LogicalBoardPoint point = toLogicalCoordinates(rawMousePoint, getBoardSize(), orientation());
     ClickHandle click(this, point);
     onClick(click);
 };
@@ -399,12 +393,13 @@ void BoardWidget::onClickAction(BoardWidgetPoint rawMousePoint) {
 
 void BoardWidget::mouseMoveEvent(QMouseEvent * event) {
     BoardGridWidget::mouseMoveEvent(event);
-    auto boardPoint = BoardWidgetPoint(boardGridModel.getPerspective(), event->pos().x(), event->pos().y());
+    auto boardPoint = BoardWidgetPoint(event->pos().x(), event->pos().y());
+    auto logicalPoint = toLogicalCoordinates(boardPoint, getBoardSize(), orientation());
     mouseDragDetector.mouseMoved(boardPoint);
-    DragArea::updateDragAnimation(calculateNormalisedLocation(event->position()));
+    DragArea::updateDragAnimation(logicalPoint);
 
     if (promotionContextMenu)
-        promotionContextMenu->onMouseMoved(event->position(), this->size());
+        promotionContextMenu->onMouseMoved(logicalPoint);
 
     if(currentlyDraggedPiece == nullptr)
         return;
@@ -420,7 +415,7 @@ DragHandle<BoardWidget> * BoardWidget::startDrag(unsigned int EntityId) {
     if (e == nullptr) return nullptr;
 
     resultInfo->closed = resultInfo->paused = false;
-    resultInfo->currentLocation = resultInfo->startingLocation = e->property("location").toPointF();
+    resultInfo->currentLocation = resultInfo->startingLocation = e->location();
     resultInfo->startingZLevel = e->property("z_level").toInt();
     resultInfo->entityId = EntityId;
     
@@ -448,6 +443,15 @@ BoardWidgetSize BoardWidget::getBoardSize() const {
     return BoardWidgetSize(size().width(), size().height());
 };
 
+bool BoardWidget::setOrientation(BoardOrientation value) {
+    if (isDragging() || promotionContextMenu != nullptr)
+        return false;
+    boardGridModel.setOrientation(value);
+    return true;
+}
 
+bool BoardWidget::toggleOrientation() {
+    return setOrientation(orientation() == BoardOrientation::Normal ? BoardOrientation::Flipped : BoardOrientation::Normal);
+}
 
 #include <moc_BoardGridWidget.cpp>

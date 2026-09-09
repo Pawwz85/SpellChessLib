@@ -50,6 +50,11 @@ namespace Board {
 
         void setLocation(const LogicalBoardPoint & point);
         void setSize(const LogicalBoardSize & size);
+        void setRect(const LogicalBoardRect & rect);
+
+        LogicalBoardPoint location() const;
+        LogicalBoardSize  size() const;
+        LogicalBoardRect  boundingRect() const;
 
         unsigned int getIdentifier() const;
         const QPixmap * getSpritePointer() const;
