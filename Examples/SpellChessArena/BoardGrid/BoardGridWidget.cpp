@@ -277,7 +277,7 @@ void BoardWidget::mousePressEvent(QMouseEvent * event) {
     auto boardPoint = BoardWidgetPoint(pos.x(), pos.y());
     mouseDragDetector.buttonPressed(boardPoint);
     if (promotionContextMenu)
-        promotionContextMenu->onMousePressed(toLogicalCoordinates(boardPoint, getBoardSize(), orientation()));
+        promotionContextMenu->onMousePressed(boardPoint, getBoardSize(), orientation());
 };
 
 void BoardWidget::mouseReleaseEvent(QMouseEvent * event) {
@@ -380,7 +380,7 @@ void BoardWidget::mouseMoveEvent(QMouseEvent * event) {
     DragArea::updateDragAnimation(logicalPoint);
 
     if (promotionContextMenu)
-        promotionContextMenu->onMouseMoved(logicalPoint);
+        promotionContextMenu->onMouseMoved(boardPoint, getBoardSize(), orientation());
 
     if(currentlyDraggedPiece == nullptr)
         return;

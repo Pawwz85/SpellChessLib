@@ -19,6 +19,57 @@ void  Board::PromotionContextMenuOverlay::setPiecesColor(PieceColor color) {
     this->pieceColor = color;
 };
 
+Board::BoardWidgetRect Board::PromotionContextMenuOverlay::widgetBoundingRect(
+    BoardWidgetSize boardSize,
+    BoardOrientation orientation) const {
+    return toWidgetCoordinates(
+        LogicalBoardRect{overlayPosition, overlaySize},
+        boardSize,
+        orientation);
+}
+
+Board::BoardWidgetRect Board::PromotionContextMenuOverlay::actionBoundingRect(
+    PromotionActionIndex actionIndex,
+    BoardWidgetSize boardSize,
+    BoardOrientation orientation) const {
+    const BoardWidgetRect boundingRect = widgetBoundingRect(boardSize, orientation);
+    const BoardWidgetSize actionSize(boundingRect.width(), boundingRect.height() / 4.f);
+    const auto actionNumber = static_cast<unsigned int>(actionIndex);
+    const BoardWidgetPoint actionPosition(
+        boundingRect.x(),
+        boundingRect.top() + (static_cast<float>(actionNumber) + 0.5f) * actionSize.height());
+
+    return BoardWidgetRect(actionPosition, actionSize);
+}
+
+std::optional<Board::PromotionActionIndex> Board::PromotionContextMenuOverlay::actionIndexFromWidgetPoint(
+    BoardWidgetPoint point,
+    BoardWidgetSize boardSize,
+    BoardOrientation orientation) const {
+    const BoardWidgetRect boundingRect = widgetBoundingRect(boardSize, orientation);
+    if (boundingRect.width() <= 0.f || boundingRect.height() <= 0.f ||
+        point.x() < boundingRect.left() || point.x() >= boundingRect.right() ||
+        point.y() < boundingRect.top() || point.y() >= boundingRect.down()) {
+        return std::nullopt;
+    }
+
+    const auto row = static_cast<unsigned int>(
+        (point.y() - boundingRect.top()) / boundingRect.height() * 4.f);
+    if (row >= 4)
+        return std::nullopt;
+
+    return static_cast<PromotionActionIndex>(row);
+}
+
+std::optional<Board::PromotionActionIndex> Board::PromotionContextMenuOverlay::actionIndexFromLogicalPoint(
+    LogicalBoardPoint point,
+    BoardWidgetSize boardSize,
+    BoardOrientation orientation) const {
+    return actionIndexFromWidgetPoint(
+        toWidgetCoordinates(point, boardSize, orientation),
+        boardSize,
+        orientation);
+}
 
 void Board::PromotionContextMenuOverlay::draw(QPainter & painter, BoardWidgetSize boardSize, BoardOrientation orientation) {
 
@@ -27,67 +78,46 @@ void Board::PromotionContextMenuOverlay::draw(QPainter & painter, BoardWidgetSiz
         return;
     };
     
-    BoardWidgetRect boundingRect = toWidgetCoordinates(LogicalBoardRect{overlayPosition, overlaySize}, boardSize, orientation);
+    const BoardWidgetRect boundingRect = widgetBoundingRect(boardSize, orientation);
 
     style->drawOutsideContainer(painter, QRectF(boundingRect.left() , boundingRect.top(), boundingRect.width(), boundingRect.height()));
 
-    const qreal containerHeight = boundingRect.height() / 4.f;
-    for (unsigned int actionIndex = 0; actionIndex < 4; ++actionIndex) {
-        QRectF currentContainer(boundingRect.left(), boundingRect.top()  + actionIndex * containerHeight, boundingRect.width(), containerHeight);
+    for (const auto actionIndex : {
+             PromotionActionIndex::Queen,
+             PromotionActionIndex::Rook,
+             PromotionActionIndex::Knight,
+             PromotionActionIndex::Bishop }) {
+        const BoardWidgetRect currentRect = actionBoundingRect(actionIndex, boardSize, orientation);
+        const QRectF currentContainer(currentRect.left(), currentRect.top(), currentRect.width(), currentRect.height());
         
         style->drawPieceTargetContainer(painter, 
             currentContainer,
-            actionIndex == highlightedActionIndex);
+            highlightedActionIndex == actionIndex);
     
-        style->drawPieceIcon(painter, actions[actionIndex], pieceColor, currentContainer);
+        style->drawPieceIcon(painter, actions[static_cast<unsigned int>(actionIndex)], pieceColor, currentContainer);
     };
 
 };
 
-void Board::PromotionContextMenuOverlay::onMouseMoved(LogicalBoardPoint position) {
-
-    LogicalBoardRect boundingRect = LogicalBoardRect(overlayPosition, overlaySize); 
-
-    unsigned int oldIndex = highlightedActionIndex;
-
-    if (    position.x() < boundingRect.left() ||
-            position.y() < boundingRect.top()  ||
-            position.x() > boundingRect.right()  ||
-            position.y() > boundingRect.down()
-        ) {
-            highlightedActionIndex = (unsigned int) -1;
-            if (oldIndex != highlightedActionIndex)
-                onOverlayUpdate();
-            return;
-    };
-
-    int selectedIndex = qFloor((position.y() - boundingRect.top()) / boundingRect.height() * 4); 
-
-    if ( selectedIndex < 4 && selectedIndex >= 0 ) {
-        highlightedActionIndex = (unsigned int) selectedIndex;
-    } else {
-        highlightedActionIndex = (unsigned int) -1;
-    }
-
-    exit:
+void Board::PromotionContextMenuOverlay::onMouseMoved(
+    BoardWidgetPoint position,
+    BoardWidgetSize boardSize,
+    BoardOrientation orientation) {
+    const auto oldIndex = highlightedActionIndex;
+    const auto selectedIndex = actionIndexFromWidgetPoint(position, boardSize, orientation);
+    highlightedActionIndex = selectedIndex;
 
     if (oldIndex != highlightedActionIndex)
         onOverlayUpdate();
 };
 
-void Board::PromotionContextMenuOverlay::onMousePressed(LogicalBoardPoint position) {
-    LogicalBoardRect boundingRect{overlayPosition, overlaySize};
-
-    if (    position.x() < boundingRect.left() ||
-            position.y() < boundingRect.top()  ||
-            position.x() > boundingRect.right()  ||
-            position.y() > boundingRect.down()
-        )
-        return;
-
-   int selectedIndex = qFloor((position.y() - boundingRect.top()) / boundingRect.height() * 4); 
-    if ( selectedIndex < 4 && selectedIndex >= 0 )
-        onActionSelected(actions[selectedIndex]);
+void Board::PromotionContextMenuOverlay::onMousePressed(
+    BoardWidgetPoint position,
+    BoardWidgetSize boardSize,
+    BoardOrientation orientation) {
+    const auto selectedIndex = actionIndexFromWidgetPoint(position, boardSize, orientation);
+    if (selectedIndex.has_value())
+        onActionSelected(actions[static_cast<unsigned int>(*selectedIndex)]);
 };
 
 class DefaultPromotionContextMenuStyle : public Board::PromotionContextMenuStyle {
