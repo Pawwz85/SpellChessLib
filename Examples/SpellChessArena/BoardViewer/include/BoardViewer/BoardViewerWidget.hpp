@@ -41,8 +41,6 @@ namespace BoardViewer {
         void connectSlots();
         LinterInput prepareInfoForLinter() const;
 
-        QPointF pointFromSquareIndex(unsigned int sqId) const;
-
         void updateLinter();
         void keyPressEvent(QKeyEvent * event) override;
 

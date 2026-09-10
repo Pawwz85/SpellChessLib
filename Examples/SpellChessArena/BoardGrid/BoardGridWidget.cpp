@@ -306,25 +306,6 @@ BoardEntity *  Board::BoardWidget::DragHandleImpl::getEntity() {
     return context->entities.findByIdentifier(info->entityId);
 }
 
-QPointF BoardWidget::calculateNormalisedLocation(QPointF rawMousePoint) {
-    qreal x = 8.f * rawMousePoint.x() / width();
-    qreal y = 8.f * rawMousePoint.y() / height();
-
-    if (currentlyDraggedPiece == nullptr)
-        return QPointF(x, y);
-    
-    std::lock_guard<std::mutex> guard(currentlyDraggedPiece->lock);
-
-    BoardEntity * entity  = entities.findByIdentifier(currentlyDraggedPiece->entityId);
-
-    if (entity == nullptr)
-        return QPointF(x, y);
-
-    QSizeF entitySize = entity->property("size").toSizeF();
-    
-    return QPointF(x, y);
-};
-
 BoardEntity * BoardWidget::trySelectDraggedEntity(BoardWidgetPoint rawMousePoint) {
     LogicalBoardPoint point = toLogicalCoordinates(rawMousePoint, getBoardSize(), orientation());
     unsigned int squareIndex = squareIndexFromBoardPos(point);

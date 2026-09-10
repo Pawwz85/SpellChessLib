@@ -98,7 +98,6 @@ namespace Board {
         void paintEvent(QPaintEvent * event) override;
         
         unsigned int squareIndexFromBoardPos(LogicalBoardPoint pos) const;
-        QPointF calculateNormalisedLocation(QPointF rawMousePoint);
         bool setOrientation(BoardOrientation orientation);
         bool toggleOrientation();
 

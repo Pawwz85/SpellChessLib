@@ -97,16 +97,6 @@ BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() 
     return result;
 }
 
-QPointF BoardViewer::BoardViewerWidget::pointFromSquareIndex(unsigned int sqId) const
-{
-    if(sqId >= 64)
-        return QPointF();
-    
-    unsigned int x = sqId & 7;
-    unsigned int y = sqId >> 3;
-    return QPointF(x, y);
-}
-
 void BoardViewer::BoardViewerWidget::handleDrag(Board::DragHandle<Board::BoardWidget> & drag) {
     interactionManager->onPieceDrag(drag);
 };
