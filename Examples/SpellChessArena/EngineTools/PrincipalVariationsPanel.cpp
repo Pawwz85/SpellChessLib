@@ -108,7 +108,13 @@ void VariationLineWidget::variationChanged(const std::string & variation) {
 std::string PrincipalVariationPanel::formatVariationLine(const std::vector<SpellChessLib::SpellChessMove> & moves) {
     std::string variationText;
     SpellChessLib::GameState tempContext = context;
+
+    if (tempContext.getSideToMove() == SpellChessLib::Black)
+        variationText += std::to_string(tempContext.getFullMoveCounter()) + "... ";
+
     for (const SpellChessLib::SpellChessMove & move : moves){
+        if (tempContext.getSideToMove() == SpellChessLib::White)
+             variationText += std::to_string(tempContext.getFullMoveCounter()) + ". ";
         variationText += SpellChessLib::spellChessMoveToUnicodeString(move, tempContext) + " ";
         tempContext.makeMove(move);
     } 
