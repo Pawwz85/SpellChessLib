@@ -20,6 +20,7 @@
 #include <EngineTools/EngineLogger.hpp>
 #include <EngineTools/EngineControlPanel.hpp>
 #include <EngineTools/PrincipalVariationsPanel.hpp>
+#include <EngineTools/EvalThermometer.hpp>
 
 #include <SpellChess/PGN4Parser.h>
 
@@ -222,6 +223,14 @@ void App::principalVariationPanel(EngineServiceEntry engine) {
     panel->show();
 }
 
+void App::evalThermometer(EngineServiceEntry engine) {
+    EvalThermometer * thermometer = new EvalThermometer(engine.engine);
+    thermometer->setAttribute(Qt::WA_DeleteOnClose);
+    thermometer->setWindowTitle(QObject::tr("Evaluation thermometer: %1").arg(engine.name));
+    thermometer->resize(220, 500);
+    thermometer->show();
+}
+
 void App::showPGN4Pastebin() {
     PastePGN4Dialog * dialog = new PastePGN4Dialog(mainWindow->centralWidget());
     auto result = dialog->exec();
@@ -283,6 +292,9 @@ App::App(QCoreApplication * coreApp) {
 
     QAction * showPvPanel = toolsMenu->addAction(tr("Principal variation"));
     connect(showPvPanel, &QAction::triggered, this, openTool(&App::principalVariationPanel));
+
+    QAction * showEvalThermometer = toolsMenu->addAction(tr("Evaluation thermometer"));
+    connect(showEvalThermometer, &QAction::triggered, this, openTool(&App::evalThermometer));
 
     QMenu * settingsMenu = menuBar->addMenu(tr("Settings"));
 

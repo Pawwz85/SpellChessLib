@@ -6,6 +6,7 @@ set ( sources
     "EngineControlPanel.cpp"
     "EngineLogger.cpp"
     "PrincipalVariationsPanel.cpp"
+    "EvalThermometer.cpp"
     "RunningEnginesService.cpp"
 )
 
