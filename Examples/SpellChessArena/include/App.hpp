@@ -63,5 +63,6 @@ class App : public QObject {
     void showPGN4Pastebin();
     void showEngineManager();
     void showAnalisisConfigDialog();
+    void showLiveAnalisisEngineDialog();
 
 };

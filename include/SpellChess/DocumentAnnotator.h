@@ -35,6 +35,7 @@ namespace SpellChessLib {
         std::map<const SpellChessDocument::Node*, PositionInsights> analizerCache;
 
         std::optional<PositionInsights> lookupCache(SpellChessDocument::Handle pos);
+        void updateCache(SpellChessDocument::Handle pos, const PositionInsights & insights);
         void analizeInternal(const SpellChessDocument & document, SpellChessDocument::Handle pos, const GameState & root, std::vector<SpellChessMove> & movesSinceRoot);
         void analize(const SpellChessDocument & document);
         void annotateInternal(SpellChessDocument & document, SpellChessDocument::Handle pos);

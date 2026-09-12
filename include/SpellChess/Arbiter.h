@@ -22,4 +22,5 @@ namespace SpellChessLib {
     };
 
     extern ArbiterVerdict arbite(const GameState & pos, const GameHistory & history);
+    extern ArbiterVerdict arbite(const GameState & root, const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot);
 }

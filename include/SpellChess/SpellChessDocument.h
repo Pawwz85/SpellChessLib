@@ -94,6 +94,7 @@ namespace SpellChessLib {
         void writeNodeToAnnotatedSequence(const Node & node, Annotation::AnnotatedSequence & seq) const;
         std::shared_ptr<Node> makeChildNode(std::shared_ptr<Node> node, const SpellChessMove & move);
         Node & referenceNodeByHandle(Handle h);
+        const Node & referenceNodeByHandle(Handle h) const;
         std::shared_ptr<const Node> tryHandle(Handle h) const;
         public:
 
@@ -138,6 +139,9 @@ namespace SpellChessLib {
         
         // get arcs of a node
         std::vector<Arc> getArcs(Handle node) const;
+
+        // get moves since root to the the current node
+        std::vector<SpellChessMove> getMovesSinceRoot(Handle node) const;
 
         // manually mark document as dirty. This is useful when document is modified outside of SpellChessDocument API.
         void markAsDirty();

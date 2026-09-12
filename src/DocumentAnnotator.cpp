@@ -16,12 +16,17 @@ SpellChessLib::DocumentAnnotator::lookupCache(SpellChessDocument::Handle pos) {
     return it->second;
 }
 
+void
+SpellChessLib::DocumentAnnotator::updateCache(SpellChessDocument::Handle pos, const PositionInsights & insights) {
+    if (auto node = pos.lock()) 
+        analizerCache.insert_or_assign(node.get(), insights);
+}
 
 void
 SpellChessLib::DocumentAnnotator::analizeInternal(const SpellChessDocument & document, SpellChessDocument::Handle pos, const GameState & root, std::vector<SpellChessMove> & movesSinceRoot){
     PositionInsights insights = analizer(root, movesSinceRoot);
     onPositionAnalized();
-    analizerCache.insert({pos.lock().get(), insights}); // TODO: write helper function tryWriteCache
+    updateCache(pos, insights);
 
     auto arcs = document.getArcs(pos);
     for (auto & arc : arcs) {
@@ -169,37 +174,6 @@ getPlayerColorFromSearchRequest( const SpellChessLib::GameState & root,
     return SpellChessLib::flipColor(root.getSideToMove());
 }
 
-class GameReplay : public SpellChessLib::GameHistory {
-    std::vector<uint64_t> positions;
-    SpellChessLib::GameState state;
-    public:
-    GameReplay(const SpellChessLib::GameState & root, 
-        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
-            state = root;
-            positions.push_back(SpellChessLib::calculateHash(state));
-            for (auto & move : movesSinceRoot){
-                state.makeMove(move);
-                positions.push_back(SpellChessLib::calculateHash(state));
-            }
-        };
-    
-    const SpellChessLib::GameState & getFinalState() const {
-        return state;
-    };
-
-    size_t countOccurences(const SpellChessLib::GameState & position) const override {
-        uint64_t hash = SpellChessLib::calculateHash(position);
-        return std::count(positions.begin(), positions.end(), hash);
-    }
-};
-
-SpellChessLib::ArbiterVerdict
-arbiteSequence( const SpellChessLib::GameState & root, 
-        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
-    GameReplay replay(root, movesSinceRoot);
-    return SpellChessLib::arbite(replay.getFinalState(), replay);
-};
-
 SpellChessLib::PositionInsights
 makeInsightsFromArbiterVerdict(SpellChessLib::PlayerColor pov, SpellChessLib::ArbiterVerdict verdict) {
 
@@ -227,7 +201,7 @@ analizePositionByEngine(
     ) {
     
     SpellChessLib::PlayerColor pov = getPlayerColorFromSearchRequest(root, movesSinceRoot);
-    auto arbiterVerdict = arbiteSequence(root, movesSinceRoot);
+    auto arbiterVerdict = arbite(root, movesSinceRoot);
     
     if (arbiterVerdict != SpellChessLib::ArbiterVerdict::None) 
         return makeInsightsFromArbiterVerdict(pov, arbiterVerdict);

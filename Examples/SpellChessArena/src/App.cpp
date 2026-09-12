@@ -1,5 +1,7 @@
 #include <App.hpp>
 #include <GameRunnerConfigurationDialog.hpp>
+#include <LiveAnalisis.hpp>
+#include <LiveAnalisisEngineDialog.hpp>
 #include <EmptyBoardWidget.hpp>
 #include <EngineRepository.hpp>
 #include <PastePGN4Dialog.hpp>
@@ -67,6 +69,7 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     // Remove unused engines lingering from the last game
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
 
+    connect(model, &BoardViewer::Model::changed, &LiveAnalisisService::getInstance(), &LiveAnalisisService::onBoardViewerModelChanged);
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
     connect(flipBoard, &QAction::triggered, view, &BoardViewer::BoardViewerWidget::toggleBoardOrientation);
@@ -84,12 +87,14 @@ void App::openBoardViewer(BoardViewer::Model * model) {
 
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
     RunningEnginesService::getInstance().clear();
+    LiveAnalisisService::getInstance().restoreConfiguredEngine();
     BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     openBoardViewer(model);
 }
 
 void App::openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document) {
     RunningEnginesService::getInstance().clear();
+    LiveAnalisisService::getInstance().restoreConfiguredEngine();
     BoardViewer::Model * model = new BoardViewer::DocumentViewerModel(document);
     openBoardViewer(model);
 }
@@ -121,6 +126,24 @@ void App::showEngineManager() {
 
     onAnalisisRequested(config);
  }
+
+void App::showLiveAnalisisEngineDialog() {
+    LiveAnalisisEngineDialog dialog(mainWindow->centralWidget());
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    const auto selectedEngineId = dialog.getSelectedEngineId();
+    if (!selectedEngineId.has_value())
+        return;
+
+    try {
+        const auto &entry = getEnginePlayerRepositoryInstance().findById(selectedEngineId.value());
+        LiveAnalisisService::getInstance().openEngine({entry.pathToEngine}, ".");
+    } catch (const std::exception &e) {
+        QMessageBox::critical(mainWindow->centralWidget(), tr("Live analysis"),
+                              tr("Error while trying to start the live analysis engine: %1").arg(e.what()));
+    }
+}
 
 std::optional<EngineServiceEntry> querryUserForEngineInstance() {
     const auto entries = RunningEnginesService::getInstance().getAll();
@@ -266,6 +289,9 @@ App::App(QCoreApplication * coreApp) {
     QAction * manageEnginesAction = settingsMenu->addAction(tr("Manage engines"));
 
     connect(manageEnginesAction, &QAction::triggered, this, &App::showEngineManager);
+
+    QAction * selectLiveAnalisisEngineAction = settingsMenu->addAction(tr("Select live analysis engine"));
+    connect(selectLiveAnalisisEngineAction, &QAction::triggered, this, &App::showLiveAnalisisEngineDialog);
 
     mainWindow->setMenuBar(menuBar);
     

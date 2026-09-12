@@ -9,6 +9,7 @@
 #include <functional>
 #include <thread>
 #include <optional>
+#include <string>
 #include <BoardViewer/BoardViewerModel.hpp>
 #include <EngineTools/RunningEnginesService.hpp>
 #include <SpellChess/Board.h>
@@ -45,6 +46,8 @@ namespace Internal {
 class LiveAnalisisService : public QObject {
     Q_OBJECT
     unsigned int engineId;
+    std::optional<std::vector<std::string>> configuredEngineArgs;
+    std::string configuredWorkingDirectory;
     std::thread worker;
 
     Internal::LifeAnalisisThreadInfo * controlBlock;
@@ -59,6 +62,7 @@ class LiveAnalisisService : public QObject {
     ~LiveAnalisisService();
 
     void openEngine(const std::vector<std::string> & args, const std::string & workingDirectory = "/");
+    void restoreConfiguredEngine();
 
     static LiveAnalisisService & getInstance();
 

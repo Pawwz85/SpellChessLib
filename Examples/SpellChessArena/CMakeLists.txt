@@ -15,6 +15,8 @@ set ( src_files
     "src/EngineRepository.cpp"
     "src/Form.cpp"
     "src/GameRunnerConfigurationDialog.cpp"
+    "src/LiveAnalisis.cpp"
+    "src/LiveAnalisisEngineDialog.cpp"
     "src/main.cpp"
     "src/PastePGN4Dialog.cpp"
 )

@@ -271,6 +271,39 @@ SpellChessLib::SpellChessDocument::getArcs(Handle handle) const {
     return result;
 };
 
+std::vector<SpellChessLib::SpellChessMove>
+ SpellChessLib::SpellChessDocument::getMovesSinceRoot(Handle node) const {
+    std::vector<SpellChessMove> path;
+
+    if (!has(node))
+        return {};
+
+    Handle parent;
+    bool foundMove;
+    while (node.lock() != root) {
+        parent = getPreviousNode(node);
+        foundMove = false;
+        for (auto & transition : referenceNodeByHandle(parent).transitions) {
+            if (transition.child == node.lock()) {
+                foundMove = true;
+                path.push_back(transition.move);
+                break;
+            }
+        }
+        /*
+            If we can not find move for given position, it means that node was likely orphaned by this document,
+            posibly after the has() call. 
+        */
+        if (!foundMove)
+            throw BadHandle(); 
+
+        node = parent;
+    };
+
+    return std::vector<SpellChessMove>(path.rbegin(), path.rend());
+}
+
+
 void SpellChessLib::SpellChessDocument::markAsDirty() {
     dirty.store(true);
 }
@@ -314,6 +347,19 @@ SpellChessLib::SpellChessDocument::setMoveClassification(Handle where, const Spe
 
 SpellChessLib::SpellChessDocument::Node & 
 SpellChessLib::SpellChessDocument::referenceNodeByHandle(Handle h) {
+    std::shared_ptr<Node> result;
+    auto node = tryHandle(h);
+    std::scoped_lock<std::mutex> guard(mut);
+    
+    auto it = idMap.find(node->getNodeId());
+    if(it == idMap.end())
+        throw BadHandle();
+
+    return *it->second;
+};
+
+const SpellChessLib::SpellChessDocument::Node & 
+SpellChessLib::SpellChessDocument::referenceNodeByHandle(Handle h) const {
     std::shared_ptr<Node> result;
     auto node = tryHandle(h);
     std::scoped_lock<std::mutex> guard(mut);

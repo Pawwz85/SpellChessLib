@@ -1,5 +1,7 @@
 #include <SpellChess/Arbiter.h>
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/ZobristHash.h>
+#include <algorithm>
 
 SpellChessLib::ArbiterVerdict
 SpellChessLib::arbite(const GameState & pos, const GameHistory & history) {
@@ -25,4 +27,35 @@ SpellChessLib::arbite(const GameState & pos, const GameHistory & history) {
         return ArbiterVerdict::ThreefoldRepetition;
 
     return ArbiterVerdict::None;
+};
+
+class GameReplay : public SpellChessLib::GameHistory {
+    std::vector<uint64_t> positions;
+    SpellChessLib::GameState state;
+    public:
+    GameReplay(const SpellChessLib::GameState & root, 
+        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
+            state = root;
+            positions.push_back(SpellChessLib::calculateHash(state));
+            for (auto & move : movesSinceRoot){
+                state.makeMove(move);
+                positions.push_back(SpellChessLib::calculateHash(state));
+            }
+        };
+    
+    const SpellChessLib::GameState & getFinalState() const {
+        return state;
+    };
+
+    size_t countOccurences(const SpellChessLib::GameState & position) const override {
+        uint64_t hash = SpellChessLib::calculateHash(position);
+        return std::count(positions.begin(), positions.end(), hash);
+    }
+};
+
+SpellChessLib::ArbiterVerdict
+SpellChessLib::arbite( const SpellChessLib::GameState & root, 
+        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
+    GameReplay replay(root, movesSinceRoot);
+    return SpellChessLib::arbite(replay.getFinalState(), replay);
 };

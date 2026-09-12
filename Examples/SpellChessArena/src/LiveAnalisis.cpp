@@ -71,9 +71,28 @@ LiveAnalisisService::~LiveAnalisisService() {
 void 
 LiveAnalisisService::openEngine(const std::vector<std::string> & args, const std::string & workingDirectory) {
     auto & engineService = RunningEnginesService::getInstance();
+
+    if (engineId != static_cast<unsigned int>(-1)) {
+        engineService.removeById(engineId);
+        engineId = static_cast<unsigned int>(-1);
+    }
+
     auto engineEntry = engineService.openEngine(args, workingDirectory);
     this->engineId = engineEntry.id;
+    this->configuredEngineArgs = args;
+    this->configuredWorkingDirectory = workingDirectory;
     engineService.renameById(tr("Live Analisis"), engineId);
+}
+
+void
+LiveAnalisisService::restoreConfiguredEngine() {
+    if (!configuredEngineArgs.has_value())
+        return;
+
+    if (RunningEnginesService::getInstance().getById(engineId).has_value())
+        return;
+
+    openEngine(configuredEngineArgs.value(), configuredWorkingDirectory);
 }
 
 void 
