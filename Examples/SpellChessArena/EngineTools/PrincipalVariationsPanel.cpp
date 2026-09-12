@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 #include <SpellChess/MoveNotation.h>
 #include <SpellChess/Board.h>
+#include <SpellChess/UCIHelpers.h>
 #include <cmath> // for abs
 
 const QString evaluationLabelStylesheet = QString() +
@@ -92,7 +93,8 @@ VariationLineWidget::VariationLineWidget(QWidget * parent) : QWidget(parent) {
 };
 
 void VariationLineWidget::evalChanged(UCILoader::UciScore score, const SpellChessLib::GameState & context) {
-    evaluationLabel->setText(formatEvaluation(score));
+    SpellChessLib::ScorePOV whitePOV = SpellChessLib::ScorePOV(context.getSideToMove(), score).toPov(SpellChessLib::PlayerColor::White);
+    evaluationLabel->setText(formatEvaluation(whitePOV.getScore()));
     evaluationLabel->setFrameStyle(QFrame::Box);
     QColor evalBackground = pickBackgroundColorForEvaluation(score, context);
     QColor evalForehround = pickForegroundColorForEvaluation(evalBackground);
