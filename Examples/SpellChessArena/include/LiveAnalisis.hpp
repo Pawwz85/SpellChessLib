@@ -52,6 +52,7 @@ class LiveAnalisisService : public QObject {
 
     Internal::LifeAnalisisThreadInfo * controlBlock;
 
+    void tryLoadDefaults();
     void analize(const SpellChessLib::GameState root, const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot);
 
     LiveAnalisisService(Internal::LifeAnalisisThreadInfo * controlBlock);

@@ -1,4 +1,6 @@
 #include <LiveAnalisis.hpp>
+#include <EngineRepository.hpp>
+
 #include <chrono>
 #include <cassert>
 
@@ -74,6 +76,7 @@ LiveAnalisisService::LiveAnalisisService(Internal::LifeAnalisisThreadInfo * cont
         controlBlock->onError = [this](LiveAnalisisErrorCode errorCode) {
             this->errorOccurred(errorCode);
         }; 
+        tryLoadDefaults();
     }
 
 LiveAnalisisService::~LiveAnalisisService() {
@@ -107,6 +110,17 @@ LiveAnalisisService::restoreConfiguredEngine() {
         return;
 
     openEngine(configuredEngineArgs.value(), configuredWorkingDirectory);
+}
+
+void 
+LiveAnalisisService::tryLoadDefaults() {
+    
+    auto configuredEngines = getEnginePlayerRepositoryInstance().getAll();
+
+    if (!configuredEngines.isEmpty()) {
+        openEngine({configuredEngines[0].pathToEngine}, ".");
+    };
+
 }
 
 void 
