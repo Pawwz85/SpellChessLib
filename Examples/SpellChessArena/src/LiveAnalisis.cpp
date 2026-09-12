@@ -12,6 +12,7 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
     auto const goParams = UCILoader::GoParamsBuilder<SpellChessLib::SpellChessMove>().withInfiniteMode(true).build();
     Internal::LifeAnalisisRequest request;
 
+    unsigned int retries = 0;
     while(controlBlock->run) {
         std::unique_lock<std::mutex> lock(controlBlock->mut);
 
@@ -28,7 +29,20 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
 
         if (currentConnection != nullptr) {
             currentConnection->stop();
-            currentConnection->waitFor(std::chrono::milliseconds(200));
+            retries = 0;
+            
+            while (currentConnection->getStatus() != UCILoader::SearchStatusCode::ResultReady && 
+                   currentConnection->getStatus() != UCILoader::SearchStatusCode::Terminated) {
+                if (retries > 5) {
+                    controlBlock->onError(LiveAnalisisErrorCode::FailedToSwitchPosition);
+                    goto WaitForNextRequest;
+                }
+                retries++;
+                lock.unlock();
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                lock.lock();
+            }
+
             currentConnection = nullptr;
         }
 
