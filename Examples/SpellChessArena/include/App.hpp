@@ -15,6 +15,7 @@
 
 #include <EngineAnalisysConfigDialog.hpp> // For EngineAnalisysConfig struct
 #include <EngineTools/RunningEnginesService.hpp>
+#include <EngineTools/ToolHostController.hpp>
 
 /*!
     Class responsible for storing configuration of current application instance
@@ -30,6 +31,8 @@ class App : public QObject {
 
     QMainWindow * mainWindow;
     QCoreApplication * coreQApp;
+    std::unique_ptr<ToolHostController> toolHostController;
+    bool engineToolsLoaded = false;
 
     QAction * copyFen;
     QAction * copyPgn;

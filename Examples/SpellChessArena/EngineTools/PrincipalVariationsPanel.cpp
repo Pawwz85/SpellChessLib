@@ -2,6 +2,7 @@
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QPointer>
 #include <SpellChess/MoveNotation.h>
 #include <SpellChess/Board.h>
 #include <SpellChess/UCIHelpers.h>
@@ -132,7 +133,11 @@ PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> en
         layout->addWidget(variationLines + i);
     }
 
-    engine->addInfoBatchHandler([this, numVariations](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {           
+    QPointer<PrincipalVariationPanel> self(this);
+    engine->addInfoBatchHandler([self, numVariations](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {
+            if (self.isNull())
+                return;
+            auto *panel = self.data();
             int pvIndex = 0;
 
             // scan for the MultiPV index in the infos
@@ -147,36 +152,39 @@ PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> en
             for (const auto & info: infos) {
                 if (info.getType() == UCILoader::InfoType::Pv) {
                     try {
-                        std::string variationLine = formatVariationLine(info.getMoveArray());
-                        variationLines[pvIndex].setVariation(variationLine);
+                        std::string variationLine = panel->formatVariationLine(info.getMoveArray());
+                        panel->variationLines[pvIndex].setVariation(variationLine);
                     } catch(SpellChessLib::IllegalMoveException e){
                         // If the engine sends an illegal move, we will just ignore it and not update the variation line.
                     };
                     
                     
                 } else if (info.getType() == UCILoader::InfoType::Score) {
-                        variationLines[pvIndex].setEval(info.getAsScore(), context);
+                        panel->variationLines[pvIndex].setEval(info.getAsScore(), panel->context);
                 }
             };
         });
 
-    engine->addSearchRequestHandler([this](const UCILoader::SearchRequest<SpellChessLib::SpellChessMove> & request) {
+    engine->addSearchRequestHandler([self](const UCILoader::SearchRequest<SpellChessLib::SpellChessMove> & request) {
+        if (self.isNull())
+            return;
+        auto *panel = self.data();
         SpellChessLib::FenParser parser;
 
         try {
-            context = parser.fromSpellChessFen(request.fen);
+                panel->context = parser.fromSpellChessFen(request.fen);
         }
         catch (const SpellChessLib::FenValidator::InvalidFenException & e) {
             try {
-                context = parser.fromStandardChessFen(request.fen);
+                panel->context = parser.fromStandardChessFen(request.fen);
             }
             catch (const SpellChessLib::FenValidator::InvalidFenException & e) {
-                context = SpellChessLib::GameState();
+                panel->context = SpellChessLib::GameState();
             }
         };
 
         for (const auto & move : request.moves) {
-            context.makeMove(move);
+            panel->context.makeMove(move);
         }
 
     });

@@ -3,11 +3,17 @@ project( EngineTools
         LANGUAGES CXX)
 
 set ( sources 
+    "include/EngineTools/EmbeddedToolRegistry.hpp"
+    "include/EngineTools/DockToolHost.hpp"
+    "include/EngineTools/ToolHostController.hpp"
     "EngineControlPanel.cpp"
     "EngineLogger.cpp"
     "PrincipalVariationsPanel.cpp"
     "EvalThermometer.cpp"
     "RunningEnginesService.cpp"
+    "EmbeddedToolRegistry.cpp"
+    "DockToolHost.cpp"
+    "ToolHostController.cpp"
 )
 
 
