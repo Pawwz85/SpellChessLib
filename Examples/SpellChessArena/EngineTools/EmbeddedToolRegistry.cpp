@@ -3,6 +3,7 @@
 #include <EngineControlPanel.hpp>
 #include <EngineLogger.hpp>
 #include <PrincipalVariationsPanel.hpp>
+#include <EvalThermometer.hpp>
 
 namespace EngineTools {
 
@@ -16,7 +17,11 @@ const std::vector<ToolDescriptor> &toolDescriptors() {
          [](const EngineServiceEntry &entry, QWidget *parent) { return new EngineLogsWidget(*entry.logger, parent); }},
         {ToolTypeId::EngineControlPanel, QStringLiteral("engineControlPanel"),
          QStringLiteral("Engine Options"), QStringLiteral("Engine options"), QSize(800, 600),
-         [](const EngineServiceEntry &entry, QWidget *parent) { return new EngineControlPanel(entry.engine, parent); }}
+         [](const EngineServiceEntry &entry, QWidget *parent) { return new EngineControlPanel(entry.engine, parent); }},
+         {ToolTypeId::EvalThermomether, QStringLiteral("evalThermometer"),
+         QStringLiteral("Evaluation Thermometer"), QStringLiteral("Evaluation thermometer"), QSize(400, 120),
+         [](const EngineServiceEntry &entry, QWidget *parent) { return new EvalThermometer(entry.engine, parent); }}
+
     };
     return descriptors;
 }

@@ -16,7 +16,8 @@ namespace EngineTools {
 enum class ToolTypeId {
     PrincipalVariations,
     EngineLogs,
-    EngineControlPanel
+    EngineControlPanel,
+    EvalThermomether
 };
 
 struct ToolDescriptor {

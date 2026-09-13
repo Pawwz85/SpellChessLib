@@ -304,13 +304,6 @@ App::App(QCoreApplication * coreApp) {
                 toolHostController->addEmbedded(type, engine.value());
         });
 
-        QAction *standaloneAction = embeddedToolsMenu->addAction(tr("Open %1 standalone").arg(descriptor->displayName));
-        connect(standaloneAction, &QAction::triggered, this, [this, type]() {
-            const auto engine = querryUserForEngineInstance();
-            if (engine.has_value())
-                toolHostController->openStandalone(type, engine.value());
-        });
-
         QAction *removeAction = embeddedToolsMenu->addAction(tr("Remove %1").arg(descriptor->displayName));
         connect(removeAction, &QAction::triggered, this, [this, type]() {
             toolHostController->removeEmbedded(type);
@@ -320,6 +313,8 @@ App::App(QCoreApplication * coreApp) {
     addEmbeddedToolActions(EngineTools::ToolTypeId::PrincipalVariations);
     addEmbeddedToolActions(EngineTools::ToolTypeId::EngineLogs);
     addEmbeddedToolActions(EngineTools::ToolTypeId::EngineControlPanel);
+    addEmbeddedToolActions(EngineTools::ToolTypeId::EvalThermomether);
+
     embeddedToolsMenu->addSeparator();
     QAction *resetEmbeddedTools = embeddedToolsMenu->addAction(tr("Reset embedded tool layout"));
     connect(resetEmbeddedTools, &QAction::triggered, toolHostController.get(), &ToolHostController::resetLayout);
