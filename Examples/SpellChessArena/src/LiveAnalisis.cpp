@@ -21,8 +21,10 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
         if (controlBlock->requestQueue.empty()) 
             goto WaitForNextRequest;
 
-        request = controlBlock->requestQueue.front();
-        controlBlock->requestQueue.pop();
+        request = controlBlock->requestQueue.back();
+        
+        while (controlBlock->requestQueue.size())
+            controlBlock->requestQueue.pop();
 
         if (request.engine == nullptr) {
             controlBlock->onError(LiveAnalisisErrorCode::NoEngine);
@@ -59,6 +61,12 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
             currentConnection = request.engine->search(goParams, 
                             SpellChessLib::StateFormatter(request.root),
                             request.movesSinceRoot);
+            
+            lock.unlock();
+            // Grant a little time to engine to process new search request
+            // This is done to prevent analisis thread from deadlocking itself 
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
+            lock.lock();
 
         } catch (ChessEngine::TimeoutException e) {
             controlBlock->onError(LiveAnalisisErrorCode::EngineTimedOut);
@@ -67,6 +75,7 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
         };
 
         WaitForNextRequest:
+        if (controlBlock->requestQueue.empty())
             controlBlock->conVar.wait_for(lock, std::chrono::seconds(5));
     };
 }

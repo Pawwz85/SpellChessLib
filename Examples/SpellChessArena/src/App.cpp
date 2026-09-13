@@ -70,6 +70,7 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     // Remove unused engines lingering from the last game
     BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
 
+    LiveAnalisisService::getInstance().onBoardViewerModelChanged(*model);
     connect(model, &BoardViewer::Model::changed, &LiveAnalisisService::getInstance(), &LiveAnalisisService::onBoardViewerModelChanged);
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
