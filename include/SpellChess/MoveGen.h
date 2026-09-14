@@ -32,6 +32,7 @@ namespace SpellChessLib {
 			NeutralizePin,
 			NeutralizeSqAttackers,
 			NeutralizeDiscoveredCheckByEnpassant,
+			HasNoKingAttackers,
 			CastJumpSq
 		};
 

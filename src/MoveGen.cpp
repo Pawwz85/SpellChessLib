@@ -287,6 +287,7 @@ void SpellChessLib::MoveGenerator::generateProtoMovesForKing(const GameState& st
 #define KING_MOVE_CASE(dx, dy) currentSquare = squareIndexFromCords(x + dx, y + dy); \
 	if (CORDINATE_BOUNDARY_CHECK(x + dx) && CORDINATE_BOUNDARY_CHECK(y + dy) && state.getSquare(currentSquare).piece.owner != us) { \
 	constrains.push_back({NeutralizeSqAttackers, currentSquare});	\
+	constrains.push_back({HasNoKingAttackers, currentSquare}); \
 	out.emplace_back(sq, currentSquare, constrains); \
 	} \
 	constrains.clear();
@@ -386,6 +387,7 @@ void SpellChessLib::MoveGenerator::generateProtoMoves(const GameState& state, st
 void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, std::vector<MoveCandidate>& out) const
 {
 	uint64_t attackersToBeNeutralizedByFreeze = 0ull;
+	uint64_t tmp;
 	bool usesJump = false;
 	
 	SpellPolicy policy = UserCanAddSpell;
@@ -420,6 +422,11 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 				attackersToBeNeutralizedByFreeze &= ~_Constraints::getBlockedAttacker(base.to, kingPos, attackersToBeNeutralizedByFreeze);
 		
 			break;
+		case HasNoKingAttackers:
+			sqToNeutralize = it->affectedSquare;
+			tmp = _Attackers::getKingAttackers(*currentState, sqToNeutralize, flipColor(currentState->getSideToMove()));
+			if (tmp != 0)
+				return;
 		default:
 			break;
 		}

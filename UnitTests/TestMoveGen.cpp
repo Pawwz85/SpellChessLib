@@ -514,3 +514,8 @@ TEST(move_gen, can_not_cast_freeze_on_current_freeze_sq) {
 	SPELL_CHESS_MOVE_GEN_SETUP("r1b1kb1r/ppNqp1pp/2n5/2np1p2/8/2P2NP1/PPQPPPBP/R1B1KR2 b Qkq - 0 1 d6 - F32/J20/f40/j20");
 	ASSERT_MOVE_IS_ILLEGAL("freeze@d6&e8d8");
 }
+
+TEST(move_gen, freeze_check_with_king_is_illegal) {
+	SPELL_CHESS_MOVE_GEN_SETUP("8/8/8/2b2K2/8/6k1/8/8 b - - 1 131 - - F10/J00/f10/j10");
+	ASSERT_MOVE_IS_ILLEGAL("freeze@e4&g3g4");
+}
