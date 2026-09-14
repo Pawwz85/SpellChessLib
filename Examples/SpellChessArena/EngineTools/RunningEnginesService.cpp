@@ -30,6 +30,7 @@ EngineServiceEntry RunningEnginesService::openEngine(const std::vector<std::stri
     result.engine = std::shared_ptr<ChessEngine>(engineInstance);
     result.logger = logger;
     result.name = "Unnamed engine";
+    result.durable = false;
 
     std::scoped_lock<std::mutex> guard(mut);
     entries.push_back(result);
@@ -46,6 +47,18 @@ bool RunningEnginesService::removeById(unsigned int id) {
     return hasAnyItemBeenErased;
 };
 
+bool RunningEnginesService::makeEntryDurableById(unsigned int id) {
+    std::scoped_lock<std::mutex> guard(mut);
+    unsigned int modifiedEntriesCount = 0;
+    for(auto & item: entries)
+        if (item.id == id){
+            modifiedEntriesCount++;
+            item.durable = true;
+        }
+    return modifiedEntriesCount > 0;
+}
+
+
 bool RunningEnginesService::renameById(const QString & newName, unsigned int id) {
     std::scoped_lock<std::mutex> guard(mut);
     unsigned int modifiedEntriesCount = 0;
@@ -60,7 +73,10 @@ bool RunningEnginesService::renameById(const QString & newName, unsigned int id)
 
 void RunningEnginesService::clear(){
     std::scoped_lock<std::mutex> guard(mut);
-    entries.clear();
+    auto newEnd = std::remove_if(entries.begin(), entries.end(), [](const EngineServiceEntry & item){
+        return !item.durable;
+    });
+    entries.erase(newEnd, entries.end());
 }
 
 std::optional<EngineServiceEntry> RunningEnginesService::getById(unsigned int id) const{

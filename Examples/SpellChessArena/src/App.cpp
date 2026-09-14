@@ -94,14 +94,12 @@ void App::openBoardViewer(BoardViewer::Model * model) {
 
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
     RunningEnginesService::getInstance().clear();
-    LiveAnalisisService::getInstance().restoreConfiguredEngine();
     BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     openBoardViewer(model);
 }
 
 void App::openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document) {
     RunningEnginesService::getInstance().clear();
-    LiveAnalisisService::getInstance().restoreConfiguredEngine();
     BoardViewer::Model * model = new BoardViewer::DocumentViewerModel(document);
     openBoardViewer(model);
 }

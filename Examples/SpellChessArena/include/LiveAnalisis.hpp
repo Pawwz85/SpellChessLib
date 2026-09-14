@@ -63,7 +63,6 @@ class LiveAnalisisService : public QObject {
     ~LiveAnalisisService();
 
     void openEngine(const std::vector<std::string> & args, const std::string & workingDirectory = "/");
-    void restoreConfiguredEngine();
 
     static LiveAnalisisService & getInstance();
 

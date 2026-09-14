@@ -20,6 +20,7 @@ struct EngineServiceEntry {
     QString name;       // Name of the entry
     std::shared_ptr<ChessEngine> engine;
     std::shared_ptr<EngineLogger> logger;
+    bool durable; 
 };
 
 // Class responsible for management of running engines
@@ -37,6 +38,7 @@ class RunningEnginesService {
     // Remove an engine entry from the listing
     bool removeById(unsigned int id);
     bool renameById(const QString & newName, unsigned int id);
+    bool makeEntryDurableById(unsigned int id);
     void clear();
     std::optional<EngineServiceEntry> getById(unsigned int id) const;
     const std::vector<EngineServiceEntry> getAll() const;

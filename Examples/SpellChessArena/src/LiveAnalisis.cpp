@@ -104,21 +104,11 @@ LiveAnalisisService::openEngine(const std::vector<std::string> & args, const std
     }
 
     auto engineEntry = engineService.openEngine(args, workingDirectory);
+    engineService.makeEntryDurableById(engineEntry.id);
     this->engineId = engineEntry.id;
     this->configuredEngineArgs = args;
     this->configuredWorkingDirectory = workingDirectory;
     engineService.renameById(tr("Live Analisis"), engineId);
-}
-
-void
-LiveAnalisisService::restoreConfiguredEngine() {
-    if (!configuredEngineArgs.has_value())
-        return;
-
-    if (RunningEnginesService::getInstance().getById(engineId).has_value())
-        return;
-
-    openEngine(configuredEngineArgs.value(), configuredWorkingDirectory);
 }
 
 void 
