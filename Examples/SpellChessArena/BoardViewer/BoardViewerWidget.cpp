@@ -3,6 +3,7 @@
 #include <SingleItemSquareLayout.hpp>
 #include <BoardGrid/EntityInitializers.hpp>
 #include <SpellChess/Board.h>
+#include <SpellChess/MoveLegality.h>
 
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -419,8 +420,9 @@ bool BoardViewer::BoardViewerWidget::NoFocus::isPromotionMove(SpellChessLib::Squ
             SpellChessLib::Piece({SpellChessLib::None, SpellChessLib::Nobody});
 
     bool isPawnMove = movedPiece.type == SpellChessLib::Pawn;
-    bool inPromotionZone = targetSquare != SpellChessLib::NoSquare && (targetSquare < 8 || targetSquare >= 56);
-    return isPawnMove && inPromotionZone;
+    bool inPromotionZone = targetSquare != SpellChessLib::NoSquare && (targetSquare < 8 || targetSquare >= 56);    
+    bool isPseudoLegal = SpellChessLib::isPawnMovePseudoLegal(state, state.getSideToMove(), from, targetSquare, SpellChessLib::NoSquare);
+    return isPawnMove && inPromotionZone && isPseudoLegal;
 };
 
 void BoardViewer::BoardViewerWidget::PromotionPicker::discard() {
