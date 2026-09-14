@@ -294,43 +294,24 @@ App::App(QCoreApplication * coreApp) {
 
     QMenu * toolsMenu = menuBar->addMenu(tr("Views"));
 
-    QMenu * embeddedToolsMenu = toolsMenu->addMenu(tr("Embedded engine tools"));
-
-    const auto addEmbeddedToolActions = [this, embeddedToolsMenu](EngineTools::ToolTypeId type) {
+    const auto addToolAction = [this, toolsMenu](EngineTools::ToolTypeId type) {
         const auto *descriptor = EngineTools::descriptorFor(type);
-        QAction *addAction = embeddedToolsMenu->addAction(tr("Add %1").arg(descriptor->displayName));
+        QAction *addAction = toolsMenu->addAction(tr("Add %1").arg(descriptor->displayName));
         connect(addAction, &QAction::triggered, this, [this, type]() {
             const auto engine = querryUserForEngineInstance();
             if (engine.has_value())
                 toolHostController->addEmbedded(type, engine.value());
         });
-
-        QAction *removeAction = embeddedToolsMenu->addAction(tr("Remove %1").arg(descriptor->displayName));
-        connect(removeAction, &QAction::triggered, this, [this, type]() {
-            toolHostController->removeEmbedded(type);
-        });
     };
 
-    addEmbeddedToolActions(EngineTools::ToolTypeId::PrincipalVariations);
-    addEmbeddedToolActions(EngineTools::ToolTypeId::EngineLogs);
-    addEmbeddedToolActions(EngineTools::ToolTypeId::EngineControlPanel);
-    addEmbeddedToolActions(EngineTools::ToolTypeId::EvalThermomether);
+    addToolAction(EngineTools::ToolTypeId::PrincipalVariations);
+    addToolAction(EngineTools::ToolTypeId::EngineLogs);
+    addToolAction(EngineTools::ToolTypeId::EngineControlPanel);
+    addToolAction(EngineTools::ToolTypeId::EvalThermomether);
 
-    embeddedToolsMenu->addSeparator();
-    QAction *resetEmbeddedTools = embeddedToolsMenu->addAction(tr("Reset embedded tool layout"));
-    connect(resetEmbeddedTools, &QAction::triggered, toolHostController.get(), &ToolHostController::resetLayout);
-
-    QAction * showEngineLogs = toolsMenu->addAction(tr("Debug engine", "Show UCI protocol of an engine"));
-    connect(showEngineLogs, &QAction::triggered, this, openTool(&App::engineLogs));
-
-    QAction * showEngineOptions = toolsMenu->addAction(tr("Engine Options", "Show detected options of UCI engine"));
-    connect(showEngineOptions, &QAction::triggered, this, openTool(&App::engineControlPanel));
-
-    QAction * showPvPanel = toolsMenu->addAction(tr("Principal variation"));
-    connect(showPvPanel, &QAction::triggered, this, openTool(&App::principalVariationPanel));
-
-    QAction * showEvalThermometer = toolsMenu->addAction(tr("Evaluation thermometer"));
-    connect(showEvalThermometer, &QAction::triggered, this, openTool(&App::evalThermometer));
+    toolsMenu->addSeparator();
+    QAction *resetViewLayout = toolsMenu->addAction(tr("Reset view layout"));
+    connect(resetViewLayout, &QAction::triggered, toolHostController.get(), &ToolHostController::resetLayout);
 
     QMenu * settingsMenu = menuBar->addMenu(tr("Settings"));
 
