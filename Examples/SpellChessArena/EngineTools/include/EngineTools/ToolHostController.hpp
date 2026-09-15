@@ -19,6 +19,7 @@ class ToolHostController : public QObject {
 
     void saveSettings() const;
     bool addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area);
+    bool addEmbeddedWithoutSaving(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area);
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private slots:

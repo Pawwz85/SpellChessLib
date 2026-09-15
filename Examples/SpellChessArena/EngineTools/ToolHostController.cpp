@@ -32,7 +32,15 @@ bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineS
 
 bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine,
                                      Qt::DockWidgetArea area) {
-    if (hasEmbedded(type))
+    if (addEmbeddedWithoutSaving(type, engine, area)) {
+        saveSettings();
+        return true;        
+    }
+    return false;
+}
+
+bool ToolHostController::addEmbeddedWithoutSaving(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area) {
+        if (hasEmbedded(type))
         return false;
 
     const auto *descriptor = EngineTools::descriptorFor(type);
@@ -49,9 +57,9 @@ bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineS
     mainWindow->addDockWidget(area, dock);
     embedded[type] = dock;
     Q_EMIT embeddedToolsChanged();
-    saveSettings();
     return true;
 }
+
 
 void ToolHostController::handleDockClosed(EngineTools::ToolTypeId type) {
     embedded.erase(type);
@@ -99,12 +107,8 @@ void ToolHostController::loadSettings() {
 
     const auto state = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("hostState")).toByteArray();
     const auto geometry = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("geometry")).toByteArray();
-     if (!geometry.isEmpty())
-        mainWindow->restoreGeometry(geometry);
-    if (!state.isEmpty())
-        mainWindow->restoreState(state);
-
     const auto types = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("embeddedTypes")).toStringList();
+
     for (const auto &stableId : types) {
         const auto type = EngineTools::toolTypeFromStableId(stableId);
         if (!type.has_value())
@@ -113,9 +117,13 @@ void ToolHostController::loadSettings() {
         const auto engine = RunningEnginesService::getInstance().getById(engineId);
         if (!engine.has_value())
             continue;
-        addEmbedded(type.value(), engine.value(), Qt::RightDockWidgetArea);
+        addEmbeddedWithoutSaving(type.value(), engine.value(), Qt::RightDockWidgetArea);
     }
 
+    if (!geometry.isEmpty())
+        mainWindow->restoreGeometry(geometry);
+    if (!state.isEmpty())
+        mainWindow->restoreState(state);
 }
 
 void ToolHostController::saveSettings() const {
