@@ -19,7 +19,7 @@ const std::vector<ToolDescriptor> &toolDescriptors() {
          QStringLiteral("Engine Options"), QStringLiteral("Engine options"), QSize(800, 600),
          [](const EngineServiceEntry &entry, QWidget *parent) { return new EngineControlPanel(entry.engine, parent); }},
          {ToolTypeId::EvalThermomether, QStringLiteral("evalThermometer"),
-         QStringLiteral("Evaluation Thermometer"), QStringLiteral("Evaluation thermometer"), QSize(400, 120),
+         QStringLiteral("Evaluation Thermometer"), QStringLiteral("Evaluation thermometer"), QSize(120, 420),
          [](const EngineServiceEntry &entry, QWidget *parent) { return new EvalThermometer(entry.engine, parent); }}
 
     };

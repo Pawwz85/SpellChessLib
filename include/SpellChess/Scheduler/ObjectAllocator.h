@@ -28,7 +28,7 @@ namespace SpellChessLib {
 			void discardPointer();
 			Object* release();
 		public:
-			ResourcePointer() {};
+			ResourcePointer() : allocator(nullptr), obj(nullptr) {};
 			ResourcePointer(std::nullptr_t _) : allocator(_), obj(_) {};
 			ResourcePointer(Object* obj, std::shared_ptr<ObjectAllocator<Object>> allocator) : obj(obj), allocator(allocator) {}
 			ResourcePointer(ResourcePointer<Object>&& other) noexcept: allocator(other.allocator), obj(other.obj) {

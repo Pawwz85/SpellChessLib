@@ -97,6 +97,13 @@ void ToolHostController::loadSettings() {
     if (settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("schemaVersion"), 0).toInt() != settingsSchemaVersion)
         return;
 
+    const auto state = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("hostState")).toByteArray();
+    const auto geometry = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("geometry")).toByteArray();
+     if (!geometry.isEmpty())
+        mainWindow->restoreGeometry(geometry);
+    if (!state.isEmpty())
+        mainWindow->restoreState(state);
+
     const auto types = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("embeddedTypes")).toStringList();
     for (const auto &stableId : types) {
         const auto type = EngineTools::toolTypeFromStableId(stableId);
@@ -109,12 +116,6 @@ void ToolHostController::loadSettings() {
         addEmbedded(type.value(), engine.value(), Qt::RightDockWidgetArea);
     }
 
-    const auto state = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("hostState")).toByteArray();
-    const auto geometry = settings.value(QString::fromLatin1(settingsPrefix) + QStringLiteral("geometry")).toByteArray();
-    if (!geometry.isEmpty())
-        mainWindow->restoreGeometry(geometry);
-    if (!state.isEmpty())
-        mainWindow->restoreState(state);
 }
 
 void ToolHostController::saveSettings() const {

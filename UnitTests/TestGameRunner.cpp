@@ -427,5 +427,3 @@ TEST(GameRunner, invalidFenThrowsException) {
 	ASSERT_THROW(GameRunner runner(timerService, config, std::move(whPlayer), std::move(blPlayer)), FenValidator::InvalidFenException);
 }
 
-// TODO: stalemate
-// TODO: 3fold
