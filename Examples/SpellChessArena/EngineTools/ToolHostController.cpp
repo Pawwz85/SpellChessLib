@@ -68,11 +68,11 @@ void ToolHostController::handleDockClosed(EngineTools::ToolTypeId type) {
 }
 
 bool ToolHostController::eventFilter(QObject *watched, QEvent *event) {
-    if (qobject_cast<DockToolHost *>(watched) &&
+   if (qobject_cast<DockToolHost *>(watched) &&
         (event->type() == QEvent::Move || event->type() == QEvent::Resize ||
          event->type() == QEvent::Show || event->type() == QEvent::Hide))
         saveSettings();
-    return QObject::eventFilter(watched, event);
+   return QObject::eventFilter(watched, event);
 }
 
 bool ToolHostController::removeEmbedded(EngineTools::ToolTypeId type) {

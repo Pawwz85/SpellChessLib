@@ -54,6 +54,8 @@ class App : public QObject {
 
     App(QCoreApplication * coreApp);
 
+    ~App();
+
     
     void openSession(const BoardViewer::OpenSessionRequest & request); // create new game session from request
     void openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document); // open document in viewer

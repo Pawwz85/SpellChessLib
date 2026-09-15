@@ -260,6 +260,10 @@ void App::showPGN4Pastebin() {
 
 }
 
+App::~App() {
+    toolHostController.reset();
+    delete mainWindow;
+}
 
 App::App(QCoreApplication * coreApp) {
     coreQApp = coreApp;
