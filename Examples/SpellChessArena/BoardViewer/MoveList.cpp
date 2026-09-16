@@ -79,7 +79,7 @@ MoveListView::MoveListView(QWidget *parent) : QWidget(parent){
         navBox->addWidget(navButton);
     }
 
-    layout->addWidget(navBox);
+    ((QVBoxLayout*)layout)->addWidget(navBox, 0, Qt::AlignHCenter);
 
     commentEdit = new QTextEdit(this);
     commentEdit->setPlaceholderText(tr("Insert comment here"));
