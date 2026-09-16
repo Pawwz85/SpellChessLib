@@ -7,15 +7,14 @@ void SpellChessLib::GameRunner::setCurrentPlayer(Player* p){
         currentPlayer = nullptr;
         flowManager->unregisterBlockingTask();
       
-        if (blockingTask != nullptr) {
-            delete blockingTask;
+        if (blockingTask != nullptr) 
             blockingTask = nullptr;
-        }
+
     }  
     else if (blockingTask == nullptr) {
         currentPlayer = p;
-        blockingTask = new _PlayerWrapper(p);
-        flowManager->registerBlockingTask(blockingTask);
+        blockingTask = std::unique_ptr<_PlayerWrapper>(new _PlayerWrapper(p));
+        flowManager->registerBlockingTask(blockingTask.get());
     }
    
 }
@@ -67,7 +66,7 @@ SpellChessLib::Game* SpellChessLib::GameRunner::gameFromConfig(const GameRunnerC
 
 SpellChessLib::GameRunner::~GameRunner(){
     if (blockingTask)
-        delete blockingTask;
+        blockingTask.reset();
 
     if (gameMonitor != nullptr)
         gameMonitor->onGameRunnerDisconnect();

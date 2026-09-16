@@ -54,8 +54,13 @@ namespace SpellChessLib {
 
 	template<class State>
 	inline void Broadcaster<State>::broadcast(const State & s){
-		std::lock_guard<std::mutex> guard(lock);
-		for (std::weak_ptr<Observer<State>> weakPtr : observers)
+		std::vector<std::weak_ptr<Observer<State>>> observersSnapshot;
+		{
+			std::lock_guard<std::mutex> guard(lock);
+			for (auto o : observers)
+				observersSnapshot.push_back(o);
+		}
+		for (std::weak_ptr<Observer<State>> weakPtr : observersSnapshot)
 			if (std::shared_ptr<Observer<State>> ptr = weakPtr.lock())
 				ptr->onObservedStateUpdate(s);
 	}

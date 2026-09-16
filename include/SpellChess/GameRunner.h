@@ -24,7 +24,7 @@ namespace SpellChessLib {
 		bool allowPondering;
 
 		class _PlayerWrapper;
-		_PlayerWrapper *blockingTask = nullptr;
+		std::unique_ptr<_PlayerWrapper> blockingTask = nullptr;
 
 		Player* currentPlayer = nullptr;
 		void setCurrentPlayer(Player* p);
@@ -51,7 +51,7 @@ namespace SpellChessLib {
 	public:
 
 		GameRunner(std::shared_ptr<TimerService> timeServ, std::unique_ptr<Game> game, Scheduler::ResourcePointer<Player>&& whPlayer, Scheduler::ResourcePointer<Player>&& blPlayer, bool allowPondering = false) :
-			whPlayer(std::move(whPlayer)), blPlayer(std::move(blPlayer)), game(game.release()), allowPondering(allowPondering), flowManager(std::make_shared<ControlFlowManager>(timeServ)) {};
+			whPlayer(std::move(whPlayer)), blPlayer(std::move(blPlayer)), game(std::move(game)), allowPondering(allowPondering), flowManager(std::make_shared<ControlFlowManager>(timeServ)) {};
 		
 		GameRunner(std::shared_ptr<TimerService> timeServ, const GameRunnerConfiguration& config, Scheduler::ResourcePointer<Player>&& whPlayer, Scheduler::ResourcePointer<Player>&& blPlayer) :
 			whPlayer(std::move(whPlayer)), blPlayer(std::move(blPlayer)), allowPondering(config.allowPondering), flowManager(std::make_shared<ControlFlowManager>(timeServ)),

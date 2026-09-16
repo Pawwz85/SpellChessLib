@@ -69,7 +69,7 @@ namespace SpellChessLib {
 			}
 
 			status = Working;
-			currentTask.reset(task.release());
+			currentTask = std::move(task);
 			conditional.notify_one();
 		}
 	};
@@ -87,7 +87,7 @@ namespace SpellChessLib {
 				//std::this_thread::sleep_for(std::chrono::milliseconds(50));
 				goto wait_for_signal;
 			}
-			localPointer.reset(currentTask.release());
+			localPointer = std::move(currentTask);
 			guard.unlock();
 			
 			try {

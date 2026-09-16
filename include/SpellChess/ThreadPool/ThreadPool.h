@@ -60,7 +60,7 @@ namespace SpellChessLib {
 		virtual ~ThreadPool() {
 
 			// it is important that all tasks are processed before terminating workers, as ThreadPool itself delegates some of memory cleaning work to its workers
-			while (!taskQueue.empty()) {
+			while (!taskQueue.empty() || countBusyWorkers()) {
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 		

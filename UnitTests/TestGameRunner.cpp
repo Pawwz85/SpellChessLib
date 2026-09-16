@@ -101,6 +101,12 @@ class SimpleAllocator : public Scheduler::ObjectAllocator<Player>, public std::e
 	}
 
 public:
+
+	~SimpleAllocator() {
+		for (auto p : queue)
+			delete p;
+	}
+
 	Scheduler::ResourcePointer<Player> retrieve() override{
 		Player* p = queue.front();
 		queue.pop_front();
