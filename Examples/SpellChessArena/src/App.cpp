@@ -120,7 +120,7 @@ void App::showNewSessionBuilder() {
 
 void App::showEngineManager() {
     EnginePlayerRepositoryView * view = new EnginePlayerRepositoryView();
-    mainWindow->setCentralWidget(view);
+    (void)view->exec();
 };
 
  void App::showAnalisisConfigDialog() {

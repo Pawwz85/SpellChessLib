@@ -261,7 +261,7 @@ void EnginePlayerRepositoryView::onListChanged(const QList<EngineListEntry> &new
 
 }
 
-EnginePlayerRepositoryView::EnginePlayerRepositoryView(QWidget *parent){
+EnginePlayerRepositoryView::EnginePlayerRepositoryView(QWidget *parent) : QDialog(parent) {
     layout = new QVBoxLayout(this);
     QHBoxLayout * listLayout = new QHBoxLayout(this);
     listWidget = new QListWidget(this);

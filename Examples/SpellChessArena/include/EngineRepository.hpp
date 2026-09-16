@@ -124,7 +124,7 @@ class EngineIdentificationTask {
 class AddNewEngineDialog;
 // class EditEngineDialog;
 
-class EnginePlayerRepositoryView : public QWidget {
+class EnginePlayerRepositoryView : public QDialog {
     Q_OBJECT
     QLayout * layout;
 
