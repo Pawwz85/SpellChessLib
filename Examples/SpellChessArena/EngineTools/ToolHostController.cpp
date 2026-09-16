@@ -3,6 +3,7 @@
 #include <PrincipalVariationsPanel.hpp>
 
 #include <QSettings>
+#include <QTimer>
 #include <QSignalBlocker>
 
 #include <vector>
@@ -123,7 +124,9 @@ void ToolHostController::loadSettings() {
     if (!geometry.isEmpty())
         mainWindow->restoreGeometry(geometry);
     if (!state.isEmpty())
+        QTimer::singleShot(0, this, [this, state](){
         mainWindow->restoreState(state);
+    });
 }
 
 void ToolHostController::saveSettings() const {

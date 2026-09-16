@@ -86,8 +86,10 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     this->mainWindow->setCentralWidget(view);
 
     if (!engineToolsLoaded) {
-        toolHostController->loadSettings();
-        engineToolsLoaded = true;
+        QTimer::singleShot(0, this, [this](){
+            toolHostController->loadSettings();
+            engineToolsLoaded = true;
+        });
     }
 }
 
