@@ -32,6 +32,7 @@ BoardViewer::SpellChessMoveBuilder & BoardViewer::SpellChessMoveBuilder::setProm
 BoardViewer::SpellChessMoveBuilder & BoardViewer::SpellChessMoveBuilder::reset() {
     (void)clearSquares();
     (void)clearSpells();
+    this->currentValue.promoteTo = SpellChessLib::None;
     return *this;
 };
 

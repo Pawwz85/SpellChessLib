@@ -68,7 +68,7 @@ void BoardViewer::BoardViewerWidget::connectModelSlots() {
 }
 
 void BoardViewer::BoardViewerWidget::connectSlots() {
-    connect(board, &Board::BoardWidget::onDrag, this, &BoardViewerWidget::handleDrag);
+    connect(board, &Board::BoardWidget::onDrag, this, &BoardViewerWidget::handleDrag, Qt::ConnectionType::DirectConnection);
     connect(board, &Board::BoardWidget::onClick, this, &BoardViewerWidget::handleClick);
     connect(board, &Board::BoardWidget::onDragStarted, this, &BoardViewerWidget::handleClick);
 
@@ -401,8 +401,8 @@ void BoardViewer::BoardViewerWidget::NoFocus::onPieceDrag(Board::DragHandle<Boar
     widget->moveBuilder->setFromSquare(fromSq);
     widget->moveBuilder->setDestSquare(toSq);
     
-
-    SpellChessLib::MoveGenerator gen(widget->model->getCurrentState());
+    SpellChessLib::GameState currentGameState = widget->model->getCurrentState(); 
+    SpellChessLib::MoveGenerator gen(currentGameState);
 
     if (isPromotionMove(toSq)) {
         drag.reject();

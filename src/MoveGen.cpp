@@ -513,7 +513,7 @@ bool SpellChessLib::MoveGenerator::isInCheck() const
 bool SpellChessLib::MoveGenerator::isMoveLegal(const SpellChessMove& move) const
 {
 	auto validMoves = generateMoves();
-
+	
 	for (auto validMove : validMoves) {
 		if (validMove.move.from == move.from &&
 			validMove.move.to == move.to &&

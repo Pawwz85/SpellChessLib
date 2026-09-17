@@ -255,6 +255,8 @@ bool SpellChessLib::isMoveLegal(const GameState& state, const SpellChessMove& mo
     case Queen:
         isPseudoLegal = isSliderMovePseudoLegal(state, movedPiece.owner, move.from, move.to, move.jumpSquare);
         break;
+    case None:
+        return false;
     }
 
     if (!isPseudoLegal)
