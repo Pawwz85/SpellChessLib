@@ -1,11 +1,14 @@
 #include <App.hpp>
 #include <EngineRepository.hpp>
 
+#include <UCILoader/ProcessWrapper.h>
+
 #include <QtWidgets>
 #include <MainWindow.h>
 #include <QObject>
-
 #include <QFontDatabase>
+
+#include <csignal>
 
 void warmUpTextRendering() {
 
@@ -40,9 +43,17 @@ void warmUpTextRendering() {
     painter.drawText(image.rect(), Qt::AlignLeft | Qt::AlignVCenter, samples);
 }
 
+void signalHandler(int code) {
+    UCILoader::ProcessWrapper::killAll();
+    exit(code);
+}
+
 int main(int argc, char *argv[]) {
     QApplication qt_app(argc, argv);
-
+    std::signal(SIGTERM, signalHandler);
+	std::signal(SIGSEGV, signalHandler);
+	std::signal(SIGINT, signalHandler);
+	std::signal(SIGABRT, signalHandler);
     warmUpTextRendering();
     App app(&qt_app);
     app.getWindow()->show();

@@ -4,7 +4,6 @@
 #include <UCILoader/UCI.h>
 #include <UCILoader/Parser.h>
 #include <UCILoader/EngineConnection.h>
-#include "SpellChessUciLoaderPort.h"
 
 namespace SpellChessLib {
 

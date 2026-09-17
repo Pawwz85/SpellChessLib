@@ -6,9 +6,12 @@
 #include <SpellChess/GrimoireOpeningBook.h>
 #include <SpellChess/OpeningBookPositionSupplier.h>
 
+#include <UCILoader/ProcessWrapper.h>
+
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <csignal>
 
 #include <cxxopts.hpp>
 #include "Configuration.h"
@@ -26,9 +29,17 @@ PlayerEntry makeEngineEntry(const std::string& path) {
 	};
 }
 
+void signalHandler(int code) {
+    UCILoader::ProcessWrapper::killAll();
+    exit(code);
+}
+
 int main(int argc, char ** argv) {
 	srand(time(0));
-
+	std::signal(SIGTERM, signalHandler);
+	std::signal(SIGSEGV, signalHandler);
+	std::signal(SIGINT, signalHandler);
+	std::signal(SIGABRT, signalHandler);
 	cxxopts::Options option("Runner", "A spellchess SPRT runner");
 
 	option.add_options()
