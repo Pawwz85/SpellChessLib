@@ -67,14 +67,10 @@ void App::analizeDocument(BoardViewer::Model * model, const EngineAnalisysConfig
 }
 
 void App::openBoardViewer(BoardViewer::Model * model) {
-    // Remove unused engines lingering from the last game
-    BoardViewer::BoardViewerWidget * view = new BoardViewer::BoardViewerWidget(model);
-
     LiveAnalisisService::getInstance().onBoardViewerModelChanged(*model);
     connect(model, &BoardViewer::Model::changed, &LiveAnalisisService::getInstance(), &LiveAnalisisService::onBoardViewerModelChanged);
     connect(copyFen, &QAction::triggered, model, &BoardViewer::Model::copyFenToClipBoard);
     connect(copyPgn, &QAction::triggered, model, &BoardViewer::Model::copyPgnToClipBoard);
-    connect(flipBoard, &QAction::triggered, view, &BoardViewer::BoardViewerWidget::toggleBoardOrientation);
 
     connect(this, &App::onAnalisisRequested, model, [this, model](const EngineAnalisysConfig & config) {
         this->analizeDocument(model, config);
@@ -83,7 +79,7 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     QString pgnVersion = model->getCurrentState().isSpellChessGame() ? "PGN4" : "PGN";
     copyPgn->setText("Copy " + pgnVersion);
 
-    this->mainWindow->setCentralWidget(view);
+    boardViewer->setModel(model);
 
     if (!engineToolsLoaded) {
         QTimer::singleShot(0, this, [this](){
@@ -327,7 +323,12 @@ App::App(QCoreApplication * coreApp) {
     connect(selectLiveAnalisisEngineAction, &QAction::triggered, this, &App::showLiveAnalisisEngineDialog);
 
     mainWindow->setMenuBar(menuBar);
+
+    BoardViewer::Model * model = new BoardViewer::DocumentViewerModel(SpellChessLib::createEmptySpellChessDocument());
+    boardViewer = new BoardViewer::BoardViewerWidget(model);
+    connect(flipBoard, &QAction::triggered, boardViewer, &BoardViewer::BoardViewerWidget::toggleBoardOrientation);
     
+    mainWindow->setCentralWidget(boardViewer);
 };
 
 

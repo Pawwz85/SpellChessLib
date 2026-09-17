@@ -61,14 +61,18 @@ class BoardViewer::BoardViewerWidget::SpellSquarePicker : public UserInteraction
     }
 };
 
+void BoardViewer::BoardViewerWidget::connectModelSlots() {
+    connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);    
+    connect(model, &Model::onTimerChanged, this, &BoardViewerWidget::handleTimePairChanged);
+    connect(model, &Model::documentChanged, this, &BoardViewerWidget::handleDocumentChanged);
+}
+
 void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(board, &Board::BoardWidget::onDrag, this, &BoardViewerWidget::handleDrag);
     connect(board, &Board::BoardWidget::onClick, this, &BoardViewerWidget::handleClick);
     connect(board, &Board::BoardWidget::onDragStarted, this, &BoardViewerWidget::handleClick);
 
-    connect(model, &Model::changed, this, &BoardViewerWidget::handleModelChanged);    
-    connect(model, &Model::onTimerChanged, this, &BoardViewerWidget::handleTimePairChanged);
-    connect(model, &Model::documentChanged, this, &BoardViewerWidget::handleDocumentChanged);
+    connectModelSlots();
 
     connect(&whiteSpellPanel, &SpellPanelModel::spellSelected, this, &BoardViewerWidget::handleSpellSelect);
     connect(&whiteSpellPanel, &SpellPanelModel::spellDiscarded, this, &BoardViewerWidget::handleSpellDiscarded);
@@ -78,6 +82,16 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(moveList, &MoveListView::nodeClicked, this, &BoardViewerWidget::handleNodeClicked);
     connect(moveList, &MoveListView::navButtonClicked, this, &BoardViewerWidget::handleMoveListNav);
     connect(moveList, &MoveListView::currentCommentEdited, this, &BoardViewerWidget::handleCommentEdit);
+}
+
+void BoardViewer::BoardViewerWidget::setModel(Model * model) {
+    delete this->model;
+    this->model = model;
+    connectModelSlots();
+
+    interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
+    handleDocumentChanged(*model->getDocument());
+    handleModelChanged(*model);
 }
 
 BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() const {
@@ -198,12 +212,10 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
     layout->addWidget(moveList, 1);
     moveList->setMaximumWidth(300);
 
-    if (model->getCurrentState().isSpellChessGame()) {
-        SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
-        SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
-        gridLayout->addWidget(blPanel, 0, 6, 1, 2);
-        gridLayout->addWidget(whPanel, 9, 6, 1, 2);
-    }
+    SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
+    SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
+    gridLayout->addWidget(blPanel, 0, 6, 1, 2);
+    gridLayout->addWidget(whPanel, 9, 6, 1, 2);
 
     setLayout(layout);
 

@@ -38,6 +38,7 @@ namespace BoardViewer {
         SpellPanelModel whiteSpellPanel;
         SpellPanelModel blackSpellPanel;
 
+        void connectModelSlots();
         void connectSlots();
         LinterInput prepareInfoForLinter() const;
 
@@ -65,6 +66,8 @@ namespace BoardViewer {
 
         BoardViewerWidget(Model * model, QWidget * parent = nullptr);
         ~BoardViewerWidget();
+
+        void setModel(Model * model);
 
         Board::BoardOrientation boardOrientation() const;
 

@@ -12,6 +12,8 @@
 #include <BoardViewer/OpenSessionRequest.hpp>
 #include <BoardViewer/GameRunnerBridge.hpp>
 #include <BoardViewer/DocumentViewerModel.hpp>
+#include <BoardViewer/BoardViewerWidget.hpp>
+
 
 #include <EngineAnalisysConfigDialog.hpp> // For EngineAnalisysConfig struct
 #include <EngineTools/RunningEnginesService.hpp>
@@ -28,6 +30,8 @@ class App : public QObject {
     std::shared_ptr<SpellChessLib::TimerService> timerService;
     std::shared_ptr<SpellChessLib::Scheduler::GameScheduler> gameScheduler;
     std::shared_ptr<SpellChessLib::GameRunnerPool> gameRunnerPool;
+
+    BoardViewer::BoardViewerWidget * boardViewer;
 
     QMainWindow * mainWindow;
     QCoreApplication * coreQApp;
