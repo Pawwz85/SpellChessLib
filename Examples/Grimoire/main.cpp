@@ -35,7 +35,7 @@ int main(int argc, char ** argv) {
     
     try {
         engineProcess = UCILoader::openProcess({config->pathToEngine}, "/");
-    } catch (UCILoader::CanNotOpenProcessException e){
+    } catch (const UCILoader::CanNotOpenProcessException & e){
         std::cerr << "Failed to open " << config->pathToEngine << std::endl;
         delete config;
         return EXIT_FAILURE;
@@ -45,12 +45,19 @@ int main(int argc, char ** argv) {
 
     try {
         engineInstance->sync();
-    } catch (UCILoader::EngineInstance<SpellChessLib::SpellChessMove>::TimeoutException e) {
+    } catch (const UCILoader::EngineInstance<SpellChessLib::SpellChessMove>::TimeoutException & e) {
         std::cerr << "Propably not a chess engine " << config->pathToEngine << std::endl;
         delete config;
         delete engineInstance;
         return EXIT_FAILURE;
     };
+
+    if (!engineInstance->receivedUCIOK()) {
+        std::cerr << "Engine did not respond with uciok: " << config->pathToEngine << std::endl;
+        delete config;
+        delete engineInstance;
+        return EXIT_FAILURE;
+    }
 
     if (!engineInstance->options.contains("GrimoireMode")) {
         std::cerr << engineInstance->getName() << " doesn't support GrimoireMode" << std::endl;
@@ -61,7 +68,7 @@ int main(int argc, char ** argv) {
 
     try {
         engineInstance->options["GrimoireMode"] = true;
-    } catch(UCILoader::EngineOptionProxy::WrongTypeError e) {
+    } catch(const UCILoader::EngineOptionProxy::WrongTypeError & e) {
         std::cerr << "GrimoireMode option is presend but it isn't check" << std::endl;
         delete config;
         delete engineInstance;
@@ -71,7 +78,7 @@ int main(int argc, char ** argv) {
     if(engineInstance->options.contains("GrimoireBounds")) {
         try {
             engineInstance->options["GrimoireBounds"] = int(config->evalBounds);
-        } catch(UCILoader::EngineOptionProxy::WrongTypeError e) {
+        } catch(const UCILoader::EngineOptionProxy::WrongTypeError & e) {
         std::cerr << "(Warning) Failed to set bounds" << std::endl;
         }
     } else {

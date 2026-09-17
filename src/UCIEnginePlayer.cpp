@@ -5,7 +5,7 @@
 SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult(std::chrono::milliseconds duration)
 {
     if (duration.count() != 0)
-        searchConnection->waitFor(duration + std::chrono::seconds(1));
+        searchConnection->waitFor(duration);
     else
         searchConnection->waitFor(std::chrono::milliseconds::max());
 
@@ -34,10 +34,15 @@ void SpellChessLib::UCIEnginePlayer::startPondering(const Game& game, const Spel
 }
 
 void SpellChessLib::UCIEnginePlayer::cancelPondering(){
-    interrupt();
-    while(searchConnection->getStatus() == UCILoader::Stopped) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    };
+    if (searchConnection == nullptr)
+        return;
+
+    searchConnection->stop();
+
+    // UCILoader 1.2.1-alpha makes waitFor() reliable after stop(), so do not
+    // spin while waiting for the engine to acknowledge the cancellation.
+    searchConnection->waitFor(std::chrono::seconds(2));
+    searchConnection.reset();
 }
 
 bool SpellChessLib::UCIEnginePlayer::supportsPondering() const{

@@ -102,6 +102,13 @@ class EngineIdentificationTask {
             
             engine->sync(std::chrono::seconds(5));
 
+            if (!engine->receivedUCIOK()) {
+                result.success = false;
+                result.errorMsg = "Engine did not respond with uciok";
+                delete engine;
+                return result;
+            }
+
             result.success  = true;
             result.name     = engine->getName();
             result.author   = engine->getAuthor();

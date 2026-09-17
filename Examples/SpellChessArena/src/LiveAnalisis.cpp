@@ -14,7 +14,6 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
     auto const goParams = UCILoader::GoParamsBuilder<SpellChessLib::SpellChessMove>().withInfiniteMode(true).build();
     Internal::LifeAnalisisRequest request;
 
-    unsigned int retries = 0;
     while(controlBlock->run) {
         std::unique_lock<std::mutex> lock(controlBlock->mut);
 
@@ -33,18 +32,20 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
 
         if (currentConnection != nullptr) {
             currentConnection->stop();
-            retries = 0;
-            
-            while (currentConnection->getStatus() != UCILoader::SearchStatusCode::ResultReady && 
-                   currentConnection->getStatus() != UCILoader::SearchStatusCode::Terminated) {
-                if (retries > 5) {
-                    controlBlock->onError(LiveAnalisisErrorCode::FailedToSwitchPosition);
-                    goto WaitForNextRequest;
-                }
-                retries++;
-                lock.unlock();
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                lock.lock();
+
+            // UCILoader 1.2.1-alpha waits correctly after stop(), avoiding a
+            // polling loop while the engine emits the terminating bestmove.
+            lock.unlock();
+            currentConnection->waitFor(std::chrono::seconds(2));
+            lock.lock();
+
+            auto status = currentConnection->getStatus();
+            if (status != UCILoader::SearchStatusCode::ResultReady &&
+                status != UCILoader::SearchStatusCode::Terminated &&
+                status != UCILoader::SearchStatusCode::Stopped) {
+                controlBlock->onError(LiveAnalisisErrorCode::FailedToSwitchPosition);
+                currentConnection = nullptr;
+                goto WaitForNextRequest;
             }
 
             currentConnection = nullptr;
@@ -61,16 +62,10 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
             currentConnection = request.engine->search(goParams, 
                             SpellChessLib::StateFormatter(request.root),
                             request.movesSinceRoot);
-            
-            lock.unlock();
-            // Grant a little time to engine to process new search request
-            // This is done to prevent analisis thread from deadlocking itself 
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
-            lock.lock();
 
-        } catch (ChessEngine::TimeoutException e) {
+        } catch (const ChessEngine::TimeoutException & e) {
             controlBlock->onError(LiveAnalisisErrorCode::EngineTimedOut);
-        } catch (ChessEngine::EngineBusyException e) {
+        } catch (const ChessEngine::EngineBusyException & e) {
             controlBlock->onError(LiveAnalisisErrorCode::FailedToSwitchPosition);
         };
 
