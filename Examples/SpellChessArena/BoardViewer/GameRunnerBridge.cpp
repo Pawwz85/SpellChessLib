@@ -54,14 +54,16 @@ bool BoardViewer::Internal::GameRunnerEvent::connected() const{
     return gameRunnerId > 0;
 };
 
-#define EVENT_EMITTER_INIT(EVENT, STATE) emitter##EVENT (std::make_shared<Internal::EventEmmiter<Internal::EVENT, STATE>> (app, owner))
+#define EVENT_EMITTER_INIT(EVENT, STATE) emitter##EVENT (std::make_shared<Internal::EventEmmiter<Internal::EVENT, STATE>> (owner, eventDeliveryInterval))
 
-BoardViewer::GameRunnerBridge::GameRunnerBridge(QCoreApplication *app, QObject *owner) : gameMonitor(std::make_shared<SpellChessLib::GameMonitor>()),
+BoardViewer::GameRunnerBridge::GameRunnerBridge(QCoreApplication *app, QObject *owner,
+                                               std::chrono::milliseconds eventDeliveryInterval) : gameMonitor(std::make_shared<SpellChessLib::GameMonitor>()),
                                                                                EVENT_EMITTER_INIT(GameStateChangedEvent, SpellChessLib::GameState *),
                                                                                EVENT_EMITTER_INIT(MoveListEvent, std::vector<SpellChessLib::SpellChessMove>),
                                                                                EVENT_EMITTER_INIT(GameRunnerEvent, int),
                                                                                EVENT_EMITTER_INIT(TimerPairEvent, SpellChessLib::TimerPairState)
 {
+    Q_UNUSED(app);
     gameMonitor->getObservableGame().addObserver(emitterGameStateChangedEvent);
     gameMonitor->getObservableMoves().addObserver(emitterMoveListEvent);
     gameMonitor->getTimerPairObserver().addObserver(emitterTimerPairEvent);
@@ -73,5 +75,12 @@ BoardViewer::GameRunnerBridge::GameRunnerBridge(QCoreApplication *app, QObject *
 
 std::shared_ptr<SpellChessLib::GameMonitor> BoardViewer::GameRunnerBridge::getGameMonitor(){
     return gameMonitor;
+}
+
+void BoardViewer::GameRunnerBridge::setEventDeliveryInterval(std::chrono::milliseconds interval) {
+    emitterGameStateChangedEvent->setDeliveryInterval(interval);
+    emitterMoveListEvent->setDeliveryInterval(interval);
+    emitterGameRunnerEvent->setDeliveryInterval(interval);
+    emitterTimerPairEvent->setDeliveryInterval(interval);
 }
 
