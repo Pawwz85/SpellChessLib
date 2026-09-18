@@ -28,7 +28,9 @@ bool ToolHostController::hasEmbedded(EngineTools::ToolTypeId type) const {
 }
 
 bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine) {
-    return addEmbedded(type, engine, Qt::RightDockWidgetArea);
+    const auto *descriptor = EngineTools::descriptorFor(type);
+    Qt::DockWidgetArea area = (descriptor != nullptr) ? descriptor->defaultDockArea :  Qt::RightDockWidgetArea;
+    return addEmbedded(type, engine, area);
 }
 
 bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine,

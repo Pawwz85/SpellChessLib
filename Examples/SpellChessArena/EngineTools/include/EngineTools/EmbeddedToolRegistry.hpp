@@ -27,6 +27,8 @@ struct ToolDescriptor {
     QString defaultTitle;
     QSize defaultSize;
     std::function<QWidget *(const EngineServiceEntry &, QWidget *)> createWidget;
+    Qt::DockWidgetArea defaultDockArea;
+
 };
 
 const std::vector<ToolDescriptor> &toolDescriptors();
