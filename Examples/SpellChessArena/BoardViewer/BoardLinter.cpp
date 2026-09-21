@@ -15,7 +15,6 @@ bool isMoveValidGivenLinterInput(const BoardViewer::LinterInput & input, const S
 }
 
 uint64_t BoardViewer::Internal::getMovablePieces(const LinterInput & input) {
-
     if (input.playerColor != input.state.getSideToMove()    ||
         input.playerColor == SpellChessLib::Nobody)
         return 0ull;
@@ -29,6 +28,22 @@ uint64_t BoardViewer::Internal::getMovablePieces(const LinterInput & input) {
             result |= 1ull << (move.move.from);
     return result;
 };
+
+ uint64_t BoardViewer::getDraggablePieces(const LinterInput & input) {
+    if (input.playerColor != input.state.getSideToMove()    ||
+        input.playerColor == SpellChessLib::Nobody)
+        return 0ull;
+
+    SpellChessLib::MoveGenerator gen(input.state);
+    
+    uint64_t result = 0ull;
+    auto moves = gen.generateMoves();
+    for(const auto & move: moves)
+        result |= 1ull << (move.move.from);
+    return result;
+ };
+
+
 
 uint64_t BoardViewer::Internal::getOccupiedSquares(const LinterInput & input) {
     uint64_t result = 0ull;
@@ -171,10 +186,4 @@ uint64_t BoardViewer::Internal::getSquaresWithRings(const LinterInput & input) {
     .setPropertyBitmask(Board::Higlighted,      highlighted & interactable)
     .commit();
     
- };
-
- uint64_t BoardViewer::getDraggablePieces(const LinterInput & input) {
-    return input.selectedSquare != SpellChessLib::NoSquare ? 
-        0ull :
-        Internal::getInteractiveSquares(input);
  };
