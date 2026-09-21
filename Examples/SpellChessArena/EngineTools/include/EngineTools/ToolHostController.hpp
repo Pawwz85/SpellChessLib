@@ -15,7 +15,7 @@
 class ToolHostController : public QObject {
     Q_OBJECT
     QMainWindow *mainWindow;
-    std::map<EngineTools::ToolTypeId, QPointer<DockToolHost>> embedded;
+    std::map<EngineTools::ToolInstanceKey, QPointer<DockToolHost>> embedded;
 
     void saveSettings() const;
     bool addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area);
@@ -23,15 +23,17 @@ class ToolHostController : public QObject {
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private slots:
-    void handleDockClosed(EngineTools::ToolTypeId type);
+    void handleDockClosed(EngineTools::ToolTypeId type, unsigned int engineId);
 
 public:
     explicit ToolHostController(QMainWindow *mainWindow, QObject *parent = nullptr);
     ~ToolHostController() override;
 
     bool addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine);
-    bool removeEmbedded(EngineTools::ToolTypeId type);
-    bool hasEmbedded(EngineTools::ToolTypeId type) const;
+    bool removeEmbedded(const EngineTools::ToolInstanceKey &key);
+    bool removeEmbedded(EngineTools::ToolTypeId type, unsigned int engineId);
+    bool hasEmbedded(const EngineTools::ToolInstanceKey &key) const;
+    bool hasEmbedded(EngineTools::ToolTypeId type, unsigned int engineId) const;
     void openStandalone(EngineTools::ToolTypeId type, const EngineServiceEntry &engine);
     void loadSettings();
     void resetLayout();

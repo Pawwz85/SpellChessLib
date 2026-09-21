@@ -20,6 +20,21 @@ enum class ToolTypeId {
     EvalThermomether
 };
 
+struct ToolInstanceKey {
+    ToolTypeId type;
+    unsigned int engineId;
+
+    friend constexpr bool operator<(const ToolInstanceKey &left, const ToolInstanceKey &right) {
+        if (left.type != right.type)
+            return static_cast<int>(left.type) < static_cast<int>(right.type);
+        return left.engineId < right.engineId;
+    }
+
+    friend constexpr bool operator==(const ToolInstanceKey &left, const ToolInstanceKey &right) {
+        return left.type == right.type && left.engineId == right.engineId;
+    }
+};
+
 struct ToolDescriptor {
     ToolTypeId id;
     QString stableId;

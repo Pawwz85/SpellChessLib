@@ -6,14 +6,16 @@
 
 class DockToolHost : public QDockWidget {
     Q_OBJECT
-    EngineTools::ToolTypeId type;
+    EngineTools::ToolInstanceKey instanceKey;
 
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 public:
-    DockToolHost(EngineTools::ToolTypeId type, const QString &title, QWidget *parent = nullptr);
+    DockToolHost(EngineTools::ToolTypeId type, unsigned int engineId, const QString &title, QWidget *parent = nullptr);
+
+    EngineTools::ToolInstanceKey key() const { return instanceKey; }
 
 signals:
-    void toolClosed(EngineTools::ToolTypeId type);
+    void toolClosed(EngineTools::ToolTypeId type, unsigned int engineId);
 };
