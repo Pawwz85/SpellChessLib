@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace {
-constexpr int settingsSchemaVersion = 2;
+constexpr int settingsSchemaVersion = 1;
 constexpr auto settingsPrefix = "ui/engineTools/";
 }
 
@@ -148,8 +148,7 @@ void ToolHostController::loadSettings() {
         const auto area = static_cast<Qt::DockWidgetArea>(settings.value(instancePrefix + QStringLiteral("dockArea"), static_cast<int>(Qt::RightDockWidgetArea)).toInt());
         if (addEmbeddedWithoutSaving(type.value(), engine.value(), area)) {
             const auto found = embedded.find(EngineTools::ToolInstanceKey{type.value(), engineId});
-            if (found != embedded.end() && !found->second.isNull())
-                found->second->setVisible(settings.value(instancePrefix + QStringLiteral("visible"), true).toBool());
+
         }
     }
 
@@ -179,7 +178,6 @@ void ToolHostController::saveSettings() const {
         settings.setValue(instancePrefix + QStringLiteral("toolId"), descriptor->stableId);
         settings.setValue(instancePrefix + QStringLiteral("engineId"), key.engineId);
         settings.setValue(instancePrefix + QStringLiteral("dockArea"), static_cast<int>(mainWindow->dockWidgetArea(dock.data())));
-        settings.setValue(instancePrefix + QStringLiteral("visible"), dock->isVisible());
     }
     settings.setValue(QString::fromLatin1(settingsPrefix) + QStringLiteral("embeddedInstances"), instances);
     settings.setValue(QString::fromLatin1(settingsPrefix) + QStringLiteral("hostState"), mainWindow->saveState());
