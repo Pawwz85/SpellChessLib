@@ -340,6 +340,17 @@ namespace SpellChessLib {
             return result;
         }
 
+        std::string makeCommentFromTerminationReasonToken(const std::string & tok) {
+            if (tok == "#")
+                return "Game ended with checkmate";
+            if (tok == "R")
+                return "Game ended with resignation";
+            if (tok == "T")
+                return "Game ended with timeout";
+
+            throw InvalidPGN4("Invalid termination reason token: " + tok);
+        }
+
         Annotation::AnnotatedSequence parseMoveListPrivate(const std::vector<Token> & tokens, size_t & index, const GameState & root) {
             Annotation::AnnotatedSequence result;
             GameState currentState = root;
@@ -348,6 +359,12 @@ namespace SpellChessLib {
                     return result;
                 
                 if (tokens[index].type == TokenType::word) {
+                    
+                    if (tokens[index].value == "#" || tokens[index].value == "R" || tokens[index].value == "T") {
+                        result.appendComment(makeCommentFromTerminationReasonToken(tokens[index].value));
+                        continue;
+                    }
+
                     auto move = parseMove(tokens[index].value, currentState);
                     result.appendMove(move);
                     currentState.makeMove(move);

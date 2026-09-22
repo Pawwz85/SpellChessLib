@@ -1,5 +1,6 @@
 #include <EngineLogger.hpp>
 #include <QVBoxLayout>
+#include <QScrollBar>
 
 EngineLogger::EngineLogger(size_t maximumLineCount) : maximumLineCount(maximumLineCount){
 };
@@ -43,7 +44,14 @@ QString EngineLogger::getContent() const {
 
 void EngineLogsWidget::onNewLineLogged(QString line) {
     line.chop(1); // remove the trailing newline character
-    textEdit->append(line);
+
+    QString storedText = textEdit->toPlainText();
+
+    if (storedText.count('\n') < 4096) // arbitrary limit to avoid excessive memory usage
+        textEdit->append(line);
+    else {
+        // TODO: inform the user that the logs are being truncated
+    }
 }
 
 EngineLogsWidget::EngineLogsWidget(EngineLogger & logger, QWidget * parent) : QWidget(parent) {

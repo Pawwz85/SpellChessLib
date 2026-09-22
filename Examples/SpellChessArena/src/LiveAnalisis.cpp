@@ -52,6 +52,14 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
         }
 
         try {
+
+            if (auto currentSearch = request.engine->getCurrentSearch()) {
+                currentSearch->stop();
+                lock.unlock();
+                currentSearch->waitFor(std::chrono::seconds(2));
+                lock.lock();
+            }
+
             lock.unlock();
             request.engine->sync();
             lock.lock();
@@ -64,7 +72,11 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
             currentConnection = request.engine->search(goParams, 
                             SpellChessLib::StateFormatter(request.root),
                             request.movesSinceRoot);
-            
+           
+            lock.unlock();
+            std::this_thread::sleep_for(std::chrono::milliseconds(50)); // give engine small amount of time to proceed the request
+            lock.lock();
+
         } catch (const ChessEngine::TimeoutException & e) {
             controlBlock->onError(LiveAnalisisErrorCode::EngineTimedOut);
         } catch (const ChessEngine::EngineBusyException & e) {
