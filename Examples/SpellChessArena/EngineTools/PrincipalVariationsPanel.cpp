@@ -76,12 +76,15 @@ VariationLineWidget::VariationLineWidget(QWidget * parent) : QWidget(parent) {
     evaluationLabel->setFixedWidth(50);
     evaluationLabel->setMaximumHeight(50);
     evaluationLabel->setAlignment(Qt::Alignment::enum_type::AlignCenter);
+    evaluationLabel->setMinimumWidth(50);
+    evaluationLabel->setMinimumHeight(40);
 
     variationLine = new QLineEdit(this);
     variationLine->setReadOnly(true);
     
     // Style the move notation line with rounded corners and subtle shadow effect  
     variationLine->setStyleSheet(evalLineStyleSheet);
+    variationLine->setMinimumHeight(40);
     
 
     layout->addWidget(evaluationLabel);
@@ -91,6 +94,7 @@ VariationLineWidget::VariationLineWidget(QWidget * parent) : QWidget(parent) {
     connect(this, &VariationLineWidget::setVariation, this, &VariationLineWidget::variationChanged, Qt::QueuedConnection);
 
     setEval(UCILoader::UciScore::fromCentipawns(0), SpellChessLib::GameState());
+    setMinimumHeight(50);
 };
 
 void VariationLineWidget::evalChanged(UCILoader::UciScore score, const SpellChessLib::GameState & context) {
@@ -132,6 +136,9 @@ PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> en
         variationLines[i].setParent(this);    
         layout->addWidget(variationLines + i);
     }
+
+    // Ensure the PV panel has a usable minimum size when docked
+    setMinimumSize(400, 150);
 
     QPointer<PrincipalVariationPanel> self(this);
     engine->addInfoBatchHandler([self, numVariations](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {

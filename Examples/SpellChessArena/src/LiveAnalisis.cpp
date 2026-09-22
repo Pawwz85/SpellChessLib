@@ -115,11 +115,6 @@ LiveAnalisisService::openEngine(const std::vector<std::string> & args, const std
 
     if (oldEngineId != static_cast<unsigned int>(-1))
         engineService.removeById(oldEngineId);
-
-    if (lastRequest.has_value()) {
-        const auto & lastAnalisisRequest = lastRequest.value();
-        analize(lastAnalisisRequest.root, lastAnalisisRequest.movesSinceRoot);
-    }
 }
 
 void 
@@ -153,8 +148,6 @@ LiveAnalisisService::analize(const SpellChessLib::GameState root, const std::vec
     request.engine = engineEntry->engine;
     request.root = root;
     request.movesSinceRoot = movesSinceRoot;
-
-    lastRequest = request;
     controlBlock->requestQueue.emplace(request);
 
     lock.unlock();

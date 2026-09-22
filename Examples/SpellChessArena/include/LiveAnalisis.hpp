@@ -47,7 +47,6 @@ class LiveAnalisisService : public QObject {
     Q_OBJECT
     unsigned int engineId;
     std::optional<std::vector<std::string>> configuredEngineArgs;
-    std::optional<Internal::LifeAnalisisRequest> lastRequest;
     std::string configuredWorkingDirectory;
     std::thread worker;
 

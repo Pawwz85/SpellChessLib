@@ -224,7 +224,7 @@ void ToolHostController::rebindEmbedded(unsigned int oldEngineId, const EngineSe
             toRebind.emplace_back(key, dock);
     }
 
-    for (const auto [oldKey, oldDock] : toRebind) {
+    for (const auto &[oldKey, oldDock] : toRebind) {
         if (oldDock.isNull())
             continue;
 
@@ -232,10 +232,6 @@ void ToolHostController::rebindEmbedded(unsigned int oldEngineId, const EngineSe
         const auto visible = oldDock->isVisible();
         const auto floating = oldDock->isFloating();
         const auto geometry = oldDock->geometry();
-
-        oldDock->close();
-        embedded.erase(oldKey);
-        oldDock->deleteLater();
 
         // Create through the normal registry factory so every tool gets the
         // same engine/logger wiring as a newly opened tool.
@@ -249,9 +245,11 @@ void ToolHostController::rebindEmbedded(unsigned int oldEngineId, const EngineSe
             newDock->setFloating(floating);
             if (floating)
                 newDock->setGeometry(geometry);
-            
             newDock->setVisible(visible);
         }
+
+        embedded.erase(oldKey);
+        oldDock->deleteLater();
     }
 
     if (!toRebind.empty()) {

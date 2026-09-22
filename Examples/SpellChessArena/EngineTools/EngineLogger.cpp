@@ -53,6 +53,8 @@ EngineLogsWidget::EngineLogsWidget(EngineLogger & logger, QWidget * parent) : QW
     textEdit->setPlainText(logger.getContent());
     textEdit->setReadOnly(true);
     connect(&logger, &EngineLogger::newLineLogged, this, &EngineLogsWidget::onNewLineLogged);
+    // Ensure the logs panel remains usable at small sizes
+    setMinimumSize(400, 300);
 };
 
 #include <moc_EngineLogger.cpp>

@@ -89,4 +89,7 @@ EngineControlPanel::EngineControlPanel(std::shared_ptr<ChessEngine> engine, QWid
             widgetLayout->addWidget(std::invoke(method, this, option));
         };
 
+        // Keep the control panel usable when docked or resized small
+        setMinimumSize(320, 240);
+
     }
