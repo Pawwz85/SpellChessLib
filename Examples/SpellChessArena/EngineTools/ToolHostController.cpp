@@ -199,8 +199,10 @@ void ToolHostController::resetLayout() {
     for (const auto key : activeInstances) {
         removeEmbedded(key);
         const auto engine = RunningEnginesService::getInstance().getById(key.engineId);
+        const auto *descriptor = EngineTools::descriptorFor(key.type);
+        Qt::DockWidgetArea area = (descriptor != nullptr) ? descriptor->defaultDockArea :  Qt::RightDockWidgetArea;
         if (engine.has_value())
-            addEmbedded(key.type, engine.value(), Qt::RightDockWidgetArea);
+            addEmbedded(key.type, engine.value(), area);
     }
     saveSettings();
 }
