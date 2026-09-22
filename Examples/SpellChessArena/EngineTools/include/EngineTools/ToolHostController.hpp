@@ -38,6 +38,7 @@ public:
     void loadSettings();
     void resetLayout();
     void forwardAnalysisContext(const SpellChessLib::GameState &context);
+    void rebindEmbedded(unsigned int oldEngineId, const EngineServiceEntry &newEngine);
 
 signals:
     void embeddedToolsChanged();

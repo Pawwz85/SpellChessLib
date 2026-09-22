@@ -71,6 +71,7 @@ class LiveAnalisisService : public QObject {
 
     signals:
     void errorOccurred(LiveAnalisisErrorCode errorCode);
+    void liveEngineChanged(unsigned int oldEngineId, unsigned int newEngineId);
 };
 
 

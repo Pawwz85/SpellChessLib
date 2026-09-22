@@ -274,6 +274,13 @@ App::App(QCoreApplication * coreApp) {
     mainWindow = new QMainWindow();
     mainWindow->setObjectName(QStringLiteral("spellChessArenaMainWindow"));
     toolHostController = std::make_unique<ToolHostController>(mainWindow, this);
+    auto &liveAnalisis = LiveAnalisisService::getInstance();
+    connect(&liveAnalisis, &LiveAnalisisService::liveEngineChanged, this,
+        [this](unsigned int oldEngineId, unsigned int newEngineId) {
+            const auto newEngine = RunningEnginesService::getInstance().getById(newEngineId);
+            if (newEngine.has_value())
+                toolHostController->rebindEmbedded(oldEngineId, newEngine.value());
+        });
     mainWindow->setCentralWidget(new EmptyBoardWidget());
     QMenuBar * menuBar = new QMenuBar();
 

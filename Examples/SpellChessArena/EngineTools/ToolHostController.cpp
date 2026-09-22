@@ -213,3 +213,49 @@ void ToolHostController::forwardAnalysisContext(const SpellChessLib::GameState &
             panel->contextChanged(context);
     }
 }
+
+void ToolHostController::rebindEmbedded(unsigned int oldEngineId, const EngineServiceEntry &newEngine) {
+    if (!newEngine.engine || !newEngine.logger)
+        return;
+
+    std::vector<std::pair<EngineTools::ToolInstanceKey, QPointer<DockToolHost>>> toRebind;
+    for (const auto &[key, dock] : embedded) {
+        if (key.engineId == oldEngineId && !dock.isNull())
+            toRebind.emplace_back(key, dock);
+    }
+
+    for (const auto [oldKey, oldDock] : toRebind) {
+        if (oldDock.isNull())
+            continue;
+
+        const auto area = mainWindow->dockWidgetArea(oldDock.data());
+        const auto visible = oldDock->isVisible();
+        const auto floating = oldDock->isFloating();
+        const auto geometry = oldDock->geometry();
+
+        oldDock->close();
+        embedded.erase(oldKey);
+        oldDock->deleteLater();
+
+        // Create through the normal registry factory so every tool gets the
+        // same engine/logger wiring as a newly opened tool.
+        if (!addEmbeddedWithoutSaving(oldKey.type, newEngine, area))
+            continue;
+
+        const auto newKey = EngineTools::ToolInstanceKey{oldKey.type, newEngine.id};
+        const auto newDockIt = embedded.find(newKey);
+        if (newDockIt != embedded.end() && !newDockIt->second.isNull()) {
+            auto *newDock = newDockIt->second.data();
+            newDock->setFloating(floating);
+            if (floating)
+                newDock->setGeometry(geometry);
+            
+            newDock->setVisible(visible);
+        }
+    }
+
+    if (!toRebind.empty()) {
+        Q_EMIT embeddedToolsChanged();
+        saveSettings();
+    }
+}

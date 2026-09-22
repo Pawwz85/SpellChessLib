@@ -93,17 +93,28 @@ void
 LiveAnalisisService::openEngine(const std::vector<std::string> & args, const std::string & workingDirectory) {
     auto & engineService = RunningEnginesService::getInstance();
 
-    if (engineId != static_cast<unsigned int>(-1)) {
-        engineService.removeById(engineId);
-        engineId = static_cast<unsigned int>(-1);
+    // Keep the current engine alive until the replacement has been opened and
+    // registered successfully. A failed process launch must not leave live
+    // analysis without an engine.
+    EngineServiceEntry engineEntry;
+    try {
+        engineEntry = engineService.openEngine(args, workingDirectory);
+    } catch (const std::exception &) {
+        return;
     }
 
-    auto engineEntry = engineService.openEngine(args, workingDirectory);
     engineService.makeEntryDurableById(engineEntry.id);
-    this->engineId = engineEntry.id;
-    this->configuredEngineArgs = args;
-    this->configuredWorkingDirectory = workingDirectory;
-    engineService.renameById(tr("Live Analisis"), engineId);
+    engineService.renameById(tr("Live Analisis"), engineEntry.id);
+
+    const auto oldEngineId = engineId;
+    engineId = engineEntry.id;
+    configuredEngineArgs = args;
+    configuredWorkingDirectory = workingDirectory;
+    
+    Q_EMIT liveEngineChanged(oldEngineId, engineEntry.id);
+
+    if (oldEngineId != static_cast<unsigned int>(-1))
+        engineService.removeById(oldEngineId);
 }
 
 void 
