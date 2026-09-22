@@ -52,7 +52,9 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
         }
 
         try {
+            lock.unlock();
             request.engine->sync();
+            lock.lock();
 
             /*
                 Start searching provided position in infinite mode. Note that awaiting for the result 
@@ -62,7 +64,7 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
             currentConnection = request.engine->search(goParams, 
                             SpellChessLib::StateFormatter(request.root),
                             request.movesSinceRoot);
-
+            
         } catch (const ChessEngine::TimeoutException & e) {
             controlBlock->onError(LiveAnalisisErrorCode::EngineTimedOut);
         } catch (const ChessEngine::EngineBusyException & e) {
