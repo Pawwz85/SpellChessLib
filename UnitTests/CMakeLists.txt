@@ -29,6 +29,7 @@ set ( test_files
         "TestSpellChessDocument.cpp"
         "TestThreadPool.cpp"
         "TestWorkerTHread.cpp"
+        "TestPgn4FenExtractor.cpp"
 )
 
 set ( all_files 
@@ -53,6 +54,6 @@ add_custom_command(TARGET SpellChessLibTests POST_BUILD
     ${CMAKE_CURRENT_SOURCE_DIR}/assets/ $<TARGET_FILE_DIR:SpellChessLibTests>)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-target_link_libraries(SpellChessLibTests  GTest::gtest_main GTest::gmock uciloader spellchess BoardGrid Qt6::Widgets)
+target_link_libraries(SpellChessLibTests GTest::gtest_main GTest::gmock uciloader spellchess BoardGrid Qt6::Widgets Pgn4ExtractorCore)
 include(GoogleTest)
 gtest_discover_tests(SpellChessLibTests)
