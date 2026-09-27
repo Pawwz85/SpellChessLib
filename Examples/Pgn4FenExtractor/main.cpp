@@ -9,6 +9,11 @@
 
 int main(int argc, char ** argv) {
     try {
+
+        Extractor::registerFeature("pgn_counter", [](const SpellChessLib::SpellChessDocument &, SpellChessLib::SpellChessDocument::Handle){
+            return Extractor::PGN4Processor::counterFeature();
+        });
+
         cxxopts::Options options("Pgn4Extract", "Extract PGN4 positions to CSV");
         options.add_options()
             ("r,recursive", "Inspect nested directories", cxxopts::value<bool>()->default_value("false"))

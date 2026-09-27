@@ -36,9 +36,31 @@ void PGN4Processor::extractCSV(std::unique_ptr<PGN4Supplier> && supplier, std::o
              const std::string pgn4 = supplier->getNext();
             auto pgn4Data = SpellChessLib::PGN4Parser::parsePgn4(pgn4);
             SpellChessLib::SpellChessDocument doc(pgn4Data);
+            ++pgnCounter;
             extractCSV(out, doc);
         } catch(const std::exception & e) {
             std::cerr << "Error processing PGN4: " << e.what() << std::endl;
         }
     }
+}
+
+unsigned int PGN4Processor::pgnCounter = 0;
+
+unsigned int PGN4Processor::getCurrentPgnCounterValue() {
+    return pgnCounter;
+}
+
+class IntegerFeature final : public Feature {
+    int v;
+    public:
+    IntegerFeature(int val) : v(val) {};
+
+    std::string toString() const override {
+        return std::to_string(v);
+    };
+};
+
+std::unique_ptr<Feature> 
+PGN4Processor::counterFeature() {
+    return std::make_unique<IntegerFeature>(pgnCounter);
 }
