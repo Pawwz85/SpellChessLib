@@ -38,7 +38,8 @@ void App::analizeDocument(BoardViewer::Model * model, const EngineAnalisysConfig
         SpellChessLib::MoveClassifier moveClassifier = SpellChessLib::SimplePositionClassifier;
 
         QProgressDialog * pb = new QProgressDialog(this->mainWindow->centralWidget());
-        pb->setRange(0, model->getDocument()->size());
+        int maxValue = config.recursive ? model->getDocument()->size() : model->getDocument()->mainlineSize(); 
+        pb->setRange(0, maxValue);
         pb->setValue(0);
         pb->setWindowModality(Qt::WindowModality::NonModal);
         pb->setCancelButton(nullptr);
@@ -47,7 +48,7 @@ void App::analizeDocument(BoardViewer::Model * model, const EngineAnalisysConfig
         
         pb->show();
 
-        auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier);
+        auto annotator = std::make_shared<SpellChessLib::DocumentAnnotator>(analizer, moveClassifier, config.recursive);
 
         annotator->setPositionAnalizedCallback([pb](){
             int x = pb->value();

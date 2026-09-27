@@ -29,7 +29,10 @@ SpellChessLib::DocumentAnnotator::analizeInternal(const SpellChessDocument & doc
     updateCache(pos, insights);
 
     auto arcs = document.getArcs(pos);
-    for (auto & arc : arcs) {
+    size_t end = recursive ? arcs.size() : std::min((size_t)1, arcs.size());
+
+    for (size_t i = 0; i < end; ++i) {
+        auto & arc = arcs[i];
         movesSinceRoot.push_back(arc.move);
         analizeInternal(document, arc.node, root, movesSinceRoot);
         movesSinceRoot.pop_back();
@@ -52,7 +55,8 @@ SpellChessLib::DocumentAnnotator::analize(const SpellChessDocument & document) {
 void 
 SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document, SpellChessDocument::Handle pos) {
     auto arcs = document.getArcs(pos);
-    
+    size_t end = recursive ? arcs.size() : std::min((size_t)1, arcs.size());
+
     std::optional<PositionInsights> insights = lookupCache(pos);
     std::optional<PositionInsights> childInsights = std::nullopt;
     auto gameState = document.getGameState(pos);
@@ -63,7 +67,8 @@ SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document
     if (!insights->suggestedComment.empty())
         document.setComment(pos, insights->suggestedComment);
 
-    for (auto & arc: arcs) {
+    for (size_t i = 0; i < end; ++i) {
+        auto & arc = arcs[i];
         childInsights = lookupCache(arc.node);
         if (!childInsights.has_value())
             continue;
@@ -78,8 +83,10 @@ SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document
     }
 
     POS_ANNOTATED:
-    for (auto & arc : arcs)
+    for (size_t i = 0; i < end; ++i) {
+        auto & arc = arcs[i];
         annotateInternal(document, arc.node);
+    }
 }
 
 void
@@ -109,8 +116,8 @@ SpellChessLib::DocumentAnnotator::writeVariation(SpellChessDocument & document, 
 }
 
 
-SpellChessLib::DocumentAnnotator::DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier) :
-    analizer(analizer), moveClassifier(moveClassifier) {
+SpellChessLib::DocumentAnnotator::DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive) :
+    analizer(analizer), moveClassifier(moveClassifier), recursive(recursive) {
 
     }
 

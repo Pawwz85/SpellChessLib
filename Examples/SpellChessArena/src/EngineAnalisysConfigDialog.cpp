@@ -12,6 +12,7 @@ EngineAnalisisConfigDialog::initConfigWithDefaults() noexcept {
     config.mode     = EngineAnalisysMode::FixedDepth;
     config.depthLimit = 6;
     config.timeLimitMs = 250;
+    config.recursive = false;
 }
 
 EngineAnalisysConfig 
@@ -106,6 +107,12 @@ EngineAnalisisConfigDialog::EngineAnalisisConfigDialog(QWidget * parent): QDialo
             this->config.timeLimitMs = value;
     });
 
+    recursiveMode = new QCheckBox(this);
+    connect(recursiveMode, &QCheckBox::checkStateChanged, this, [this](Qt::CheckState s){
+        this->config.recursive = s != Qt::Unchecked;
+    });
+    recursiveMode->setChecked(false);
+
     QDialogButtonBox * buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &EngineAnalisisConfigDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &EngineAnalisisConfigDialog::reject);
@@ -116,6 +123,8 @@ EngineAnalisisConfigDialog::EngineAnalisisConfigDialog(QWidget * parent): QDialo
     layout->addWidget(modeSelector);
     layout->addWidget(detailsLabel);
     layout->addWidget(detailsSelector);
+    layout->addWidget(new QLabel(tr("Recursive mode", "Recursively annotate variation")));
+    layout->addWidget(recursiveMode);
     layout->addWidget(buttonBox);
     setLayout(layout);
     setModal(true);

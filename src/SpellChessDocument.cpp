@@ -227,6 +227,22 @@ SpellChessLib::SpellChessDocument::size() const {
     return idMap.size();
 }
 
+size_t
+SpellChessLib::SpellChessDocument::mainlineSize() const {
+    Handle currentNode = getRoot();
+    size_t result = 0;
+
+    while (currentNode.lock()) 
+        try {
+            ++result;
+            currentNode = getNextNode(currentNode);
+        } catch (const BadHandle & e) {
+            break;
+        }
+
+    return result;
+}
+
 
 SpellChessLib::SpellChessDocument::Handle 
 SpellChessLib::SpellChessDocument::getRoot() const {

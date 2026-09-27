@@ -28,6 +28,7 @@ namespace SpellChessLib {
     class DocumentAnnotator {
         PositionAnalizer analizer;
         MoveClassifier moveClassifier;
+        bool recursive;
 
         std::function<void()> onPositionAnalized = [](){};
         std::function<void()> onFinish = [](){};
@@ -44,7 +45,7 @@ namespace SpellChessLib {
         SpellChessDocument::Handle writeVariation(SpellChessDocument & document, SpellChessDocument::Handle pos, const std::vector<SpellChessMove> & moves);
         
         public:
-        DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier);
+        DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive = false);
         void setPositionAnalizedCallback(std::function<void()> callback);
         void setFinishCallback(std::function<void()> callback);
         void operator()(std::shared_ptr<SpellChessDocument> document);

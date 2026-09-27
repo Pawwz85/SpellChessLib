@@ -115,6 +115,9 @@ namespace SpellChessLib {
         
         // return count of nodes in the document
         size_t size() const;
+        
+        // return count of nodes on the mainline
+        size_t mainlineSize() const;
 
         // get root node of the document
         Handle getRoot() const;
