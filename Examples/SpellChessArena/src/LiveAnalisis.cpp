@@ -33,7 +33,7 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
         if (currentConnection != nullptr) {
             currentConnection->stop();
 
-            // UCILoader 1.2.1-alpha waits correctly after stop(), avoiding a
+            // UCILoader 1.2.1 waits correctly after stop(), avoiding a
             // polling loop while the engine emits the terminating bestmove.
             lock.unlock();
             currentConnection->waitFor(std::chrono::seconds(2));

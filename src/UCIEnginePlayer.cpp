@@ -1,6 +1,7 @@
 #include <SpellChess/UCIEnginePlayer.h>
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <UCILoader/Logger.h>
+#include <stdexcept>
 
 SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult(std::chrono::milliseconds duration)
 {
@@ -9,7 +10,26 @@ SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult(std:
     else
         searchConnection->waitFor(std::chrono::milliseconds::max());
 
-    auto res = searchConnection->getResult();
+    const auto status = searchConnection->getStatus();
+    if (status != UCILoader::ResultReady)
+    {
+        switch (status)
+        {
+        case UCILoader::TimedOut:
+            throw std::runtime_error("UCI engine search timed out.");
+        case UCILoader::Terminated:
+            throw std::runtime_error("UCI engine terminated before returning a result.");
+        case UCILoader::Stopped:
+            throw std::runtime_error("UCI engine search was stopped before returning a result.");
+        default:
+            throw std::runtime_error("UCI engine returned an unexpected search status.");
+        }
+    }
+
+    const auto& res = searchConnection->getResult();
+    if (res.bestMove == nullptr)
+        throw std::runtime_error("UCI engine returned no best move.");
+
     return (res.ponderMove == nullptr) ? *res.bestMove : SpellChessLib::Player::Result(*res.bestMove, *res.ponderMove);
 }
 
@@ -38,10 +58,11 @@ void SpellChessLib::UCIEnginePlayer::cancelPondering(){
         return;
 
     searchConnection->stop();
-
-    // UCILoader 1.2.1-alpha makes waitFor() reliable after stop(), so do not
-    // spin while waiting for the engine to acknowledge the cancellation.
     searchConnection->waitFor(std::chrono::seconds(2));
+
+    // Cancellation does not require a result. In particular, getResult() must
+    // not be called for TimedOut, Terminated, or Stopped searches.
+    (void)searchConnection->getStatus();
     searchConnection.reset();
 }
 

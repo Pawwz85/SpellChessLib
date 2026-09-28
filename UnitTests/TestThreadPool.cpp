@@ -25,7 +25,7 @@ TEST(ThreadPool, IdlePoolDownSizing) {
 
 TEST(ThreadPool, busyPoolDownSizing) {
 	SpellChessLib::ThreadPool pool(2);
-	bool task1Completed = false, task2Completed = false;
+	volatile bool task1Completed = false, task2Completed = false;
 	pool.queueTask(TASK(task1Completed));
 	pool.queueTask(TASK(task2Completed));
 	pool.setDesiredSize(1);
@@ -39,7 +39,7 @@ TEST(ThreadPool, busyPoolDownSizing) {
 
 TEST(ThreadPool, queueingTask) {
 	SpellChessLib::ThreadPool pool(2);
-	bool task1Completed = false, task2Completed = false, task3Completed = false;
+	volatile bool task1Completed = false, task2Completed = false, task3Completed = false;
 
 	pool.queueTask(TASK(task1Completed));
 	pool.queueTask(TASK(task2Completed));
@@ -52,7 +52,7 @@ TEST(ThreadPool, queueingTask) {
 
 TEST(ThreadPool, forcingTask) {
 	SpellChessLib::ThreadPool pool(2);
-	bool task1Completed = false, task2Completed = false, task3Completed = false;
+	volatile bool task1Completed = false, task2Completed = false, task3Completed = false;
 
 	pool.forceTaskExecution(TASK(task1Completed));
 	pool.forceTaskExecution(TASK(task2Completed));

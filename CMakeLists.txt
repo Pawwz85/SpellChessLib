@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
 
 project("SpellChessLib" LANGUAGES CXX)
 
@@ -54,7 +54,7 @@ include(FetchContent)
 
 FetchContent_Declare(
 		UCILoader
-		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.2.1-alpha.zip
+		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.2.1.zip
 )
 
 FetchContent_MakeAvailable(UCILoader)
