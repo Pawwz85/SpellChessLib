@@ -29,3 +29,7 @@ namespace SpellChessLib {
 	extern std::shared_ptr<UCILoader::EngineInstanceBuilder<SpellChessLib::SpellChessMove>> SpellChessEngineInstanceBuilder;
 
 }
+
+template <>
+inline std::string (*UCILoader::UciFormatter<SpellChessLib::SpellChessMove>::MoveFormatter)(const SpellChessLib::SpellChessMove&) =
+	SpellChessLib::spellChessMoveToString;

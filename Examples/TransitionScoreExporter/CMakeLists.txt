@@ -1,0 +1,2 @@
+add_executable(transition_score_exporter main.cpp)
+target_link_libraries(transition_score_exporter PRIVATE spellchess)

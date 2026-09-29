@@ -30,5 +30,3 @@ bool SpellChessLib::SpellChessMoveMatcher::match(const std::string& val) const
 	return true;
 }
 
-template <>
-std::string(*UCILoader::UciFormatter<SpellChessLib::SpellChessMove>::MoveFormatter)(const SpellChessLib::SpellChessMove& m) = SpellChessLib::spellChessMoveToString;
