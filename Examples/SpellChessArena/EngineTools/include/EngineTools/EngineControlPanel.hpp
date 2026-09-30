@@ -5,9 +5,10 @@
 
 #include <SpellChess/SpellChessUciLoaderPort.h>
 
+#include "EngineTool.hpp"
 #include "RunningEnginesService.hpp"
 
-class EngineControlPanel : public QWidget {
+class EngineControlPanel : public QWidget, public EngineTools::EngineTool {
     
     QWidget * addCheckBox(UCILoader::EngineOptionProxy & option);
     QWidget * addSpinBox(UCILoader::EngineOptionProxy & proxy);
@@ -15,6 +16,9 @@ class EngineControlPanel : public QWidget {
     QWidget * addStringInput(UCILoader::EngineOptionProxy & proxy);
     QWidget * addButton(UCILoader::EngineOptionProxy & proxy);
 
+    void disconnectEngine() override;
+    void connectEngine(const EngineServiceEntry & engineEntry) override;
+
     public:
-    EngineControlPanel(std::shared_ptr<ChessEngine> engine, QWidget * parent = nullptr);
+    EngineControlPanel(const EngineServiceEntry & engineEntry, QWidget * parent = nullptr);
 };

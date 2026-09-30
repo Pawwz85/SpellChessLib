@@ -2,45 +2,19 @@
 #include <QVBoxLayout>
 #include <QScrollBar>
 
-EngineLogger::EngineLogger(size_t maximumLineCount) : maximumLineCount(maximumLineCount){
-};
+void EngineLogsWidget::disconnectEngine() {
+    auto entry = RunningEnginesService::getInstance().getById(engineId);
+    if (entry.has_value())
+        entry->logger->disconnect(loggerConnection);
 
+    textEdit->clear();
+}
 
-bool EngineLogger::isFull() const noexcept {
-    return currentLineCount == maximumLineCount;
-};
+void EngineLogsWidget::connectEngine(const EngineServiceEntry & engineEntry) {
+    loggerConnection = connect(engineEntry.logger.get(), &EngineLogger::newLineLogged, this, &EngineLogsWidget::onNewLineLogged);
+    textEdit->setPlainText(engineEntry.logger->getContent());
+}
 
-void EngineLogger::shiftHeadPosition() noexcept {
-    headIndex++;
-    headIndex = headIndex % maximumLineCount;
-};
-
-void EngineLogger::appendLine(const QString & line) {
-    if (isFull()){
-        lines[headIndex] = line;
-        shiftHeadPosition();
-    } else {
-        lines.push_back(line);
-        currentLineCount = lines.size();
-    }
-};
-
-void EngineLogger::log(const std::string & msg){
-    appendLine(QString::fromStdString(msg)); 
-    newLineLogged(QString::fromStdString(msg));
-};
-
-QString EngineLogger::getContent() const {
-    QString result;
-
-    for (size_t i = headIndex; i < currentLineCount; ++i)
-        result += lines[i];
-
-    for (size_t i = 0; i < headIndex; ++i)
-        result += lines[i];        
-
-    return result;
-};
 
 void EngineLogsWidget::onNewLineLogged(QString line) {
     line.chop(1); // remove the trailing newline character
@@ -54,15 +28,15 @@ void EngineLogsWidget::onNewLineLogged(QString line) {
     }
 }
 
-EngineLogsWidget::EngineLogsWidget(EngineLogger & logger, QWidget * parent) : QWidget(parent) {
+EngineLogsWidget::EngineLogsWidget(const EngineServiceEntry & engineEntry, QWidget * parent) : QWidget(parent) {
     textEdit = new QTextEdit(this);
     auto layout = new QVBoxLayout(this);
     layout->addWidget(textEdit);
-    textEdit->setPlainText(logger.getContent());
     textEdit->setReadOnly(true);
-    connect(&logger, &EngineLogger::newLineLogged, this, &EngineLogsWidget::onNewLineLogged);
     // Ensure the logs panel remains usable at small sizes
     setMinimumSize(400, 300);
+
+    setEngine(engineEntry);
 };
 
 #include <moc_EngineLogger.cpp>

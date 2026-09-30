@@ -112,36 +112,15 @@ void VariationLineWidget::variationChanged(const std::string & variation) {
     variationLine->setCursorPosition(0);
 }
 
-std::string PrincipalVariationPanel::formatVariationLine(const std::vector<SpellChessLib::SpellChessMove> & moves) {
-    std::string variationText;
-    SpellChessLib::GameState tempContext = context;
-
-    if (tempContext.getSideToMove() == SpellChessLib::Black)
-        variationText += std::to_string(tempContext.getFullMoveCounter()) + "... ";
-
-    for (const SpellChessLib::SpellChessMove & move : moves){
-        if (tempContext.getSideToMove() == SpellChessLib::White)
-             variationText += std::to_string(tempContext.getFullMoveCounter()) + ". ";
-        variationText += SpellChessLib::spellChessMoveToUnicodeString(move, tempContext) + " ";
-        tempContext.makeMove(move);
-    } 
-    return variationText;
+void PrincipalVariationPanel::disconnectEngine() {
+    infoBatchHandler->unlinkAll();
+    searchRequestHandler->unlinkAll();
 }
 
-PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> engine, size_t numVariations, QWidget * parent) : QWidget(parent), variationLines(nullptr), context(SpellChessLib::GameState()) {
-    variationLines = new VariationLineWidget[numVariations];
-    QVBoxLayout * layout = new QVBoxLayout(this);
-
-    for (size_t i = 0; i < numVariations; i++){
-        variationLines[i].setParent(this);    
-        layout->addWidget(variationLines + i);
-    }
-
-    // Ensure the PV panel has a usable minimum size when docked
-    setMinimumSize(400, 150);
-
+void PrincipalVariationPanel::connectEngine(const EngineServiceEntry & engineEntry) {
     QPointer<PrincipalVariationPanel> self(this);
-    engine->addInfoBatchHandler([self, numVariations](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {
+
+    infoBatchHandler = engineEntry.engine->addInfoBatchHandler([self](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {
             if (self.isNull())
                 return;
             auto *panel = self.data();
@@ -151,7 +130,7 @@ PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> en
             for (const auto & info: infos){
                 if (info.getType() == UCILoader::InfoType::MultiPv) {
                     auto multiPv = info.getIntegerValue() - 1;
-                    if (pvIndex >= 0 && pvIndex < static_cast<int>(numVariations)) 
+                    if (pvIndex >= 0 && pvIndex < static_cast<int>(self->numVariations)) 
                         pvIndex = multiPv;
                 }
             }
@@ -172,7 +151,7 @@ PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> en
             };
         });
 
-    engine->addSearchRequestHandler([self](const UCILoader::SearchRequest<SpellChessLib::SpellChessMove> & request) {
+    searchRequestHandler = engineEntry.engine->addSearchRequestHandler([self](const UCILoader::SearchRequest<SpellChessLib::SpellChessMove> & request) {
         if (self.isNull())
             return;
         auto *panel = self.data();
@@ -195,6 +174,39 @@ PrincipalVariationPanel::PrincipalVariationPanel(std::shared_ptr<ChessEngine> en
         }
 
     });
+
+}
+
+
+std::string PrincipalVariationPanel::formatVariationLine(const std::vector<SpellChessLib::SpellChessMove> & moves) {
+    std::string variationText;
+    SpellChessLib::GameState tempContext = context;
+
+    if (tempContext.getSideToMove() == SpellChessLib::Black)
+        variationText += std::to_string(tempContext.getFullMoveCounter()) + "... ";
+
+    for (const SpellChessLib::SpellChessMove & move : moves){
+        if (tempContext.getSideToMove() == SpellChessLib::White)
+             variationText += std::to_string(tempContext.getFullMoveCounter()) + ". ";
+        variationText += SpellChessLib::spellChessMoveToUnicodeString(move, tempContext) + " ";
+        tempContext.makeMove(move);
+    } 
+    return variationText;
+}
+
+PrincipalVariationPanel::PrincipalVariationPanel(const EngineServiceEntry & engineEntry, size_t numVariations, QWidget * parent) : QWidget(parent), variationLines(nullptr), context(SpellChessLib::GameState()), numVariations(numVariations) {
+    variationLines = new VariationLineWidget[numVariations];
+    QVBoxLayout * layout = new QVBoxLayout(this);
+
+    for (size_t i = 0; i < numVariations; i++){
+        variationLines[i].setParent(this);    
+        layout->addWidget(variationLines + i);
+    }
+
+    // Ensure the PV panel has a usable minimum size when docked
+    setMinimumSize(400, 150);
+
+    connectEngine(engineEntry);
 }
 
 PrincipalVariationPanel::~PrincipalVariationPanel(){

@@ -5,6 +5,46 @@
 
 #include <QLocale>
 
+EngineLogger::EngineLogger(size_t maximumLineCount) : maximumLineCount(maximumLineCount){
+};
+
+
+bool EngineLogger::isFull() const noexcept {
+    return currentLineCount == maximumLineCount;
+};
+
+void EngineLogger::shiftHeadPosition() noexcept {
+    headIndex++;
+    headIndex = headIndex % maximumLineCount;
+};
+
+void EngineLogger::appendLine(const QString & line) {
+    if (isFull()){
+        lines[headIndex] = line;
+        shiftHeadPosition();
+    } else {
+        lines.push_back(line);
+        currentLineCount = lines.size();
+    }
+};
+
+void EngineLogger::log(const std::string & msg){
+    appendLine(QString::fromStdString(msg)); 
+    newLineLogged(QString::fromStdString(msg));
+};
+
+QString EngineLogger::getContent() const {
+    QString result;
+
+    for (size_t i = headIndex; i < currentLineCount; ++i)
+        result += lines[i];
+
+    for (size_t i = 0; i < headIndex; ++i)
+        result += lines[i];        
+
+    return result;
+};
+
 unsigned int RunningEnginesService::getNextId() {
     return this->idSequence.fetch_add(1);
 }
@@ -131,3 +171,5 @@ std::shared_ptr<SpellChessLib::Factory<SpellChessLib::Player>>
 RunningEnginesService::makeEnginePlayerFactory(const QString & label, const std::vector<std::string> & args, const std::string & workingDirectory){
     return std::make_shared<EnginePlayerFactory>(label, args, workingDirectory);
 };
+
+#include <moc_RunningEnginesService.cpp>

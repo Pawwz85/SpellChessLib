@@ -42,15 +42,15 @@ QString formatProbability(double probability) {
 
 } // namespace
 
-EvalThermometer::EvalThermometer(std::shared_ptr<ChessEngine> engine,
-                                 QWidget * parent)
-    : QWidget(parent), score(UCILoader::UciScore::fromCentipawns(0)) {
-    setMinimumSize(50, 420);
-    setAutoFillBackground(false);
+void EvalThermometer::disconnectEngine() {
+    infoBatchHandler->unlinkAll();
+    searchRequestHandler->unlinkAll();
+}
 
+void EvalThermometer::connectEngine(const EngineServiceEntry & engineEntry) {
     QPointer<EvalThermometer> self(this);
-
-    engine->addSearchRequestHandler([self](const UCILoader::SearchRequest<SpellChessLib::SpellChessMove> & request) {
+    
+    infoBatchHandler = engineEntry.engine->addSearchRequestHandler([self](const UCILoader::SearchRequest<SpellChessLib::SpellChessMove> & request) {
         if (self.isNull())
             return;
 
@@ -81,7 +81,7 @@ EvalThermometer::EvalThermometer(std::shared_ptr<ChessEngine> engine,
         }
     });
 
-    engine->addInfoBatchHandler([self](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {
+    searchRequestHandler = engineEntry.engine->addInfoBatchHandler([self](const std::vector<UCILoader::Info<SpellChessLib::SpellChessMove>> & infos) {
         if (self.isNull())
             return;
 
@@ -96,6 +96,16 @@ EvalThermometer::EvalThermometer(std::shared_ptr<ChessEngine> engine,
             }, Qt::QueuedConnection);
         }
     });
+}
+
+
+EvalThermometer::EvalThermometer(const EngineServiceEntry & engineEntry,
+                                 QWidget * parent)
+    : QWidget(parent), score(UCILoader::UciScore::fromCentipawns(0)) {
+    setMinimumSize(50, 420);
+    setAutoFillBackground(false);
+
+    setEngine(engineEntry);
 }
 
 void EvalThermometer::setEvaluation(UCILoader::UciScore newScore,

@@ -8,6 +8,35 @@
 #include <QPushButton>
 #include <QLabel>
 
+void EngineControlPanel::disconnectEngine() {
+    delete layout();
+}
+
+void EngineControlPanel::connectEngine(const EngineServiceEntry & engineEntry) {
+    using Method =  QWidget * (EngineControlPanel::*)(UCILoader::EngineOptionProxy &);
+    static std::map<UCILoader::OptionType, Method> optionMethods = {
+        {UCILoader::Button, &EngineControlPanel::addButton},
+        {UCILoader::Spin, &EngineControlPanel::addSpinBox},
+        {UCILoader::Combo, &EngineControlPanel::addComboBox},
+        {UCILoader::Check, &EngineControlPanel::addCheckBox},
+        {UCILoader::String, &EngineControlPanel::addStringInput}
+    };
+
+    QVBoxLayout * widgetLayout = new QVBoxLayout(this);
+
+    for (auto & option : engineEntry.engine->options) {
+        
+        if (option.type() != UCILoader::Button) 
+            widgetLayout->addWidget(new QLabel(QString::fromStdString(option.id())));
+        
+        Method method = optionMethods[option.type()];
+        widgetLayout->addWidget(std::invoke(method, this, option));
+    };
+
+    setLayout(widgetLayout);
+}
+
+
 QWidget * EngineControlPanel::addCheckBox(UCILoader::EngineOptionProxy & option) {
     QCheckBox * result = new QCheckBox(this);
     result->setChecked((bool)option);
@@ -67,29 +96,9 @@ QWidget * EngineControlPanel::addButton(UCILoader::EngineOptionProxy & proxy) {
     return button;
 }
 
-EngineControlPanel::EngineControlPanel(std::shared_ptr<ChessEngine> engine, QWidget * parent) :
+EngineControlPanel::EngineControlPanel(const EngineServiceEntry & engineEntry, QWidget * parent) :
     QWidget(parent){
-        using Method =  QWidget * (EngineControlPanel::*)(UCILoader::EngineOptionProxy &);
-        static std::map<UCILoader::OptionType, Method> optionMethods = {
-            {UCILoader::Button, &EngineControlPanel::addButton},
-            {UCILoader::Spin, &EngineControlPanel::addSpinBox},
-            {UCILoader::Combo, &EngineControlPanel::addComboBox},
-            {UCILoader::Check, &EngineControlPanel::addCheckBox},
-            {UCILoader::String, &EngineControlPanel::addStringInput}
-        };
-
-        QVBoxLayout * widgetLayout = new QVBoxLayout(this);
-
-        for (auto & option : engine->options) {
-            
-            if (option.type() != UCILoader::Button) 
-                widgetLayout->addWidget(new QLabel(QString::fromStdString(option.id())));
-            
-            Method method = optionMethods[option.type()];
-            widgetLayout->addWidget(std::invoke(method, this, option));
-        };
-
         // Keep the control panel usable when docked or resized small
         setMinimumSize(320, 240);
-
+        setEngine(engineEntry);
     }

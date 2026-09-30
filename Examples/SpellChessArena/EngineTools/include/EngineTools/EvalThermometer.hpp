@@ -9,23 +9,30 @@
 #include <SpellChess/SpellChessUciLoaderPort.h>
 
 #include "RunningEnginesService.hpp"
+#include "EngineTool.hpp"
 
-class EvalThermometer : public QWidget {
+class EvalThermometer : public QWidget, public EngineTools::EngineTool {
     Q_OBJECT
+
+    std::shared_ptr<UCILoader::EventReceiver> infoBatchHandler = nullptr;
+    std::shared_ptr<UCILoader::EventReceiver> searchRequestHandler = nullptr;
 
     SpellChessLib::GameState context;
     UCILoader::UciScore score;
     double whiteProbability = 0.5;
     QString scoreText = QStringLiteral("0.00");
 
-    void updateDisplay(UCILoader::UciScore score,
+   void disconnectEngine() override;
+   void connectEngine(const EngineServiceEntry & engineEntry) override;
+
+   void updateDisplay(UCILoader::UciScore score,
                        const SpellChessLib::GameState & context);
 
 protected:
     void paintEvent(QPaintEvent * event) override;
 
 public:
-    explicit EvalThermometer(std::shared_ptr<ChessEngine> engine,
+    explicit EvalThermometer(const EngineServiceEntry & engineEntry,
                              QWidget * parent = nullptr);
 
 public slots:

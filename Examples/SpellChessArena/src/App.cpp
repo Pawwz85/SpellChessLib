@@ -206,28 +206,28 @@ std::optional<EngineServiceEntry> querryUserForEngineInstance() {
  };
 
 void App::engineLogs(EngineServiceEntry engine){
-    EngineLogsWidget * logsWidget = new EngineLogsWidget(*engine.logger);
+    EngineLogsWidget * logsWidget = new EngineLogsWidget(engine);
     logsWidget->setWindowTitle(QObject::tr("Engine logs: %1").arg(engine.name));
     logsWidget->resize(800, 600);
     logsWidget->show();
 }
 
 void App::engineControlPanel(EngineServiceEntry engine) {
-    EngineControlPanel * controlPanel = new EngineControlPanel(engine.engine);
+    EngineControlPanel * controlPanel = new EngineControlPanel(engine);
     controlPanel->setWindowTitle(QObject::tr("Engine options: %1").arg(engine.name));
     controlPanel->resize(800, 600);
     controlPanel->show();
 };
 
 void App::principalVariationPanel(EngineServiceEntry engine) {
-    PrincipalVariationPanel * panel = new PrincipalVariationPanel(engine.engine, 3);
+    PrincipalVariationPanel * panel = new PrincipalVariationPanel(engine, 3);
     panel->setWindowTitle(QObject::tr("Engine variations: %1").arg(engine.name));
     panel->resize(400, 300);
     panel->show();
 }
 
 void App::evalThermometer(EngineServiceEntry engine) {
-    EvalThermometer * thermometer = new EvalThermometer(engine.engine);
+    EvalThermometer * thermometer = new EvalThermometer(engine);
     thermometer->setAttribute(Qt::WA_DeleteOnClose);
     thermometer->setWindowTitle(QObject::tr("Evaluation thermometer: %1").arg(engine.name));
     thermometer->resize(220, 500);
