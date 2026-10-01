@@ -9,6 +9,7 @@
 #include <SpellChess/SpellChessUciLoaderPort.h>
 
 #include "RunningEnginesService.hpp"
+#include "EngineRolesService.hpp"
 #include "EngineTool.hpp"
 
 class EvalThermometer : public QWidget, public EngineTools::EngineTool {
@@ -32,7 +33,7 @@ protected:
     void paintEvent(QPaintEvent * event) override;
 
 public:
-    explicit EvalThermometer(const EngineServiceEntry & engineEntry,
+    explicit EvalThermometer(EngineTools::EngineRole role,
                              QWidget * parent = nullptr);
 
 public slots:

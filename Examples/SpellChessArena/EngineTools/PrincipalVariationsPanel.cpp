@@ -194,7 +194,7 @@ std::string PrincipalVariationPanel::formatVariationLine(const std::vector<Spell
     return variationText;
 }
 
-PrincipalVariationPanel::PrincipalVariationPanel(const EngineServiceEntry & engineEntry, size_t numVariations, QWidget * parent) : QWidget(parent), variationLines(nullptr), context(SpellChessLib::GameState()), numVariations(numVariations) {
+PrincipalVariationPanel::PrincipalVariationPanel(EngineTools::EngineRole role, size_t numVariations, QWidget * parent) : QWidget(parent), EngineTool(role, this), variationLines(nullptr), context(SpellChessLib::GameState()), numVariations(numVariations) {
     variationLines = new VariationLineWidget[numVariations];
     QVBoxLayout * layout = new QVBoxLayout(this);
 
@@ -206,7 +206,7 @@ PrincipalVariationPanel::PrincipalVariationPanel(const EngineServiceEntry & engi
     // Ensure the PV panel has a usable minimum size when docked
     setMinimumSize(400, 150);
 
-    connectEngine(engineEntry);
+    syncWithRole(role);
 }
 
 PrincipalVariationPanel::~PrincipalVariationPanel(){

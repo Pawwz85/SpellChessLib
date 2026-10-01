@@ -8,6 +8,7 @@ set ( sources
     "include/EngineTools/ToolHostController.hpp"
     "EngineControlPanel.cpp"
     "EngineLogger.cpp"
+    "EngineRolesService.cpp"
     "PrincipalVariationsPanel.cpp"
     "EvalThermometer.cpp"
     "RunningEnginesService.cpp"

@@ -127,6 +127,14 @@ std::optional<EngineServiceEntry> RunningEnginesService::getById(unsigned int id
     return std::nullopt;
 };
 
+std::optional<EngineServiceEntry> RunningEnginesService::getLastest() const {
+    std::scoped_lock<std::mutex> guard(mut);
+    if (entries.empty())
+        return std::nullopt;
+    return entries.back();
+}
+
+
 const std::vector<EngineServiceEntry> RunningEnginesService::getAll() const{
     return entries;
 }

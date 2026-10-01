@@ -7,6 +7,7 @@
 
 #include "EngineTool.hpp"
 #include "RunningEnginesService.hpp"
+#include "EngineRolesService.hpp"
 
 class EngineControlPanel : public QWidget, public EngineTools::EngineTool {
     
@@ -20,5 +21,5 @@ class EngineControlPanel : public QWidget, public EngineTools::EngineTool {
     void connectEngine(const EngineServiceEntry & engineEntry) override;
 
     public:
-    EngineControlPanel(const EngineServiceEntry & engineEntry, QWidget * parent = nullptr);
+    EngineControlPanel(EngineTools::EngineRole role, QWidget * parent = nullptr);
 };

@@ -18,27 +18,26 @@ class ToolHostController : public QObject {
     std::map<EngineTools::ToolInstanceKey, QPointer<DockToolHost>> embedded;
 
     void saveSettings() const;
-    bool addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area);
-    bool addEmbeddedWithoutSaving(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area);
+    bool addEmbedded(EngineTools::ToolInstanceKey key, Qt::DockWidgetArea area);
+    bool addEmbeddedWithoutSaving(EngineTools::ToolInstanceKey key, Qt::DockWidgetArea area);
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private slots:
-    void handleDockClosed(EngineTools::ToolTypeId type, unsigned int engineId);
+    void handleDockClosed(EngineTools::ToolTypeId type, EngineTools::EngineRole role);
 
 public:
     explicit ToolHostController(QMainWindow *mainWindow, QObject *parent = nullptr);
     ~ToolHostController() override;
 
-    bool addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine);
+    bool addEmbedded(EngineTools::ToolTypeId type, EngineTools::EngineRole role);
+    bool addEmbedded(const EngineTools::ToolInstanceKey &key);
     bool removeEmbedded(const EngineTools::ToolInstanceKey &key);
-    bool removeEmbedded(EngineTools::ToolTypeId type, unsigned int engineId);
+    bool removeEmbedded(EngineTools::ToolTypeId type, EngineTools::EngineRole role);
     bool hasEmbedded(const EngineTools::ToolInstanceKey &key) const;
-    bool hasEmbedded(EngineTools::ToolTypeId type, unsigned int engineId) const;
-    void openStandalone(EngineTools::ToolTypeId type, const EngineServiceEntry &engine);
+    bool hasEmbedded(EngineTools::ToolTypeId type, EngineTools::EngineRole role) const;
     void loadSettings();
     void resetLayout();
     void forwardAnalysisContext(const SpellChessLib::GameState &context);
-    void rebindEmbedded(unsigned int oldEngineId, const EngineServiceEntry &newEngine);
 
 signals:
     void embeddedToolsChanged();

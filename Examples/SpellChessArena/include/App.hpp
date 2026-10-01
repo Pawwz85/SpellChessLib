@@ -44,12 +44,12 @@ class App : public QObject {
 
     void analizeDocument(BoardViewer::Model * model, const EngineAnalisysConfig & config);
     void openBoardViewer(BoardViewer::Model * model);
-    void engineLogs(EngineServiceEntry engine);
-    void engineControlPanel(EngineServiceEntry engine);
-    void principalVariationPanel(EngineServiceEntry engine);
-    void evalThermometer(EngineServiceEntry engine);
+    void engineLogs(EngineTools::EngineRole role);
+    void engineControlPanel(EngineTools::EngineRole role);
+    void principalVariationPanel(EngineTools::EngineRole role);
+    void evalThermometer(EngineTools::EngineRole role);
     
-    std::function<void()> openTool(void (App::*)(EngineServiceEntry));
+    std::function<void()> openTool(void (App::*)(EngineTools::EngineRole));
 
     signals:
     void onAnalisisRequested(EngineAnalisysConfig config);

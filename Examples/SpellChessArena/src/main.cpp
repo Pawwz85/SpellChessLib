@@ -43,6 +43,10 @@ void warmUpTextRendering() {
     painter.drawText(image.rect(), Qt::AlignLeft | Qt::AlignVCenter, samples);
 }
 
+void tryBootingLiveAnalisis() {
+    
+};
+
 void signalHandler(int code) {
     UCILoader::ProcessWrapper::killAll();
     exit(code);
@@ -55,6 +59,8 @@ int main(int argc, char *argv[]) {
 	std::signal(SIGINT, signalHandler);
 	std::signal(SIGABRT, signalHandler);
     warmUpTextRendering();
+
+ 
     App app(&qt_app);
     app.getWindow()->show();
     app.openDocument(SpellChessLib::createEmptySpellChessDocument());

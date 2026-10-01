@@ -27,43 +27,47 @@ bool ToolHostController::hasEmbedded(const EngineTools::ToolInstanceKey &key) co
     return found != embedded.end() && !found->second.isNull();
 }
 
-bool ToolHostController::hasEmbedded(EngineTools::ToolTypeId type, unsigned int engineId) const {
-    return hasEmbedded(EngineTools::ToolInstanceKey{type, engineId});
+bool ToolHostController::hasEmbedded(EngineTools::ToolTypeId type, EngineTools::EngineRole role) const {
+    return hasEmbedded(EngineTools::ToolInstanceKey{type, role});
 }
 
-bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine) {
-    const auto *descriptor = EngineTools::descriptorFor(type);
+bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, EngineTools::EngineRole role) {
+    return addEmbedded(EngineTools::ToolInstanceKey{type, role});
+}
+
+bool ToolHostController::addEmbedded(const EngineTools::ToolInstanceKey &key) {
+    const auto *descriptor = EngineTools::descriptorFor(key.type);
     Qt::DockWidgetArea area = (descriptor != nullptr) ? descriptor->defaultDockArea :  Qt::RightDockWidgetArea;
-    return addEmbedded(type, engine, area);
+    return addEmbedded(key, area);
 }
 
-bool ToolHostController::addEmbedded(EngineTools::ToolTypeId type, const EngineServiceEntry &engine,
+bool ToolHostController::addEmbedded(EngineTools::ToolInstanceKey key,
                                      Qt::DockWidgetArea area) {
-    if (addEmbeddedWithoutSaving(type, engine, area)) {
+    if (addEmbeddedWithoutSaving(key, area)) {
         saveSettings();
         return true;        
     }
     return false;
 }
 
-bool ToolHostController::addEmbeddedWithoutSaving(EngineTools::ToolTypeId type, const EngineServiceEntry &engine, Qt::DockWidgetArea area) {
-    if (hasEmbedded(type, engine.id))
+bool ToolHostController::addEmbeddedWithoutSaving(EngineTools::ToolInstanceKey key, Qt::DockWidgetArea area) {
+    if (hasEmbedded(key))
         return false;
 
-    const auto *descriptor = EngineTools::descriptorFor(type);
-    if (!descriptor || !engine.engine || !engine.logger)
+    const auto *descriptor = EngineTools::descriptorFor(key.type);
+    if (!descriptor)
         return false;
 
-    auto *dock = new DockToolHost(type, engine.id, descriptor->defaultTitle, mainWindow);
-    dock->setWidget(descriptor->createWidget(engine, dock));
+    auto *dock = new DockToolHost(key.type, key.engineRole, descriptor->defaultTitle, mainWindow);
+    dock->setWidget(descriptor->createWidget(key.engineRole, dock));
     dock->resize(descriptor->defaultSize);
-    dock->setWindowTitle(descriptor->defaultTitle + QStringLiteral(": ") + engine.name);
+    dock->setWindowTitle(descriptor->defaultTitle);
     connect(dock, &DockToolHost::toolClosed, this, &ToolHostController::handleDockClosed);
     dock->installEventFilter(this);
 
     DockToolHost *previousInstance = nullptr;
-    for (const auto &[key, existingDock] : embedded) {
-        if (key.type == type && !existingDock.isNull()
+    for (const auto &[otherKey, existingDock] : embedded) {
+        if (otherKey.type == key.type && !existingDock.isNull()
             && mainWindow->dockWidgetArea(existingDock.data()) == area) {
             previousInstance = existingDock.data();
             break;
@@ -74,14 +78,14 @@ bool ToolHostController::addEmbeddedWithoutSaving(EngineTools::ToolTypeId type, 
     else
         mainWindow->addDockWidget(area, dock);
 
-    embedded[EngineTools::ToolInstanceKey{type, engine.id}] = dock;
+    embedded[key] = dock;
     Q_EMIT embeddedToolsChanged();
     return true;
 }
 
 
-void ToolHostController::handleDockClosed(EngineTools::ToolTypeId type, unsigned int engineId) {
-    embedded.erase(EngineTools::ToolInstanceKey{type, engineId});
+void ToolHostController::handleDockClosed(EngineTools::ToolTypeId type, EngineTools::EngineRole role) {
+    embedded.erase(EngineTools::ToolInstanceKey{type, role});
     Q_EMIT embeddedToolsChanged();
     saveSettings();
 }
@@ -107,20 +111,8 @@ bool ToolHostController::removeEmbedded(const EngineTools::ToolInstanceKey &key)
     return true;
 }
 
-bool ToolHostController::removeEmbedded(EngineTools::ToolTypeId type, unsigned int engineId) {
-    return removeEmbedded(EngineTools::ToolInstanceKey{type, engineId});
-}
-
-void ToolHostController::openStandalone(EngineTools::ToolTypeId type, const EngineServiceEntry &engine) {
-    const auto *descriptor = EngineTools::descriptorFor(type);
-    if (!descriptor || !engine.engine || !engine.logger)
-        return;
-
-    auto *widget = descriptor->createWidget(engine, nullptr);
-    widget->setAttribute(Qt::WA_DeleteOnClose);
-    widget->setWindowTitle(descriptor->defaultTitle + QStringLiteral(": ") + engine.name);
-    widget->resize(descriptor->defaultSize);
-    widget->show();
+bool ToolHostController::removeEmbedded(EngineTools::ToolTypeId type, EngineTools::EngineRole role) {
+    return removeEmbedded(EngineTools::ToolInstanceKey{type, role});
 }
 
 void ToolHostController::loadSettings() {
@@ -139,16 +131,20 @@ void ToolHostController::loadSettings() {
         if (!type.has_value())
             continue;
         bool validEngineId = false;
-        const auto engineId = settings.value(instancePrefix + QStringLiteral("engineId"), -1).toUInt(&validEngineId);
+        const auto roleId = settings.value(instancePrefix + QStringLiteral("roleId"), -1).toUInt(&validEngineId);
+        validEngineId = validEngineId && roleId < EngineTools::EngineRoleEnum_Size;
         if (!validEngineId)
             continue;
-        const auto engine = RunningEnginesService::getInstance().getById(engineId);
+
+        EngineTools::EngineRole engineRole = static_cast<EngineTools::EngineRole>(roleId);
+
+        const auto engine = RunningEnginesService::getInstance().getById(roleId);
         if (!engine.has_value())
             continue;
         const auto area = static_cast<Qt::DockWidgetArea>(settings.value(instancePrefix + QStringLiteral("dockArea"), static_cast<int>(Qt::RightDockWidgetArea)).toInt());
-        if (addEmbeddedWithoutSaving(type.value(), engine.value(), area)) {
-            const auto found = embedded.find(EngineTools::ToolInstanceKey{type.value(), engineId});
-
+        EngineTools::ToolInstanceKey key{type.value(), engineRole};
+        if (addEmbeddedWithoutSaving(key, area)) {
+            const auto found = embedded.find(key);
         }
     }
 
@@ -172,11 +168,11 @@ void ToolHostController::saveSettings() const {
         const auto *descriptor = EngineTools::descriptorFor(key.type);
         if (!descriptor)
             continue;
-        const auto instanceId = descriptor->stableId + QStringLiteral("_") + QString::number(key.engineId);
+        const auto instanceId = descriptor->stableId + QStringLiteral("_") + QString::number(key.engineRole);
         const auto instancePrefix = QString::fromLatin1(settingsPrefix) + QStringLiteral("instances/") + instanceId + QStringLiteral("/");
         instances.append(instanceId);
         settings.setValue(instancePrefix + QStringLiteral("toolId"), descriptor->stableId);
-        settings.setValue(instancePrefix + QStringLiteral("engineId"), key.engineId);
+        settings.setValue(instancePrefix + QStringLiteral("roleId"), key.engineRole);
         settings.setValue(instancePrefix + QStringLiteral("dockArea"), static_cast<int>(mainWindow->dockWidgetArea(dock.data())));
     }
     settings.setValue(QString::fromLatin1(settingsPrefix) + QStringLiteral("embeddedInstances"), instances);
@@ -196,11 +192,10 @@ void ToolHostController::resetLayout() {
 
     for (const auto key : activeInstances) {
         removeEmbedded(key);
-        const auto engine = RunningEnginesService::getInstance().getById(key.engineId);
         const auto *descriptor = EngineTools::descriptorFor(key.type);
         Qt::DockWidgetArea area = (descriptor != nullptr) ? descriptor->defaultDockArea :  Qt::RightDockWidgetArea;
-        if (engine.has_value())
-            addEmbedded(key.type, engine.value(), area);
+ 
+        addEmbedded(key, area);
     }
     saveSettings();
 }
@@ -211,49 +206,5 @@ void ToolHostController::forwardAnalysisContext(const SpellChessLib::GameState &
             continue;
         if (auto *panel = qobject_cast<PrincipalVariationPanel *>(dock->widget()))
             panel->contextChanged(context);
-    }
-}
-
-void ToolHostController::rebindEmbedded(unsigned int oldEngineId, const EngineServiceEntry &newEngine) {
-    if (!newEngine.engine || !newEngine.logger)
-        return;
-
-    std::vector<std::pair<EngineTools::ToolInstanceKey, QPointer<DockToolHost>>> toRebind;
-    for (const auto &[key, dock] : embedded) {
-        if (key.engineId == oldEngineId && !dock.isNull())
-            toRebind.emplace_back(key, dock);
-    }
-
-    for (const auto &[oldKey, oldDock] : toRebind) {
-        if (oldDock.isNull())
-            continue;
-
-        const auto area = mainWindow->dockWidgetArea(oldDock.data());
-        const auto visible = oldDock->isVisible();
-        const auto floating = oldDock->isFloating();
-        const auto geometry = oldDock->geometry();
-
-        // Create through the normal registry factory so every tool gets the
-        // same engine/logger wiring as a newly opened tool.
-        if (!addEmbeddedWithoutSaving(oldKey.type, newEngine, area))
-            continue;
-
-        const auto newKey = EngineTools::ToolInstanceKey{oldKey.type, newEngine.id};
-        const auto newDockIt = embedded.find(newKey);
-        if (newDockIt != embedded.end() && !newDockIt->second.isNull()) {
-            auto *newDock = newDockIt->second.data();
-            newDock->setFloating(floating);
-            if (floating)
-                newDock->setGeometry(geometry);
-            newDock->setVisible(visible);
-        }
-
-        embedded.erase(oldKey);
-        oldDock->deleteLater();
-    }
-
-    if (!toRebind.empty()) {
-        Q_EMIT embeddedToolsChanged();
-        saveSettings();
     }
 }

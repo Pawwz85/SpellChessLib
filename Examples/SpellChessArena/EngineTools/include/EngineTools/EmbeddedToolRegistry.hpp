@@ -8,6 +8,7 @@
 #include <QString>
 
 #include "RunningEnginesService.hpp"
+#include "EngineRolesService.hpp"
 
 class QWidget;
 
@@ -22,16 +23,16 @@ enum class ToolTypeId {
 
 struct ToolInstanceKey {
     ToolTypeId type;
-    unsigned int engineId;
+    EngineRole engineRole;
 
     friend constexpr bool operator<(const ToolInstanceKey &left, const ToolInstanceKey &right) {
         if (left.type != right.type)
             return static_cast<int>(left.type) < static_cast<int>(right.type);
-        return left.engineId < right.engineId;
+        return static_cast<int>(left.engineRole) < static_cast<int>(right.engineRole);
     }
 
     friend constexpr bool operator==(const ToolInstanceKey &left, const ToolInstanceKey &right) {
-        return left.type == right.type && left.engineId == right.engineId;
+        return left.type == right.type && left.engineRole == right.engineRole;
     }
 };
 
@@ -41,7 +42,7 @@ struct ToolDescriptor {
     QString displayName;
     QString defaultTitle;
     QSize defaultSize;
-    std::function<QWidget *(const EngineServiceEntry &, QWidget *)> createWidget;
+    std::function<QWidget *(EngineRole, QWidget *)> createWidget;
     Qt::DockWidgetArea defaultDockArea;
 
 };

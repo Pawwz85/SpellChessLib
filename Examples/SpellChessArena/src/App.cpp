@@ -90,9 +90,12 @@ void App::openBoardViewer(BoardViewer::Model * model) {
     }
 }
 
-
 void App::openSession(const BoardViewer::OpenSessionRequest &request){
     RunningEnginesService::getInstance().clear();
+
+    EngineTools::EngineRolesService::getInstance().clearRole(EngineTools::WhiteSideEngine);
+    EngineTools::EngineRolesService::getInstance().clearRole(EngineTools::BlackSideEngine);
+
     BoardViewer::Model * model = new BoardViewer::GameViewerModel(timerService, request, coreQApp);
     openBoardViewer(model);
 }
@@ -100,6 +103,10 @@ void App::openSession(const BoardViewer::OpenSessionRequest &request){
 void App::openDocument(std::shared_ptr<SpellChessLib::SpellChessDocument> document) {
     RunningEnginesService::getInstance().clear();
     BoardViewer::Model * model = new BoardViewer::DocumentViewerModel(document);
+
+    EngineTools::EngineRolesService::getInstance().clearRole(EngineTools::WhiteSideEngine);
+    EngineTools::EngineRolesService::getInstance().clearRole(EngineTools::BlackSideEngine);
+
     openBoardViewer(model);
 }
 
@@ -149,87 +156,102 @@ void App::showLiveAnalisisEngineDialog() {
     }
 }
 
-std::optional<EngineServiceEntry> querryUserForEngineInstance() {
-    const auto entries = RunningEnginesService::getInstance().getAll();
-
+std::optional<EngineTools::EngineRole> querryUserForEngineRole() {
     QDialog dialog;
     dialog.setWindowTitle(QObject::tr("Select engine"));
     dialog.setModal(true);
 
     QVBoxLayout * layout = new QVBoxLayout(&dialog);
 
-    QLabel * label = new QLabel(QObject::tr("Select one of the currently running engines:"), &dialog);
+    QLabel * label = new QLabel(QObject::tr("Select one of the following:"), &dialog);
     layout->addWidget(label);
 
-    QListWidget * engineList = new QListWidget(&dialog);
-    engineList->setSelectionMode(QListWidget::SingleSelection);
+    QListWidget * roleList = new QListWidget(&dialog);
+    roleList->setSelectionMode(QListWidget::SingleSelection);
 
-    for (const auto & entry : entries) {
-        QString entryText = entry.name.isEmpty()
-            ? QObject::tr("Engine %1").arg(entry.id)
-            : entry.name;
-        engineList->addItem(entryText + " (" + QString::number(entry.id) + ")");
+    for (size_t i = 0; i < EngineTools::EngineRoleEnum_Size; ++i) {
+        QString entryText;
+
+        if (i == (size_t)EngineTools::LiveAnalisisEngine)
+            entryText = QObject::tr("Analysis");
+        else if (i == (size_t)EngineTools::WhiteSideEngine)
+            entryText = QObject::tr("White");
+        else if (i == (size_t)EngineTools::BlackSideEngine)
+            entryText = QObject::tr("Black");
+
+        roleList->addItem(entryText);
     }
 
-    if (!entries.empty())
-        engineList->setCurrentRow(0);
+    roleList->setCurrentRow(0);
 
-    layout->addWidget(engineList);
+    layout->addWidget(roleList);
 
     QDialogButtonBox * buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
     layout->addWidget(buttons);
 
     QObject::connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     QObject::connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-    QObject::connect(engineList, &QListWidget::itemDoubleClicked, &dialog, &QDialog::accept);
+    QObject::connect(roleList, &QListWidget::itemDoubleClicked, &dialog, &QDialog::accept);
 
     if (dialog.exec() != QDialog::Accepted)
         return std::nullopt;
 
-    auto selectedItem = engineList->currentItem();
+    auto selectedItem = roleList->currentItem();
     if (!selectedItem)
         return std::nullopt;
 
-    int index = engineList->row(selectedItem);
-    if (index < 0 || index >= static_cast<int>(entries.size()))
+    int index = roleList->row(selectedItem);
+    if (index < 0 || index >= EngineTools::EngineRoleEnum_Size)
         return std::nullopt;
 
-    return entries[index];
+    return static_cast<EngineTools::EngineRole>(index);
 }
 
- std::function<void()> App::openTool(void (App::* tool)(EngineServiceEntry)) {
+ std::function<void()> App::openTool(void (App::* tool)(EngineTools::EngineRole)) {
     return [this, tool](){
-        auto result = querryUserForEngineInstance();
-        if (result.has_value())
-            std::invoke(tool, this, result.value());
+        auto role = querryUserForEngineRole();
+        if (role.has_value())
+            std::invoke(tool, this, role.value());
     };
  };
 
-void App::engineLogs(EngineServiceEntry engine){
-    EngineLogsWidget * logsWidget = new EngineLogsWidget(engine);
-    logsWidget->setWindowTitle(QObject::tr("Engine logs: %1").arg(engine.name));
+void App::engineLogs(EngineTools::EngineRole role){
+    EngineLogsWidget * logsWidget = new EngineLogsWidget(role);
+    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
+    QString engineName = engine.has_value() ? engine->name : "";
+
+    logsWidget->setWindowTitle(QObject::tr("Engine logs: %1").arg(engineName));
     logsWidget->resize(800, 600);
     logsWidget->show();
 }
 
-void App::engineControlPanel(EngineServiceEntry engine) {
-    EngineControlPanel * controlPanel = new EngineControlPanel(engine);
-    controlPanel->setWindowTitle(QObject::tr("Engine options: %1").arg(engine.name));
+void App::engineControlPanel(EngineTools::EngineRole role) {
+    EngineControlPanel * controlPanel = new EngineControlPanel(role);
+    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
+    QString engineName = engine.has_value() ? engine->name : "";
+
+    controlPanel->setWindowTitle(QObject::tr("Engine options: %1").arg(engineName));
     controlPanel->resize(800, 600);
     controlPanel->show();
 };
 
-void App::principalVariationPanel(EngineServiceEntry engine) {
-    PrincipalVariationPanel * panel = new PrincipalVariationPanel(engine, 3);
-    panel->setWindowTitle(QObject::tr("Engine variations: %1").arg(engine.name));
+void App::principalVariationPanel(EngineTools::EngineRole role) {
+    PrincipalVariationPanel * panel = new PrincipalVariationPanel(role, 3);
+    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
+    QString engineName = engine.has_value() ? engine->name : "";
+    
+    panel->setWindowTitle(QObject::tr("Engine variations: %1").arg(engineName));
     panel->resize(400, 300);
     panel->show();
 }
 
-void App::evalThermometer(EngineServiceEntry engine) {
-    EvalThermometer * thermometer = new EvalThermometer(engine);
+void App::evalThermometer(EngineTools::EngineRole role) {
+    EvalThermometer * thermometer = new EvalThermometer(role);
+    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
+    QString engineName = engine.has_value() ? engine->name : "";
+
     thermometer->setAttribute(Qt::WA_DeleteOnClose);
-    thermometer->setWindowTitle(QObject::tr("Evaluation thermometer: %1").arg(engine.name));
+    thermometer->setWindowTitle(QObject::tr("Evaluation thermometer: %1").arg(engineName));
     thermometer->resize(220, 500);
     thermometer->show();
 }
@@ -275,13 +297,6 @@ App::App(QCoreApplication * coreApp) {
     mainWindow = new QMainWindow();
     mainWindow->setObjectName(QStringLiteral("spellChessArenaMainWindow"));
     toolHostController = std::make_unique<ToolHostController>(mainWindow, this);
-    auto &liveAnalisis = LiveAnalisisService::getInstance();
-    connect(&liveAnalisis, &LiveAnalisisService::liveEngineChanged, this,
-        [this](unsigned int oldEngineId, unsigned int newEngineId) {
-            const auto newEngine = RunningEnginesService::getInstance().getById(newEngineId);
-            if (newEngine.has_value())
-                toolHostController->rebindEmbedded(oldEngineId, newEngine.value());
-        });
     mainWindow->setCentralWidget(new EmptyBoardWidget());
     QMenuBar * menuBar = new QMenuBar();
 
@@ -306,9 +321,9 @@ App::App(QCoreApplication * coreApp) {
         const auto *descriptor = EngineTools::descriptorFor(type);
         QAction *addAction = toolsMenu->addAction(tr("Add %1").arg(descriptor->displayName));
         connect(addAction, &QAction::triggered, this, [this, type]() {
-            const auto engine = querryUserForEngineInstance();
-            if (engine.has_value())
-                toolHostController->addEmbedded(type, engine.value());
+            const auto role = querryUserForEngineRole();
+            if (role.has_value())
+                toolHostController->addEmbedded(type, role.value());
         });
     };
 

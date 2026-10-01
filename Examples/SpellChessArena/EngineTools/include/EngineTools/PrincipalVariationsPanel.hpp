@@ -12,6 +12,8 @@
 
 #include "EngineTool.hpp"
 #include "RunningEnginesService.hpp"
+#include "EngineRolesService.hpp"
+
 
 class VariationLineWidget : public QWidget {
     Q_OBJECT
@@ -46,7 +48,7 @@ class PrincipalVariationPanel : public QWidget, public EngineTools::EngineTool {
     std::string formatVariationLine(const std::vector<SpellChessLib::SpellChessMove> & moves);
 
     public:
-    PrincipalVariationPanel(const EngineServiceEntry & engineEntry, size_t numVariations = 1, QWidget * parent = nullptr);
+    PrincipalVariationPanel(EngineTools::EngineRole role, size_t numVariations = 1, QWidget * parent = nullptr);
     ~PrincipalVariationPanel();
 
     public slots:

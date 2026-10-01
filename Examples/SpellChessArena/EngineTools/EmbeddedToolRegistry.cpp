@@ -11,19 +11,19 @@ const std::vector<ToolDescriptor> &toolDescriptors() {
     static const std::vector<ToolDescriptor> descriptors = {
         {ToolTypeId::PrincipalVariations, QStringLiteral("principalVariations"),
          QStringLiteral("Principal Variations"), QStringLiteral("Engine variations"), QSize(400, 300),
-         [](const EngineServiceEntry &entry, QWidget *parent) { return new PrincipalVariationPanel(entry, 3, parent); },
+         [](EngineRole role, QWidget *parent) { return new PrincipalVariationPanel(role, 3, parent); },
          Qt::DockWidgetArea::TopDockWidgetArea},
         {ToolTypeId::EngineLogs, QStringLiteral("engineLogs"),
          QStringLiteral("Engine Logs"), QStringLiteral("Engine logs"), QSize(800, 600),
-         [](const EngineServiceEntry &entry, QWidget *parent) { return new EngineLogsWidget(entry, parent); },
+         [](EngineRole role, QWidget *parent) { return new EngineLogsWidget(role, parent); },
          Qt::DockWidgetArea::RightDockWidgetArea},
         {ToolTypeId::EngineControlPanel, QStringLiteral("engineControlPanel"),
          QStringLiteral("Engine Options"), QStringLiteral("Engine options"), QSize(800, 600),
-         [](const EngineServiceEntry &entry, QWidget *parent) { return new EngineControlPanel(entry, parent); },
+         [](EngineRole role, QWidget *parent) { return new EngineControlPanel(role, parent); },
         Qt::DockWidgetArea::RightDockWidgetArea},
          {ToolTypeId::EvalThermomether, QStringLiteral("evalThermometer"),
          QStringLiteral("Evaluation Thermometer"), QStringLiteral("Evaluation thermometer"), QSize(120, 420),
-         [](const EngineServiceEntry &entry, QWidget *parent) { return new EvalThermometer(entry, parent); },
+         [](EngineRole role, QWidget *parent) { return new EvalThermometer(role, parent); },
         Qt::DockWidgetArea::LeftDockWidgetArea}
 
     };

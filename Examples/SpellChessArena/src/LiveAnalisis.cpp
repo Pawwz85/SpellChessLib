@@ -6,6 +6,8 @@
 
 #include <SpellChess/Arbiter.h>
 
+#include <EngineTools/EngineRolesService.hpp>
+
 using SearchConnection = typename UCILoader::SearchConnection<SpellChessLib::SpellChessMove>;
 
 void
@@ -119,6 +121,8 @@ LiveAnalisisService::openEngine(const std::vector<std::string> & args, const std
 
     engineService.makeEntryDurableById(engineEntry.id);
     engineService.renameById(tr("Live Analisis"), engineEntry.id);
+    
+    EngineTools::EngineRolesService::getInstance().assignEngineToRole(EngineTools::LiveAnalisisEngine, engineEntry);
 
     const auto oldEngineId = engineId;
     engineId = engineEntry.id;

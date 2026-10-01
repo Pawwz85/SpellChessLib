@@ -99,13 +99,12 @@ void EvalThermometer::connectEngine(const EngineServiceEntry & engineEntry) {
 }
 
 
-EvalThermometer::EvalThermometer(const EngineServiceEntry & engineEntry,
+EvalThermometer::EvalThermometer(EngineTools::EngineRole role,
                                  QWidget * parent)
-    : QWidget(parent), score(UCILoader::UciScore::fromCentipawns(0)) {
+    : QWidget(parent), EngineTool(role, this), score(UCILoader::UciScore::fromCentipawns(0)) {
     setMinimumSize(50, 420);
     setAutoFillBackground(false);
-
-    setEngine(engineEntry);
+    syncWithRole(role);
 }
 
 void EvalThermometer::setEvaluation(UCILoader::UciScore newScore,

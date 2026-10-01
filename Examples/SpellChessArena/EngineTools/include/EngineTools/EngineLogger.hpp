@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "EngineTool.hpp"
+#include "EngineRolesService.hpp"
 
 class EngineLogsWidget : public QWidget, public EngineTools::EngineTool {
     Q_OBJECT
@@ -21,5 +22,5 @@ class EngineLogsWidget : public QWidget, public EngineTools::EngineTool {
     void onNewLineLogged(QString line);
 
     public:
-    EngineLogsWidget(const EngineServiceEntry & engineEntry, QWidget* parent = nullptr );
+    EngineLogsWidget(EngineTools::EngineRole role, QWidget* parent = nullptr );
 };

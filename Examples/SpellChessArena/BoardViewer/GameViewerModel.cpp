@@ -5,23 +5,35 @@
 #include <SpellChess/OpeningBookPlayerWrapper.h>
 
 #include <EngineTools/RunningEnginesService.hpp>
+#include <EngineTools/EngineRolesService.hpp>
 
 BoardViewer::GameViewerModel::GameViewerModel(std::shared_ptr<SpellChessLib::TimerService> timeServ, const OpenSessionRequest &request, QCoreApplication *app) : runnerAdapter(app, this),
                                                                                                                                                                  application(app)
 {
     using PlayerPointer = typename SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player>;
-    
+        
+    auto & engineRolesService =     EngineTools::EngineRolesService::getInstance(); 
+    auto & runningEngineService = RunningEnginesService::getInstance(); 
+
     PlayerPointer whitePlayer = playerFromDef(request.getWhitePlayer(), request);
-    PlayerPointer blackPlayer = playerFromDef(request.getBlackPlayer(), request);
 
     if (request.getWhitePlayer().isHuman()) {
         players[SpellChessLib::White] = (SpellChessLib::AsynchronousPlayer*)whitePlayer.get();
         isPlayerHuman[SpellChessLib::White] = true;
+    } else {
+        auto entry = runningEngineService.getLastest();
+        if (entry.has_value())
+            engineRolesService.assignEngineToRole(EngineTools::WhiteSideEngine, entry.value());
     }
 
+    PlayerPointer blackPlayer = playerFromDef(request.getBlackPlayer(), request);
     if (request.getBlackPlayer().isHuman()) {
         players[SpellChessLib::Black] = (SpellChessLib::AsynchronousPlayer*)blackPlayer.get();
         isPlayerHuman[SpellChessLib::Black] = true;
+    } else {
+        auto entry = runningEngineService.getLastest();
+        if (entry.has_value())
+            engineRolesService.assignEngineToRole(EngineTools::BlackSideEngine, entry.value());
     }
 
     gameRunner.reset(new SpellChessLib::GameRunner(timeServ, request.getGameRunnerConfig(),

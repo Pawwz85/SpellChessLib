@@ -28,15 +28,14 @@ void EngineLogsWidget::onNewLineLogged(QString line) {
     }
 }
 
-EngineLogsWidget::EngineLogsWidget(const EngineServiceEntry & engineEntry, QWidget * parent) : QWidget(parent) {
+EngineLogsWidget::EngineLogsWidget(EngineTools::EngineRole role, QWidget * parent) : QWidget(parent), EngineTool(role, this) {
     textEdit = new QTextEdit(this);
     auto layout = new QVBoxLayout(this);
     layout->addWidget(textEdit);
     textEdit->setReadOnly(true);
     // Ensure the logs panel remains usable at small sizes
     setMinimumSize(400, 300);
-
-    setEngine(engineEntry);
+    syncWithRole(role);
 };
 
 #include <moc_EngineLogger.cpp>

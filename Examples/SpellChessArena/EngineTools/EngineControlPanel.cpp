@@ -96,9 +96,9 @@ QWidget * EngineControlPanel::addButton(UCILoader::EngineOptionProxy & proxy) {
     return button;
 }
 
-EngineControlPanel::EngineControlPanel(const EngineServiceEntry & engineEntry, QWidget * parent) :
-    QWidget(parent){
+EngineControlPanel::EngineControlPanel(EngineTools::EngineRole role, QWidget * parent) :
+    QWidget(parent), EngineTool(role, this) {
         // Keep the control panel usable when docked or resized small
         setMinimumSize(320, 240);
-        setEngine(engineEntry);
+        syncWithRole(role);
     }

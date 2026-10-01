@@ -63,6 +63,7 @@ class RunningEnginesService {
     bool makeEntryDurableById(unsigned int id);
     void clear();
     std::optional<EngineServiceEntry> getById(unsigned int id) const;
+    std::optional<EngineServiceEntry> getLastest() const;
     const std::vector<EngineServiceEntry> getAll() const;
     static std::shared_ptr<SpellChessLib::Factory<SpellChessLib::Player>> makeEnginePlayerFactory(const std::vector<std::string> & args, const std::string & workingDirectory = "/");
     static std::shared_ptr<SpellChessLib::Factory<SpellChessLib::Player>> makeEnginePlayerFactory(const QString & label, const std::vector<std::string> & args, const std::string & workingDirectory = "/");
