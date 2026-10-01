@@ -207,55 +207,6 @@ std::optional<EngineTools::EngineRole> querryUserForEngineRole() {
     return static_cast<EngineTools::EngineRole>(index);
 }
 
- std::function<void()> App::openTool(void (App::* tool)(EngineTools::EngineRole)) {
-    return [this, tool](){
-        auto role = querryUserForEngineRole();
-        if (role.has_value())
-            std::invoke(tool, this, role.value());
-    };
- };
-
-void App::engineLogs(EngineTools::EngineRole role){
-    EngineLogsWidget * logsWidget = new EngineLogsWidget(role);
-    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
-    QString engineName = engine.has_value() ? engine->name : "";
-
-    logsWidget->setWindowTitle(QObject::tr("Engine logs: %1").arg(engineName));
-    logsWidget->resize(800, 600);
-    logsWidget->show();
-}
-
-void App::engineControlPanel(EngineTools::EngineRole role) {
-    EngineControlPanel * controlPanel = new EngineControlPanel(role);
-    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
-    QString engineName = engine.has_value() ? engine->name : "";
-
-    controlPanel->setWindowTitle(QObject::tr("Engine options: %1").arg(engineName));
-    controlPanel->resize(800, 600);
-    controlPanel->show();
-};
-
-void App::principalVariationPanel(EngineTools::EngineRole role) {
-    PrincipalVariationPanel * panel = new PrincipalVariationPanel(role, 3);
-    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
-    QString engineName = engine.has_value() ? engine->name : "";
-    
-    panel->setWindowTitle(QObject::tr("Engine variations: %1").arg(engineName));
-    panel->resize(400, 300);
-    panel->show();
-}
-
-void App::evalThermometer(EngineTools::EngineRole role) {
-    EvalThermometer * thermometer = new EvalThermometer(role);
-    auto engine = EngineTools::EngineRolesService::getInstance().getEngineByRole(role);
-    QString engineName = engine.has_value() ? engine->name : "";
-
-    thermometer->setAttribute(Qt::WA_DeleteOnClose);
-    thermometer->setWindowTitle(QObject::tr("Evaluation thermometer: %1").arg(engineName));
-    thermometer->resize(220, 500);
-    thermometer->show();
-}
-
 void App::showPGN4Pastebin() {
     PastePGN4Dialog * dialog = new PastePGN4Dialog(mainWindow->centralWidget());
     auto result = dialog->exec();

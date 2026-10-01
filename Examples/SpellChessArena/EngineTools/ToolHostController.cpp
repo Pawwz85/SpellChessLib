@@ -61,7 +61,7 @@ bool ToolHostController::addEmbeddedWithoutSaving(EngineTools::ToolInstanceKey k
     auto *dock = new DockToolHost(key.type, key.engineRole, descriptor->defaultTitle, mainWindow);
     dock->setWidget(descriptor->createWidget(key.engineRole, dock));
     dock->resize(descriptor->defaultSize);
-    dock->setWindowTitle(descriptor->defaultTitle);
+    dock->setWindowTitle(QString("%1: %2").arg(descriptor->defaultTitle, EngineTools::engineRoleToQString(key.engineRole)));
     connect(dock, &DockToolHost::toolClosed, this, &ToolHostController::handleDockClosed);
     dock->installEventFilter(this);
 
