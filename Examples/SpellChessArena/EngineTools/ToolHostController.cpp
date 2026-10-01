@@ -138,9 +138,6 @@ void ToolHostController::loadSettings() {
 
         EngineTools::EngineRole engineRole = static_cast<EngineTools::EngineRole>(roleId);
 
-        const auto engine = RunningEnginesService::getInstance().getById(roleId);
-        if (!engine.has_value())
-            continue;
         const auto area = static_cast<Qt::DockWidgetArea>(settings.value(instancePrefix + QStringLiteral("dockArea"), static_cast<int>(Qt::RightDockWidgetArea)).toInt());
         EngineTools::ToolInstanceKey key{type.value(), engineRole};
         if (addEmbeddedWithoutSaving(key, area)) {
