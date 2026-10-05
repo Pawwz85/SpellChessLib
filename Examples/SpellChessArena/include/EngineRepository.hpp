@@ -83,6 +83,8 @@ class EngineIdentificationTask {
         std::string errorMsg;
     };
 
+    static Result validate(const std::string & executablePath);
+
     static Result probe(UCILoader::ProcessWrapper * process) {
         Result result;
         using EngineInstance = typename UCILoader::EngineInstance<SpellChessLib::SpellChessMove>;
@@ -126,7 +128,7 @@ class EnginePlayerRepositoryView : public QDialog {
     QLayout * layout;
 
     QListWidget * listWidget;
-    AddNewEngineDialog * newEngineDialog;
+    AddNewEngineDialog * newEngineDialog = nullptr;
 
     void onEngineIdentificationFinished(const EngineIdentificationTask::Result & res, const std::string & path);
     private slots:
@@ -156,8 +158,8 @@ class AddNewEngineDialog : public QDialog {
 class EditEngineDialog : public QDialog {
     QLineEdit * nameEdit;
     QLineEdit * pathToEngineEdit;
+    std::string originalPath;
     
-    bool pathChanged = false;
     EngineListEntry resultEntry;
 
     public:

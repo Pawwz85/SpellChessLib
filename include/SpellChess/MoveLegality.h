@@ -44,6 +44,4 @@ namespace SpellChessLib {
 	bool isKingMovePseudoLegal(const GameState& state, const PlayerColor& us, const SquareIndex& from, const SquareIndex& to);
 	bool isSliderMovePseudoLegal(const GameState& state, const PlayerColor& us, const SquareIndex& from, const SquareIndex& to, const SquareIndex& jumpSq);
 
-	// depracted. Use MoveGen.isMoveLegal instead
-	bool isMoveLegal(const GameState& state, const SpellChessMove& move);
 }

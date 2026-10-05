@@ -17,6 +17,7 @@
 #include <QtConcurrent>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <stdexcept>
 
 void EnginePlayerRepository::tryLoadFromTheDisk(){
 
@@ -103,14 +104,49 @@ void EnginePlayerRepository::swapEntriesAt(qsizetype index1, qsizetype index2){
 }
 
 void EnginePlayerRepository::replaceEntryAt(qsizetype index, const EngineListEntry & entry) {
+    if (index < 0 || index >= entries.size())
+        throw std::out_of_range("Engine repository index is out of range");
+
+    const uint32_t oldEntryId = entries.at(index).entry_id;
+    // Check the old registry entry before registering anything. This keeps a
+    // failed replacement non-destructive and prevents an orphan replacement.
+    SpellChessLib::PlayerRegistry->get(oldEntryId);
+
     auto playerEntry = playerEntryFromEngineEntryList(entry);
     SpellChessLib::PlayerRegistry->registerEntry(playerEntry);
-    entry.entry_id = playerEntry.id;
 
-    entries[index] = entry;
+    try {
+        SpellChessLib::PlayerRegistry->eraseEntry(oldEntryId);
+    } catch (...) {
+        try {
+            SpellChessLib::PlayerRegistry->eraseEntry(playerEntry.id);
+        } catch (...) {
+        }
+        throw;
+    }
+
+    EngineListEntry replacement = entry;
+    replacement.entry_id = playerEntry.id;
+
+    entries[index] = replacement;
     persist();
     listChanged(entries);
 };
+
+EngineIdentificationTask::Result EngineIdentificationTask::validate(const std::string & executablePath) {
+    Result result;
+    try {
+        auto * process = UCILoader::openProcess({executablePath}, "/");
+        result = probe(process);
+    } catch (const std::exception & e) {
+        result.success = false;
+        result.errorMsg = e.what();
+    } catch (...) {
+        result.success = false;
+        result.errorMsg = "Unable to open or probe the engine";
+    }
+    return result;
+}
 
 const EngineListEntry &EnginePlayerRepository::findById(uint32_t id) const{
     for(const auto & someEntry : entries )
@@ -125,7 +161,7 @@ EnginePlayerRepository &getEnginePlayerRepositoryInstance(){
 }
 
 void EnginePlayerRepositoryView::promptForNewEntry(){
-    if (newEngineDialog)
+    if (!newEngineDialog)
         newEngineDialog = new AddNewEngineDialog(this);
     else {
         newEngineDialog->reset();
@@ -201,9 +237,51 @@ void EnginePlayerRepositoryView::editCurrentItem() {
 
         connect(dialog, &QDialog::accepted, this, [this, dialog, currRow](){
             auto & repo = getEnginePlayerRepositoryInstance();
-            repo.replaceEntryAt(currRow, dialog->getResult());
-            onListChanged(repo.getAll());
-            // TODO: test if path provided by user is still valid engine path
+            const EngineListEntry editedEntry = dialog->getResult();
+
+            if (!dialog->hasPathChanged()) {
+                repo.replaceEntryAt(currRow, editedEntry);
+                dialog->deleteLater();
+                return;
+            }
+
+            QProgressDialog * progressDialog = new QProgressDialog(
+                tr("Scanning the engine..."), QString(), 0, 0, this);
+            progressDialog->setWindowModality(Qt::WindowModal);
+            progressDialog->setWindowTitle(tr("Please wait"));
+            progressDialog->setMinimumDuration(500);
+
+            using Watcher = QFutureWatcher<EngineIdentificationTask::Result>;
+            auto * watcher = new Watcher(this);
+            const std::string executablePath = editedEntry.pathToEngine;
+
+            connect(watcher, &Watcher::finished, this,
+                [this, watcher, progressDialog, editedEntry, currRow]() {
+                    const auto result = watcher->result();
+                    progressDialog->close();
+                    progressDialog->deleteLater();
+
+                    if (!result.success) {
+                        QMessageBox msg(this);
+                        msg.setText(tr("Invalid chess engine."));
+                        msg.setInformativeText(QString::fromStdString(result.errorMsg));
+                        msg.setStandardButtons(QMessageBox::Ok);
+                        msg.setDefaultButton(QMessageBox::Ok);
+                        msg.exec();
+                    } else {
+                        getEnginePlayerRepositoryInstance().replaceEntryAt(currRow, editedEntry);
+                    }
+
+                    watcher->deleteLater();
+                });
+
+            QFuture<EngineIdentificationTask::Result> future = QtConcurrent::run(
+                [executablePath]() {
+                    return EngineIdentificationTask::validate(executablePath);
+                });
+            watcher->setFuture(future);
+            dialog->deleteLater();
+            progressDialog->exec();
         });
 
         dialog->open();
@@ -233,17 +311,7 @@ void EnginePlayerRepositoryView::onNewEngineDialogAccepted(){
     });
 
     QFuture<EngineIdentificationTask::Result> future = QtConcurrent::run([executablePath]() {
-        UCILoader::ProcessWrapper * process = nullptr;
-        EngineIdentificationTask::Result result;
-        try {
-            process = UCILoader::openProcess({executablePath}, "/");
-            result = EngineIdentificationTask::probe(process);
-        } catch (const UCILoader::CanNotOpenProcessException & e) {
-            result.success = false;
-            result.errorMsg = e.what();
-        };
-        
-        return result;
+        return EngineIdentificationTask::validate(executablePath);
     });
 
     watcher->setFuture(future);
@@ -341,10 +409,11 @@ EngineListEntry EditEngineDialog::getResult() const {
 }
 
 bool EditEngineDialog::hasPathChanged() const {
-    return pathChanged;
+    return resultEntry.pathToEngine != originalPath;
 }
 
-EditEngineDialog::EditEngineDialog(const EngineListEntry & entry, QWidget * parent) : QDialog(parent), resultEntry(entry) {
+EditEngineDialog::EditEngineDialog(const EngineListEntry & entry, QWidget * parent) :
+    QDialog(parent), originalPath(entry.pathToEngine), resultEntry(entry) {
     QVBoxLayout *  layout = new QVBoxLayout(this);
 
     nameEdit = new QLineEdit(this);
@@ -363,7 +432,6 @@ EditEngineDialog::EditEngineDialog(const EngineListEntry & entry, QWidget * pare
 
     connect(pathToEngineEdit, &QLineEdit::textChanged, this, [this](const QString & val){
         this->resultEntry.pathToEngine = val.toStdString();
-        this->pathChanged = true;
     });
 
     auto enginePath = pathToEngineEdit;

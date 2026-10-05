@@ -34,7 +34,7 @@ namespace Core {
     };
 
     namespace Private {
-        // TODO: This class feels a litle bit redundant 
+       
         template <class Model, class Controller>
         class SingleControllerComponent : 
         public ComponentPrototype<Model, Controller>

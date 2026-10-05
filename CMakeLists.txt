@@ -57,7 +57,26 @@ FetchContent_Declare(
 		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.2.1.zip
 )
 
-FetchContent_MakeAvailable(UCILoader)
+# UCILoader v1.2.1 installs UCILoaderConfig.cmake using a relative source
+# path, although configure_package_config_file() generates it in the build
+# directory. Patch the fetched project before adding it so its install rule
+# references the generated file.
+FetchContent_GetProperties(UCILoader)
+if(NOT uciloader_POPULATED)
+	FetchContent_Populate(UCILoader)
+endif()
+
+file(READ "${uciloader_SOURCE_DIR}/CMakeLists.txt" _uciloader_cmake_lists)
+string(REPLACE
+	"install( FILES \"UCILoaderConfig.cmake\" \"\${CMAKE_CURRENT_BINARY_DIR}/UCILoaderConfigVersion.cmake\""
+	"install( FILES \"\${CMAKE_CURRENT_BINARY_DIR}/UCILoaderConfig.cmake\" \"\${CMAKE_CURRENT_BINARY_DIR}/UCILoaderConfigVersion.cmake\""
+	_uciloader_cmake_lists
+	"${_uciloader_cmake_lists}"
+)
+file(WRITE "${uciloader_SOURCE_DIR}/CMakeLists.txt" "${_uciloader_cmake_lists}")
+
+add_subdirectory("${uciloader_SOURCE_DIR}" "${uciloader_BINARY_DIR}")
+unset(_uciloader_cmake_lists)
 
 # find_package(UCILoader REQUIRED)
 

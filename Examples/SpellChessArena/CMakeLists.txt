@@ -52,3 +52,11 @@ enable_testing()
 set_target_properties( arena PROPERTIES
     WIN32_EXECUTABLE ON
 )
+
+install(TARGETS arena
+    RUNTIME DESTINATION .
+)
+
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets/"
+    DESTINATION assets
+)

@@ -293,6 +293,15 @@ TEST(PGN4MoveParser, move_with_promotion_b) {
     ASSERT_EQ(actual, expected);
 }
 
+TEST(PGN4MoveParser, malformed_move) {
+    SpellChessLib::FenParser fen_parser;
+    auto context = fen_parser.fromSpellChessFen(SpellChessLib::SPELL_START_POS);
+    ASSERT_THROW(
+        (void)SpellChessLib::PGN4Parser::parseMove("malformed-move", context),
+        SpellChessLib::InvalidPGN4
+    );
+}
+
 TEST(StringTokenizer, split_string1) {
     const std::string input = "Mary.has.a.little.lamb";
     auto parts = SpellChessLib::Parsing::splitString(input, '.');
@@ -321,5 +330,3 @@ TEST(StringTokenizer, split_string3) {
     ASSERT_EQ(parts.size(), 1);
     ASSERT_EQ(parts[0], "Mary has a little lamb");
 };
-
-// TODO: ensure invalid moves throw exception when parsing illformatted moves
