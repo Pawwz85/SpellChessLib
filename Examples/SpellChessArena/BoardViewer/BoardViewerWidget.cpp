@@ -71,6 +71,8 @@ void BoardViewer::BoardViewerWidget::connectSlots() {
     connect(board, &Board::BoardWidget::onDrag, this, &BoardViewerWidget::handleDrag, Qt::ConnectionType::DirectConnection);
     connect(board, &Board::BoardWidget::onClick, this, &BoardViewerWidget::handleClick);
     connect(board, &Board::BoardWidget::onDragStarted, this, &BoardViewerWidget::handleClick);
+        connect(&board->boardGridModel, &Board::BoardGridModel::onOrientationChanged,
+            this, &BoardViewerWidget::updatePlayerInfoLayout);
 
     connectModelSlots();
 
@@ -208,34 +210,35 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
     whitePlayerName = new QLabel(this);
     blackPlayerName = new QLabel(this);
     
-    QGridLayout * gridLayout = new QGridLayout(this);
+    gridLayout = new QGridLayout(this);
     SingleItemSquareLayout * boardContainer = new SingleItemSquareLayout();
     boardContainer->addWidget(board);
     
     gridLayout->addLayout(boardContainer, 1, 1, 8, 8);
 
-    QHBoxLayout * blackInfoLayout = new QHBoxLayout();
-    blackInfoLayout->addWidget(blackTimer);
-    blackInfoLayout->addWidget(blackPlayerName);
-    gridLayout->addLayout(blackInfoLayout, 0, 2, 1, 2);
+    SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
+    SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
 
-    QHBoxLayout * whiteInfoLayout = new QHBoxLayout();
-    whiteInfoLayout->addWidget(whiteTimer);
-    whiteInfoLayout->addWidget(whitePlayerName);
-    gridLayout->addLayout(whiteInfoLayout, 9, 2, 1, 2);
+    blackPlayerInfo = new QWidget(this);
+    QGridLayout * blackInfoLayout = new QGridLayout(blackPlayerInfo);
+    blackInfoLayout->addWidget(blackTimer, 0, 0, 1, 2);
+    blackInfoLayout->addWidget(blackPlayerName, 0, 2, 1, 2);
+    blackInfoLayout->addWidget(blPanel, 0, 6, 1, 2);
+
+    whitePlayerInfo = new QWidget(this);
+    QGridLayout * whiteInfoLayout = new QGridLayout(whitePlayerInfo);
+    whiteInfoLayout->addWidget(whiteTimer, 0, 0, 1, 2);
+    whiteInfoLayout->addWidget(whitePlayerName, 0, 2, 1, 2);
+    whiteInfoLayout->addWidget(whPanel, 0, 6, 1, 2);
 
     layout->addLayout(gridLayout, 3);
     layout->addWidget(moveList, 1);
     moveList->setMaximumWidth(300);
 
-    SpellPanel * blPanel = new SpellPanel(blackSpellPanel);
-    SpellPanel * whPanel = new SpellPanel(whiteSpellPanel);
-    gridLayout->addWidget(blPanel, 0, 6, 1, 2);
-    gridLayout->addWidget(whPanel, 9, 6, 1, 2);
-
     setLayout(layout);
 
     connectSlots();
+    updatePlayerInfoLayout(board->orientation());
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 
     interactionManager = std::make_shared<UserInteractionManager>([this]() {
@@ -251,6 +254,21 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
 
 BoardViewer::BoardViewerWidget::~BoardViewerWidget(){
     delete model;
+}
+
+void BoardViewer::BoardViewerWidget::updatePlayerInfoLayout(Board::BoardOrientation orientation) {
+    static constexpr int topRow = 0;
+    static constexpr int bottomRow = 9;
+    QWidget * playerInfoByOrientation[2][2] = {
+        {blackPlayerInfo, whitePlayerInfo},
+        {whitePlayerInfo, blackPlayerInfo}
+    };
+    const auto & playerInfo = playerInfoByOrientation[static_cast<int>(orientation)];
+
+    gridLayout->removeWidget(playerInfo[0]);
+    gridLayout->removeWidget(playerInfo[1]);
+    gridLayout->addWidget(playerInfo[0], topRow, 2, 1, 6);
+    gridLayout->addWidget(playerInfo[1], bottomRow, 2, 1, 6);
 }
 
 Board::BoardOrientation BoardViewer::BoardViewerWidget::boardOrientation() const {

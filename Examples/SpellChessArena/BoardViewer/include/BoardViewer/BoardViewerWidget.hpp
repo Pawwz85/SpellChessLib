@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QHBoxLayout>
+#include <QGridLayout>
 #include <QLabel>
 
 #include <BoardGrid/BoardGridWidget.h>
@@ -37,6 +38,9 @@ namespace BoardViewer {
 
 
         QHBoxLayout * layout;
+        QGridLayout * gridLayout;
+        QWidget * whitePlayerInfo;
+        QWidget * blackPlayerInfo;
 
         SpellPanelModel whiteSpellPanel;
         SpellPanelModel blackSpellPanel;
@@ -47,6 +51,7 @@ namespace BoardViewer {
 
         void updateLinter();
         void updatePlayerNames();
+        void updatePlayerInfoLayout(Board::BoardOrientation orientation);
         void keyPressEvent(QKeyEvent * event) override;
 
         protected slots:
