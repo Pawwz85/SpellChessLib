@@ -2,7 +2,7 @@
 
 BoardViewer::DocumentViewerModel::DocumentViewerModel(std::shared_ptr<SpellChessLib::SpellChessDocument> document, QObject * parent) : BoardViewer::Model(parent) {
     this->document = document;
-    this->currentPosition = document->getRoot();
+    this->currentPosition = document->getTail();
 }
 
 SpellChessLib::SpellChessDocument::Handle 
