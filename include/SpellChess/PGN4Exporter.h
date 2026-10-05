@@ -19,6 +19,7 @@ namespace SpellChessLib {
 		char checkMark() const;
 		std::string makeStartFen4BoardPart(const GameState& root, const char* pieceSymbols) const;
 		std::string serializeSpell(const GameState& root, const PlayerColor& color) const;
+		std::string serializeSpellFields(const GameState& root) const;
 		std::string SquareIndexToToken(const SquareIndex index) const;
 		std::string makeTokenFromMoveAndAdvance(const SpellChessMove& move);
 		Annotation::TagPair makeStartFen4(const GameState& root) const;

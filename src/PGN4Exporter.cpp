@@ -110,6 +110,22 @@ std::string SpellChessLib::PGN4Exporter::serializeSpell(const GameState& root, c
 	return result;
 }
 
+std::string SpellChessLib::PGN4Exporter::serializeSpellFields(const GameState& root) const
+{
+	std::string result = "(";
+	bool first = true;
+	for (const auto& field : root.getSpellFields()) {
+		if (!first)
+			result += ',';
+		first = false;
+		result += "'" + std::to_string(field.life) + "_" + std::to_string(field.player - 1) + "_";
+		result += field.type == JumpSpell ? "jump@" : "freeze@";
+		result += SquareIndexToToken(field.target) + "'";
+	}
+	result += ')';
+	return result;
+}
+
 std::string SpellChessLib::PGN4Exporter::SquareIndexToToken(const SquareIndex index) const{
 	std::string sq = squareIndexToString(index);
 	char file = sq[0] + 3;
@@ -190,9 +206,7 @@ SpellChessLib::Annotation::TagPair SpellChessLib::PGN4Exporter::makeStartFen4(co
 	result += serializeSpell(root, Black);
 	result += ", '')";
 
-	result += ",'spellFields':(";
-	// todo: reverse engineer this field
-	result += ')';
+	result += ",'spellFields':" + serializeSpellFields(root);
 
 	result += "}"; // end of json
 

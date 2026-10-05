@@ -190,6 +190,7 @@ void SpellChessLib::GameState::clearSpells()
     }
     jumpSquare = NoSquare;
     frozeSquare = NoSquare;
+    spellFields.clear();
 }
 
 void SpellChessLib::GameState::loadCastlingRights(bool* array)
@@ -206,6 +207,18 @@ void SpellChessLib::GameState::loadSpellInfos(const SpellCounter* array)
     spells[White - 1][JumpSpell] = array[1];
     spells[Black - 1][FreezeSpell] = array[2];
     spells[Black - 1][JumpSpell] = array[3];
+}
+
+void SpellChessLib::GameState::loadSpellFields(const std::vector<SpellField>& fields)
+{
+    for (const auto& field : fields) {
+        if (field.type == FreezeSpell) {
+            frozeArea(field.target);
+        } else if (field.type == JumpSpell) {
+            board[field.target].jumpable = true;
+            jumpSquare = field.target;
+        }
+    }
 }
 
 void SpellChessLib::GameState::frozeArea(const SquareIndex& sq)
@@ -415,6 +428,7 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
 
     if (move.freezeSquare != NoSquare) {
         frozeArea(move.freezeSquare);
+        spellFields.push_back({FreezeSpell, sideToMove, move.freezeSquare, 1});
         decrementSpellUsages(sideToMove, FreezeSpell);
     }
     else
@@ -423,6 +437,7 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
     if (move.jumpSquare != NoSquare) {
         board[move.jumpSquare].jumpable = true;
         jumpSquare = move.jumpSquare;
+        spellFields.push_back({JumpSpell, sideToMove, move.jumpSquare, 1});
         decrementSpellUsages(sideToMove, JumpSpell);
     }
     else
@@ -802,14 +817,19 @@ void SpellChessLib::FenParser::_loadStandardFen(GameState& state, const std::vec
 void SpellChessLib::FenParser::_loadSpellChessFen(GameState& state, const std::vector<std::string>& tokens)
 {
     _loadStandardFen(state, tokens);
+	state.spellFields.clear();
 
     loadSq(state.frozeSquare, tokens[6]);
-    if(state.frozeSquare != NoSquare)
+	if(state.frozeSquare != NoSquare) {
         state.frozeArea(state.frozeSquare);
+		state.spellFields.push_back({FreezeSpell, flipColor(state.sideToMove), state.frozeSquare, 1});
+	}
     
     loadSq(state.jumpSquare, tokens[7]);
-    if (state.jumpSquare != NoSquare)
+	if (state.jumpSquare != NoSquare) {
         state.board[state.jumpSquare].jumpable = true;
+		state.spellFields.push_back({JumpSpell, flipColor(state.sideToMove), state.jumpSquare, 1});
+	}
     
     loadSpells(state, tokens[8]);
     state.spellChessMode = true;

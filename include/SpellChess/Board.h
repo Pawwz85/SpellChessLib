@@ -79,6 +79,17 @@ namespace SpellChessLib {
 
 	};
 
+	struct SpellField {
+		SpellIdentificator type;
+		PlayerColor player;
+		SquareIndex target;
+		uint8_t life;
+
+		bool operator==(const SpellField& other) const {
+			return type == other.type && player == other.player && target == other.target && life == other.life;
+		}
+	};
+
 	struct SpellChessMove{
 		uint8_t from;
 		uint8_t to;
@@ -197,6 +208,7 @@ namespace SpellChessLib {
 		void clearSpells();
 		void loadCastlingRights(bool* array);
 		void loadSpellInfos(const SpellCounter* array);
+		void loadSpellFields(const std::vector<SpellField>& fields);
 		void revokeCastlingRightsAssociatedWithGivenRook(const PlayerColor & rookColor, const SquareIndex & index);
 		void makeCastling(const PlayerColor& playerColor, const CastlingDirection & direction);
 
@@ -211,6 +223,7 @@ namespace SpellChessLib {
 		SpellCounter spells[2][2];
 		bool castlingRights[2][2];
 		BoardSquare board[64];
+		std::vector<SpellField> spellFields;
 
 		inline SpellCounter& getSpell(const PlayerColor& side, const SpellIdentificator& spellType) {
 			return spells[side - 1][spellType];
@@ -276,6 +289,18 @@ namespace SpellChessLib {
 			loadSpellInfos(spells);
 		}
 
+		GameState(BoardSquare* board, PlayerColor sideToMove, bool * castlingRights, SquareIndex enpassantSquare, uint16_t halfMoveCounter, uint16_t fullMoveCounter,
+			const std::vector<SpellField>& spellFields, SpellCounter* spells) :
+			enpassantSquare(enpassantSquare), halfMoveRuleCounter(halfMoveCounter), fullMoveCounter(fullMoveCounter), sideToMove(sideToMove),
+			spellChessMode(true), frozeSquare(NoSquare), jumpSquare(NoSquare), spellFields(spellFields)
+		{
+			for (size_t i = 0; i < 64; ++i)
+				this->board[i] = board[i];
+			loadCastlingRights(castlingRights);
+			loadSpellInfos(spells);
+			loadSpellFields(this->spellFields);
+		}
+
 		// copy constructor
 		GameState(const GameState & other) {
 			this->spellChessMode = other.spellChessMode;
@@ -283,6 +308,7 @@ namespace SpellChessLib {
 			this->enpassantSquare = other.enpassantSquare;
 			this->frozeSquare = other.frozeSquare;
 			this->jumpSquare = other.jumpSquare;
+			this->spellFields = other.spellFields;
 			this->halfMoveRuleCounter = other.halfMoveRuleCounter;
 			this->fullMoveCounter = other.fullMoveCounter;
 			memcpy(this->board, other.board, sizeof(BoardSquare) * 64);
@@ -295,6 +321,7 @@ namespace SpellChessLib {
 		const SquareIndex& getEnppassantSquare() const { return enpassantSquare; };
 		const SquareIndex& getJumpSquare() const { return jumpSquare; };
 		const SquareIndex& getFreezeSquare() const { return frozeSquare;  }
+		const std::vector<SpellField>& getSpellFields() const { return spellFields; }
 		const uint16_t& getHalfMoveCounter() const { return halfMoveRuleCounter; };
 		const uint16_t& getFullMoveCounter() const { return fullMoveCounter; }
 		const BoardSquare& getSquare(const SquareIndex& i) const { return board[i]; };

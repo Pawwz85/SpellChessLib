@@ -6,6 +6,7 @@
 #include <array>
 #include <map>
 #include <iostream> // for cerr
+#include <limits>
 #include <nlohmann/json.hpp> // we need to parse some inline json in PGN4
 
 namespace SpellChessLib {
@@ -608,6 +609,59 @@ namespace SpellChessLib {
             return result;
         };
 
+        std::vector<SpellField> extractSpellFieldsFromJson(const nlohmann::json& jsonObject) {
+            if (!jsonObject.contains("spellFields"))
+                return {};
+
+            const auto fields = jsonObject["spellFields"];
+            if (!fields.is_array())
+                throw InvalidPGN4("Invalid StartFen4: invalid spellFields");
+
+            std::vector<SpellField> result;
+            for (const auto& value : fields) {
+                if (!value.is_string())
+                    throw InvalidPGN4("Invalid StartFen4: invalid spell field");
+
+                const std::string entry = value.get<std::string>();
+                const size_t firstUnderscore = entry.find('_');
+                const size_t secondUnderscore = entry.find('_', firstUnderscore == std::string::npos ? firstUnderscore : firstUnderscore + 1);
+                const size_t at = entry.find('@', secondUnderscore == std::string::npos ? secondUnderscore : secondUnderscore + 1);
+                if (firstUnderscore == std::string::npos || secondUnderscore == std::string::npos || at == std::string::npos || at + 1 >= entry.size() || entry.find('@', at + 1) != std::string::npos)
+                    throw InvalidPGN4("Invalid StartFen4: invalid spell field: " + entry);
+
+                try {
+                    size_t consumed = 0;
+                    const std::string lifeText = entry.substr(0, firstUnderscore);
+                    const unsigned long life = std::stoul(lifeText, &consumed);
+                    if (consumed != lifeText.size()) throw InvalidPGN4("invalid lifetime");
+                    const std::string playerText = entry.substr(firstUnderscore + 1, secondUnderscore - firstUnderscore - 1);
+                    const unsigned long player = std::stoul(playerText, &consumed);
+                    if (consumed != playerText.size()) throw InvalidPGN4("invalid player");
+                    const std::string target = entry.substr(at + 1);
+                    if (target.size() < 2 || target.size() > 3 || target[0] < 'd' || target[0] > 'k')
+                        throw InvalidPGN4("Invalid StartFen4: invalid spell field: " + entry);
+
+                    const std::string rankText = target.substr(1);
+                    const int rank = std::stoi(rankText, &consumed);
+                    if (consumed != rankText.size() || rank < 4 || rank > 11 || life > std::numeric_limits<uint8_t>::max() || player > 1)
+                        throw InvalidPGN4("Invalid StartFen4: invalid spell field: " + entry);
+
+                    SpellIdentificator type;
+                    const std::string typeText = entry.substr(secondUnderscore + 1, at - secondUnderscore - 1);
+                    if (typeText == "jump") type = JumpSpell;
+                    else if (typeText == "freeze") type = FreezeSpell;
+                    else throw InvalidPGN4("Invalid StartFen4: invalid spell field: " + entry);
+
+                    result.push_back({type, player == 0 ? White : Black, parsePgn4Square(target), static_cast<uint8_t>(life)});
+                } catch (const InvalidPGN4&) {
+                    throw;
+                } catch (const std::exception&) {
+                    throw InvalidPGN4("Invalid StartFen4: invalid spell field: " + entry);
+                }
+            }
+            return result;
+        }
+
         #define IGNORE_FEN4_PART(part)
 
         SpellChessLib::GameState parseFen4(const std::string_view & fen4) { 
@@ -629,7 +683,8 @@ namespace SpellChessLib {
 
             auto castlingRights = concatCastlingRights(kingsideCastlings, queensideCastlings);
             auto spells = extractSpellInfoFromJson(jsonObject); 
-            return GameState(board.data(), sideToMove, castlingRights.data(), NoSquare, halfMoveCounter, 1, NoSquare, NoSquare, spells.data());
+            auto spellFields = extractSpellFieldsFromJson(jsonObject);
+            return GameState(board.data(), sideToMove, castlingRights.data(), NoSquare, halfMoveCounter, 1, spellFields, spells.data());
         };
         
         Annotation::GameAnnotations parsePgn4(std::string_view source) {

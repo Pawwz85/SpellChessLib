@@ -2,6 +2,110 @@
 
 #include <SpellChess/PGN4Parser.h>
 #include <SpellChess/StringTokenizer.h>
+#include <SpellChess/PGN4Exporter.h>
+#include <sstream>
+
+static std::string spellFieldFen(const std::string& fields, bool includeFields = true) {
+    const std::string emptyBoard =
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x/"
+        "x,x,x,x,x,x,x,x,x,x,x,x,x,x";
+    return "R-0,1,0,1-1,0,1,0-1,0,1,0-0,0,0,0-0-{'spells':('jump_0x0,freeze_0x0','', 'jump_0x0,freeze_0x0','')" +
+        (includeFields ? ",'spellFields':(" + fields + ")" : "") + "}-" + emptyBoard;
+}
+
+TEST(PGN4SpellFields, parsesMultipleFieldsAndCoordinates) {
+    auto state = SpellChessLib::PGN4Parser::parseFen4(spellFieldFen("'1_0_jump@d4','1_1_freeze@k11'"));
+    ASSERT_EQ(state.getSpellFields().size(), 2u);
+    EXPECT_EQ(state.getSpellFields()[0], (SpellChessLib::SpellField{SpellChessLib::JumpSpell, SpellChessLib::White, 56, 1}));
+    EXPECT_EQ(state.getSpellFields()[1], (SpellChessLib::SpellField{SpellChessLib::FreezeSpell, SpellChessLib::Black, 7, 1}));
+    EXPECT_TRUE(state.getSquare(7).frozen);
+    EXPECT_TRUE(state.getSquare(56).jumpable);
+}
+
+TEST(PGN4SpellFields, missingFieldIsBackwardCompatible) {
+    auto state = SpellChessLib::PGN4Parser::parseFen4(spellFieldFen("", false));
+    EXPECT_TRUE(state.getSpellFields().empty());
+}
+
+TEST(PGN4SpellFields, malformedFieldIsRejected) {
+    EXPECT_THROW(SpellChessLib::PGN4Parser::parseFen4(spellFieldFen("'1_2_jump@3,3'")), SpellChessLib::InvalidPGN4);
+    EXPECT_THROW(SpellChessLib::PGN4Parser::parseFen4(spellFieldFen("'1_0_teleport@3,3'")), SpellChessLib::InvalidPGN4);
+    EXPECT_THROW(SpellChessLib::PGN4Parser::parseFen4(spellFieldFen("'1_0_jump@c3'")), SpellChessLib::InvalidPGN4);
+}
+
+TEST(PGN4SpellFields, updatedAfterFreezeMove) {
+    SpellChessLib::FenParser parser;
+    auto state = parser.fromSpellChessFen(SpellChessLib::SPELL_START_POS);
+
+    state.makeMove(SpellChessLib::SpellChessMove("freeze@d5&e2e4"));
+
+    ASSERT_EQ(state.getSpellFields().size(), 1u);
+    EXPECT_EQ(state.getSpellFields()[0], (SpellChessLib::SpellField{
+        SpellChessLib::FreezeSpell, SpellChessLib::White, 27, 1
+    }));
+    EXPECT_EQ(state.getFreezeSquare(), 27);
+}
+
+TEST(PGN4SpellFields, updatedAfterJumpCast) {
+    SpellChessLib::FenParser parser;
+    auto state = parser.fromSpellChessFen(SpellChessLib::SPELL_START_POS);
+
+    state.makeMove(SpellChessLib::SpellChessMove("jump@d4&e2e4"));
+
+    ASSERT_EQ(state.getSpellFields().size(), 1u);
+    EXPECT_EQ(state.getSpellFields()[0], (SpellChessLib::SpellField{
+        SpellChessLib::JumpSpell, SpellChessLib::White, 35, 1
+    }));
+    EXPECT_EQ(state.getJumpSquare(), 35);
+    EXPECT_TRUE(state.getSquare(35).jumpable);
+}
+
+TEST(PGN4SpellFields, expiresAfterNextMove) {
+    SpellChessLib::FenParser parser;
+    auto state = parser.fromSpellChessFen(SpellChessLib::SPELL_START_POS);
+
+    state.makeMove(SpellChessLib::SpellChessMove("freeze@d5&e2e4"));
+    ASSERT_FALSE(state.getSpellFields().empty());
+
+    state.makeMove(SpellChessLib::SpellChessMove("e7e5"));
+
+    EXPECT_TRUE(state.getSpellFields().empty());
+    EXPECT_EQ(state.getFreezeSquare(), SpellChessLib::NoSquare);
+    EXPECT_FALSE(state.getSquare(27).frozen);
+}
+
+TEST(PGN4SpellFields, legacyFenFieldSurvivesUiExportAfterNf6) {
+    SpellChessLib::FenParser parser;
+    auto state = parser.fromSpellChessFen(
+        "rnbqkbnr/pppp1ppp/8/1B2p3/4P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2 c7 - F42/J20/f50/j20");
+
+    ASSERT_EQ(state.getSpellFields().size(), 1u);
+    EXPECT_EQ(state.getSpellFields()[0], (SpellChessLib::SpellField{
+        SpellChessLib::FreezeSpell, SpellChessLib::White, 10, 1
+    }));
+
+    SpellChessLib::Annotation::GameAnnotations annotations;
+    annotations.root = state;
+    annotations.annotatedSequence.appendMove(SpellChessLib::SpellChessMove("g8f6"));
+
+    std::stringstream output;
+    SpellChessLib::PGN4Exporter exporter(&output);
+    exporter.exportPGN4(state, annotations);
+
+    EXPECT_NE(output.str().find("'spellFields':('1_0_freeze@f10')"), std::string::npos);
+}
 
 
 TEST(PGN4Tokenizer, empty_string) {
