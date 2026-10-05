@@ -21,7 +21,7 @@ set ( src_files
     "src/PastePGN4Dialog.cpp"
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Gui  Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui Concurrent)
 
 qt_standard_project_setup()
 
@@ -41,18 +41,9 @@ add_subdirectory(BoardViewer)
 
 qt_add_executable( arena ${src_files} )
 
-include(FetchContent)
-set(JUST_INSTALL_CEREAL true) # we are not interested in performing unit test and performance comparison
-FetchContent_Declare(
-  cereal
-  GIT_REPOSITORY https://github.com/USCiLab/cereal.git
-  GIT_TAG        v1.3.2 # Latest stable as of 23.03.2026
-)
-FetchContent_MakeAvailable(cereal)
-
 target_compile_definitions( arena PRIVATE QT_NO_EMIT) # Disable QT's emit keyword to avoid name conflict with UCI Loader
-target_link_libraries( arena PRIVATE Qt6::Widgets Qt6::Gui Qt6::Concurrent)
-target_link_libraries( arena PRIVATE BoardGrid SpellButton SpriteSet BoardViewer spellchess cereal::cereal Misc)
+target_link_libraries( arena PRIVATE Qt6::Core Qt6::Widgets Qt6::Gui Qt6::Concurrent)
+target_link_libraries( arena PRIVATE BoardGrid SpellButton SpriteSet BoardViewer spellchess Misc)
 target_include_directories( arena PRIVATE include )
 
 enable_testing()

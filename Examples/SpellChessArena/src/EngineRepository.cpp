@@ -2,11 +2,8 @@
 #include <EngineRepository.hpp>
 #include <EngineTools/RunningEnginesService.hpp>
 
-#include <fstream>
-#include <vector>
-#include <cereal/types/vector.hpp>
-
 #include <QIcon>
+#include <QSettings>
 #include <QWidget>
 #include <QLabel>
 #include <QToolBar>
@@ -23,38 +20,38 @@
 
 void EnginePlayerRepository::tryLoadFromTheDisk(){
 
-    std::ifstream file;
-    file.open("engines.json");
+    QSettings settings(QStringLiteral("SpellChessLib"), QStringLiteral("SpellChessArena"));
+    const qsizetype engineCount = settings.beginReadArray(QStringLiteral("engines"));
 
-    if(!file.good()) {
-        file.close();
-        return;
+    for (qsizetype index = 0; index < engineCount; ++index) {
+        settings.setArrayIndex(index);
+
+        EngineListEntry entry;
+        entry.name = settings.value(QStringLiteral("name")).toString().toStdString();
+        entry.pathToEngine = settings.value(QStringLiteral("executable")).toString().toStdString();
+        entry.simGamesPolicy = static_cast<SpellChessLib::PlayerEntry::SimultaneousGamesPolicy>(
+            settings.value(QStringLiteral("simultaneousGamesPolicy")).toInt());
+        registerEntry(entry);
     }
 
-    std::vector<EngineListEntry> buff;
-
-    cereal::JSONInputArchive archive(file);
-
-    archive(buff);
-
-    file.close();
-
-    for( const auto & entry : buff) {
-      registerEntry(entry);
-    };
+    settings.endArray();
 }
 
 void EnginePlayerRepository::persist(){
-    std::ofstream file;
-    file.open("engines.json");
-    if(!file.good()) {
-        file.close();
-        return;
-    }
-    std::vector<EngineListEntry> buff(entries.begin(), entries.end());
+    QSettings settings(QStringLiteral("SpellChessLib"), QStringLiteral("SpellChessArena"));
+    settings.remove(QStringLiteral("engines"));
+    settings.beginWriteArray(QStringLiteral("engines"));
 
-    cereal::JSONOutputArchive archive(file);
-    archive(buff);
+    for (qsizetype index = 0; index < entries.size(); ++index) {
+        const auto &entry = entries.at(index);
+        settings.setArrayIndex(index);
+        settings.setValue(QStringLiteral("name"), QString::fromStdString(entry.name));
+        settings.setValue(QStringLiteral("executable"), QString::fromStdString(entry.pathToEngine));
+        settings.setValue(QStringLiteral("simultaneousGamesPolicy"), static_cast<int>(entry.simGamesPolicy));
+    }
+
+    settings.endArray();
+    settings.sync();
 }
 
 SpellChessLib::PlayerEntry EnginePlayerRepository::playerEntryFromEngineEntryList(const EngineListEntry &engineEntry)
@@ -225,7 +222,7 @@ void EnginePlayerRepositoryView::onNewEngineDialogAccepted(){
 
     std::string executablePath = newEngineDialog->getResultEntry().pathToEngine;
 
-    using Watcher = typename QFutureWatcher<EngineIdentificationTask::Result>;
+    using Watcher = QFutureWatcher<EngineIdentificationTask::Result>;
     Watcher * watcher = new Watcher(this);    
 
     connect(watcher, &Watcher::finished, this, [this, watcher, &progessDialog, executablePath](){

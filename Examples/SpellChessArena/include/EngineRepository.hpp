@@ -3,7 +3,6 @@
 #include <string>
 #include <chrono>
 
-#include <cereal/archives/json.hpp>
 #include <SpellChess/PlayerEntry.h>
 #include <SpellChess/UCIEnginePlayer.h>
 #include <SpellChess/PlayerRegistry.h> // for EntryNotFoundError
@@ -30,15 +29,6 @@ struct EngineListEntry {
     SpellChessLib::PlayerEntry::SimultaneousGamesPolicy simGamesPolicy;
     mutable uint32_t entry_id; 
 };
-
-template <class Archive>
-void serialize(Archive & ar, EngineListEntry & entry) {
-    ar( cereal::make_nvp("name", entry.name),
-        cereal::make_nvp("executable", entry.pathToEngine),
-        cereal::make_nvp("simoultanousGamePolicy", entry.simGamesPolicy)
-    );
-};
-
 
 class EnginePlayerRepository : public QObject {
     Q_OBJECT
