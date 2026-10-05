@@ -20,6 +20,16 @@ BoardViewer::DocumentViewerModel::canUserSubmitMove() {
     return true;
 }
 
+QString BoardViewer::DocumentViewerModel::getWhitePlayerName() const {
+    const auto tag = document->getTag("White");
+    return tag.has_value() && !tag->empty() && *tag != "?" ? QString::fromStdString(*tag) : QStringLiteral("White");
+}
+
+QString BoardViewer::DocumentViewerModel::getBlackPlayerName() const {
+    const auto tag = document->getTag("Black");
+    return tag.has_value() && !tag->empty() && *tag != "?" ? QString::fromStdString(*tag) : QStringLiteral("Black");
+}
+
 void
 BoardViewer::DocumentViewerModel::handleMakeMove(SpellChessLib::SpellChessMove move) {
     currentPosition = document->makeMove(currentPosition, move);

@@ -10,6 +10,7 @@
 #include <SpellChess/DocumentAnnotator.h> 
 
 #include <QObject>
+#include <QString>
 
 #include "SpellChessMoveBuilder.hpp"
 
@@ -65,6 +66,8 @@ namespace BoardViewer {
         virtual SpellChessLib::GameState getCurrentState() const; 
         virtual std::shared_ptr<const SpellChessLib::SpellChessDocument> getDocument() const = 0;
         virtual bool canUserSubmitMove() = 0;
+        virtual QString getWhitePlayerName() const { return QStringLiteral("White"); }
+        virtual QString getBlackPlayerName() const { return QStringLiteral("Black"); }
         virtual bool canUserAnalizeDocumentNow() const;
         virtual void analyzeDocument(std::shared_ptr<SpellChessLib::DocumentAnnotator> annotator);
 

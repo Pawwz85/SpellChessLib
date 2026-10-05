@@ -8,7 +8,9 @@
 #include <EngineTools/EngineRolesService.hpp>
 
 BoardViewer::GameViewerModel::GameViewerModel(std::shared_ptr<SpellChessLib::TimerService> timeServ, const OpenSessionRequest &request, QCoreApplication *app) : runnerAdapter(app, this),
-                                                                                                                                                                 application(app)
+                                                                                                                                                                 application(app),
+                                                                                                                                                                 whitePlayerName(request.getWhitePlayer().getName()),
+                                                                                                                                                                 blackPlayerName(request.getBlackPlayer().getName())
 {
     using PlayerPointer = typename SpellChessLib::Scheduler::ResourcePointer<SpellChessLib::Player>;
         
@@ -151,4 +153,12 @@ bool BoardViewer::GameViewerModel::canUserSubmitMove() {
     SpellChessLib::PlayerColor sideToMove = getCurrentState().getSideToMove();
     return !isCurrentStateTail() || isPlayerHuman[sideToMove];
 };
+
+QString BoardViewer::GameViewerModel::getWhitePlayerName() const {
+    return whitePlayerName;
+}
+
+QString BoardViewer::GameViewerModel::getBlackPlayerName() const {
+    return blackPlayerName;
+}
 

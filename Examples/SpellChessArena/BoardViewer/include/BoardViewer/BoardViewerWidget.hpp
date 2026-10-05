@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QHBoxLayout>
+#include <QLabel>
 
 #include <BoardGrid/BoardGridWidget.h>
 
@@ -31,6 +32,8 @@ namespace BoardViewer {
 
         PlayerTimer * whiteTimer;
         PlayerTimer * blackTimer;
+        QLabel * whitePlayerName;
+        QLabel * blackPlayerName;
 
 
         QHBoxLayout * layout;
@@ -43,6 +46,7 @@ namespace BoardViewer {
         LinterInput prepareInfoForLinter() const;
 
         void updateLinter();
+        void updatePlayerNames();
         void keyPressEvent(QKeyEvent * event) override;
 
         protected slots:

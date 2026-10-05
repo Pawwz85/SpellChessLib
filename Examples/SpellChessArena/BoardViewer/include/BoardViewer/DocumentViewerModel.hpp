@@ -10,6 +10,8 @@ namespace BoardViewer {
         SpellChessLib::SpellChessDocument::Handle getCurrentPosition() const override;
         std::shared_ptr<const SpellChessLib::SpellChessDocument> getDocument() const override;
         bool canUserSubmitMove() override;
+        QString getWhitePlayerName() const override;
+        QString getBlackPlayerName() const override;
     };
 }
 

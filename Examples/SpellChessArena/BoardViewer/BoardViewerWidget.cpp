@@ -92,6 +92,12 @@ void BoardViewer::BoardViewerWidget::setModel(Model * model) {
     interactionManager->setCurrentState(std::make_unique<NoFocus>(this, interactionManager));
     handleDocumentChanged(*model->getDocument());
     handleModelChanged(*model);
+    updatePlayerNames();
+}
+
+void BoardViewer::BoardViewerWidget::updatePlayerNames() {
+    whitePlayerName->setText(model->getWhitePlayerName());
+    blackPlayerName->setText(model->getBlackPlayerName());
 }
 
 BoardViewer::LinterInput BoardViewer::BoardViewerWidget::prepareInfoForLinter() const {
@@ -199,14 +205,24 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
 
     whiteTimer = new PlayerTimer(this);
     blackTimer = new PlayerTimer(this); 
+    whitePlayerName = new QLabel(this);
+    blackPlayerName = new QLabel(this);
     
     QGridLayout * gridLayout = new QGridLayout(this);
     SingleItemSquareLayout * boardContainer = new SingleItemSquareLayout();
     boardContainer->addWidget(board);
     
     gridLayout->addLayout(boardContainer, 1, 1, 8, 8);
-    gridLayout->addWidget(blackTimer, 0, 1, 1, 2);
-    gridLayout->addWidget(whiteTimer, 9, 1, 1, 2);
+
+    QHBoxLayout * blackInfoLayout = new QHBoxLayout();
+    blackInfoLayout->addWidget(blackTimer);
+    blackInfoLayout->addWidget(blackPlayerName);
+    gridLayout->addLayout(blackInfoLayout, 0, 2, 1, 2);
+
+    QHBoxLayout * whiteInfoLayout = new QHBoxLayout();
+    whiteInfoLayout->addWidget(whiteTimer);
+    whiteInfoLayout->addWidget(whitePlayerName);
+    gridLayout->addLayout(whiteInfoLayout, 9, 2, 1, 2);
 
     layout->addLayout(gridLayout, 3);
     layout->addWidget(moveList, 1);
@@ -230,6 +246,7 @@ BoardViewer::BoardViewerWidget::BoardViewerWidget(Model *model, QWidget *parent)
 
     handleDocumentChanged(*model->getDocument()); // neccessary for document viewer to display correctly
     handleModelChanged(*model);
+    updatePlayerNames();
 }
 
 BoardViewer::BoardViewerWidget::~BoardViewerWidget(){
