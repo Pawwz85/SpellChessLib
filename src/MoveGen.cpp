@@ -228,7 +228,7 @@ void SpellChessLib::MoveGenerator::generateProtoMovesForPawn(const GameState& st
 	
 	if (y == start_y) {
 		jumpConstrains = constrains;
-		if (!state.getSquare(currentSquare).isEmpty())
+		if (!state.getSquare(currentSquare).isEmpty() && !state.getSquare(currentSquare).jumpable)
 			jumpConstrains.push_back({CastJumpSq, currentSquare});
 		currentSquare = squareIndexFromCords(x, y + 2*dy);
 		if(state.getSquare(currentSquare).isEmpty())

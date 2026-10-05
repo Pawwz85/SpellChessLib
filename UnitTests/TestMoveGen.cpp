@@ -519,3 +519,10 @@ TEST(move_gen, freeze_check_with_king_is_illegal) {
 	SPELL_CHESS_MOVE_GEN_SETUP("8/8/8/2b2K2/8/6k1/8/8 b - - 1 131 - - F10/J00/f10/j10");
 	ASSERT_MOVE_IS_ILLEGAL("freeze@e4&g3g4");
 }
+
+TEST(move_gen, jump_pawn_push_over_jumpable_field) {
+	SPELL_CHESS_MOVE_GEN_SETUP("rnb2k2/pp3ppB/4p3/3p4/1P1P1P2/P1N3n1/1BPP1bP1/1K1R2R1 w - - 3 15 - g3 F30/J20/f40/j12");
+	std::vector<SpellChessMove> requiredMoves = parseMoveList({"g2g4"});
+	std::vector<MoveCandidate> matchingMoves;
+	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
+}
