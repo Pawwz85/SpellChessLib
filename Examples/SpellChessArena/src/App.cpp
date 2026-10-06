@@ -5,6 +5,7 @@
 #include <EmptyBoardWidget.hpp>
 #include <EngineRepository.hpp>
 #include <PastePGN4Dialog.hpp>
+#include <PasteFENDialog.hpp>
 
 #include <BoardViewer/GameViewerModel.hpp>
 #include <BoardViewer/BoardViewerWidget.hpp>
@@ -232,6 +233,19 @@ void App::showPGN4Pastebin() {
 
 }
 
+void App::showFENPastebin() {
+    PasteFENDialog dialog(mainWindow->centralWidget());
+    if (dialog.exec() != QDialog::Accepted)
+        return;
+
+    try {
+        openDocument(SpellChessLib::createEmptySpellChessDocument(dialog.getFEN()));
+    } catch (const std::exception &e) {
+        QMessageBox::critical(mainWindow->centralWidget(), tr("Load position from FEN"),
+                              tr("The FEN is invalid: %1").arg(e.what()));
+    }
+}
+
 App::~App() {
     toolHostController.reset();
     delete mainWindow;
@@ -255,12 +269,14 @@ App::App(QCoreApplication * coreApp) {
     
     QAction * newGameAction = playMenu->addAction(tr("New game", "Play new game"));
     QAction * openPGN4Action = playMenu->addAction(tr("Load PGN4", "Load PGN4 document"));
+    QAction * openFENAction = playMenu->addAction(tr("Load FEN"));
     copyFen = playMenu->addAction(tr("Copy FEN"));
     copyPgn = playMenu->addAction(tr("Copy PGN"));
     QAction * analiseGameAction = playMenu->addAction(tr("Analise game", "Request computer analisis"));
 
     connect(newGameAction, &QAction::triggered, this, &App::showNewSessionBuilder);
     connect(openPGN4Action, &QAction::triggered, this, &App::showPGN4Pastebin);
+    connect(openFENAction, &QAction::triggered, this, &App::showFENPastebin);
     connect(analiseGameAction,  &QAction::triggered, this, &App::showAnalisisConfigDialog);
 
     QMenu * boardMenu = menuBar->addMenu(tr("Board", "Menu for chessboard customizations"));

@@ -13,6 +13,28 @@ TEST(SpellChessDocument, createEmptyNoParams) {
     ASSERT_EQ(rootState.toFen(), SPELL_START_POS);
 };
 
+TEST(SpellChessDocument, createEmptyFromStandardFenContainsOnlyRoot) {
+    const std::string fen = "r2k3r/pp1b1Bpp/2p5/1n2p3/8/8/PBP2PPP/3R1RK1 w - - 4 14";
+    auto doc = createEmptySpellChessDocument(fen);
+
+    ASSERT_EQ(doc->getRoot().lock(), doc->getTail().lock());
+    ASSERT_EQ(doc->size(), 1);
+    ASSERT_TRUE(doc->getChildren(doc->getRoot()).empty());
+    ASSERT_FALSE(doc->getGameState(doc->getRoot()).isSpellChessGame());
+    ASSERT_EQ(doc->getGameState(doc->getRoot()).toFen(), fen);
+}
+
+TEST(SpellChessDocument, createEmptyFromSpellChessFenContainsOnlyRoot) {
+    const std::string fen = SPELL_START_POS;
+    auto doc = createEmptySpellChessDocument(fen);
+
+    ASSERT_EQ(doc->getRoot().lock(), doc->getTail().lock());
+    ASSERT_EQ(doc->size(), 1);
+    ASSERT_TRUE(doc->getChildren(doc->getRoot()).empty());
+    ASSERT_TRUE(doc->getGameState(doc->getRoot()).isSpellChessGame());
+    ASSERT_EQ(doc->getGameState(doc->getRoot()).toFen(), fen);
+}
+
 TEST(SpellChessDocument, makeMove) {
     auto doc = createEmptySpellChessDocument();
     SpellChessDocument::Handle rootHandle = doc->getRoot();

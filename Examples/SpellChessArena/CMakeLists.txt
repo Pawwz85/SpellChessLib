@@ -19,6 +19,7 @@ set ( src_files
     "src/LiveAnalisisEngineDialog.cpp"
     "src/main.cpp"
     "src/PastePGN4Dialog.cpp"
+    "src/PasteFENDialog.cpp"
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui Concurrent)

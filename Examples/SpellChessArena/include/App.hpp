@@ -65,6 +65,7 @@ class App : public QObject {
     public slots:
     void showNewSessionBuilder();  
     void showPGN4Pastebin();
+    void showFENPastebin();
     void showEngineManager();
     void showAnalisisConfigDialog();
     void showLiveAnalisisEngineDialog();
