@@ -6,7 +6,6 @@
 #include <QObject>
 #include <QMainWindow>
 #include <QPointer>
-#include <QEvent>
 
 #include <SpellChess/Board.h>
 
@@ -16,11 +15,13 @@ class ToolHostController : public QObject {
     Q_OBJECT
     QMainWindow *mainWindow;
     std::map<EngineTools::ToolInstanceKey, QPointer<DockToolHost>> embedded;
+    bool settingsLoaded = false;
+    bool restoringSettings = false;
+    bool settingsCanBeSaved = false;
 
     void saveSettings() const;
     bool addEmbedded(EngineTools::ToolInstanceKey key, Qt::DockWidgetArea area);
     bool addEmbeddedWithoutSaving(EngineTools::ToolInstanceKey key, Qt::DockWidgetArea area);
-    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private slots:
     void handleDockClosed(EngineTools::ToolTypeId type, EngineTools::EngineRole role);

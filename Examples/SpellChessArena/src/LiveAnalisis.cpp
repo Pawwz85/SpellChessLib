@@ -86,6 +86,10 @@ Internal::lifeAnalisisEntryPoint(LifeAnalisisThreadInfo * controlBlock){
         };
 
         WaitForNextRequest:
+
+        if (!lock.owns_lock())
+            lock.lock();
+
         if (controlBlock->requestQueue.empty())
             controlBlock->conVar.wait_for(lock, std::chrono::seconds(5));
     };
