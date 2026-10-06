@@ -192,7 +192,7 @@ void ToolHostController::saveSettings() const {
     if (!settingsLoaded || restoringSettings || !settingsCanBeSaved)
         return;
 
-    QSettings loadSettings();
+    QSettings settings;
     const auto prefix = QString::fromLatin1(settingsPrefix);
     settings.setValue(prefix + QStringLiteral("schemaVersion"), settingsSchemaVersion);
 
