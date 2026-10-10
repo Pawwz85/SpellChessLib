@@ -7,3 +7,4 @@ Examples/TournamentRunner/report.json
 .gitignore
 .github/*
 data/**
+Testing/**
