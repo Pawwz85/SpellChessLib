@@ -23,7 +23,6 @@ set ( test_files
         "TestObserver.cpp"
         "TestPGN4Parser.cpp"
         "TestPgnExporter.cpp"
-        "TestPromotionContextMenuOverlay.cpp"
         "TestPlayerTimerService.cpp"
         "TestSchedulerModule.cpp"
         "TestSpellChessDocument.cpp"
@@ -53,7 +52,6 @@ add_custom_command(TARGET SpellChessLibTests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/assets/ $<TARGET_FILE_DIR:SpellChessLibTests>)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
-target_link_libraries(SpellChessLibTests GTest::gtest_main GTest::gmock uciloader spellchess BoardGrid Qt6::Widgets Pgn4ExtractorCore)
+target_link_libraries(SpellChessLibTests GTest::gtest_main GTest::gmock uciloader spellchess Pgn4ExtractorCore)
 include(GoogleTest)
 gtest_discover_tests(SpellChessLibTests)

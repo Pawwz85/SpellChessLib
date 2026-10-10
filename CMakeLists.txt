@@ -88,7 +88,6 @@ target_link_libraries(spellchess PUBLIC uciloader)
 
 
 add_subdirectory("Examples/TournamentRunner")
-add_subdirectory("Examples/SpellChessArena")
 add_subdirectory("Examples/Grimoire")
 add_subdirectory("Examples/Pgn4Generator")
 add_subdirectory("Examples/Pgn4FenExtractor")
