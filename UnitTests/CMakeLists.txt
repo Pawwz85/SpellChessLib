@@ -27,7 +27,7 @@ set ( test_files
         "TestSchedulerModule.cpp"
         "TestSpellChessDocument.cpp"
         "TestThreadPool.cpp"
-        "TestWorkerTHread.cpp"
+        "TestWorkerThread.cpp"
         "TestPgn4FenExtractor.cpp"
 )
 
