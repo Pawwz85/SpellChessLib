@@ -4,6 +4,7 @@
 #include <memory>
 #include <queue>
 #include <mutex>
+#include <climits>
 
 namespace SpellChessLib {
 	namespace Scheduler {

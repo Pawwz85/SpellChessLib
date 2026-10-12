@@ -1,4 +1,5 @@
 #include <SpellChess/Scheduler/GameScheduler.h>
+#include <climits>
 
 size_t SpellChessLib::Scheduler::GameScheduler::countPlayerOccurrencesInEntries(int playerId) const{
 	size_t result = 0;
