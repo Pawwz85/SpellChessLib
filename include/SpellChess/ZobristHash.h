@@ -1,12 +1,12 @@
 #pragma once
 
 #include <cstdint>
-#include <cmath>
 #include <array>
-
-#include "Board.h"
+#include <cstddef>
 
 namespace SpellChessLib {
+
+    class GameState;
 
     namespace Internal {
 

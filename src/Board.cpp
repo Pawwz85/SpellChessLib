@@ -1,8 +1,8 @@
 #include <SpellChess/Board.h>
 #include <SpellChess/StringTokenizer.h>
 #include <sstream>
-#include <ctype.h> // for isspace
-#include <math.h>
+#include <cctype> // for isspace
+#include <cmath>
 using namespace SpellChessLib;
 
 PlayerColor SpellChessLib::flipColor(const PlayerColor& c)

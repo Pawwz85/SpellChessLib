@@ -1,7 +1,10 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 
 #include <SpellChess/ThreadPool/WorkerThread.h>
 #include "ThreadPoolUtils.h"
+#include <memory>
+#include <chrono>
+#include <thread>
 
 using namespace SpellChessLib; 
 

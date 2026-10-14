@@ -1,4 +1,6 @@
 #include <SpellChess/TimerService.h>
+#include <SpellChess/Board.h>
+#include <UCILoader/UCI.h>  // for GoParamsBuilder
 #include <vector>
 
 void SpellChessLib::TimerService::destroyTimer(PlayerTimer_data* timer)

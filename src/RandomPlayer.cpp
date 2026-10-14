@@ -1,6 +1,13 @@
 #include <SpellChess/RandomPlayer.h>
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/SpellChessGame.h>
 #include <random>
+#include <cstddef>
+#include <memory>
+#include <vector>
+
 SpellChessLib::Player::Result SpellChessLib::RandomPlayer::makeResult(const Game& game, const std::chrono::milliseconds& timeOut)
 {
     auto s = game.getGameState();

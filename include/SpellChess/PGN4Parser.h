@@ -6,7 +6,7 @@
 #include "GameAnnotations.h"
 #include "Board.h"
 
-#include <stdexcept>
+#include <exception>
 
 namespace SpellChessLib {
 

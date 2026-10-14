@@ -48,6 +48,20 @@ set(all_files
 	${header_files}
 	${source_files}
 )
+
+option (ENABLE_IWYU "Enable include-what-you-use" ON)
+
+if(ENABLE_IWYU)
+    find_program(IWYU_EXECUTABLE NAMES include-what-you-use)
+    if(NOT IWYU_EXECUTABLE)
+        message(FATAL_ERROR
+            "ENABLE_IWYU is ON, but include-what-you-use was not found.")
+    endif()
+
+    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE
+        "${IWYU_EXECUTABLE}")
+endif()
+
 add_library(spellchess STATIC ${source_files})
 
 include(FetchContent)

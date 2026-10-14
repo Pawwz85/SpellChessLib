@@ -1,11 +1,12 @@
 #pragma once
 
 #include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/Board.h>
 
 #include <string>
+#include <exception>
 #include <memory>
 #include <functional>
-#include <stdexcept>
 #include <vector>
 
 namespace Extractor {

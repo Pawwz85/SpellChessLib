@@ -1,7 +1,10 @@
-#include "pch.h"
-
+#include <gtest/gtest.h>
 #include <SpellChess/GameAnnotations.h>
 #include <SpellChess/PGNExporter.h>
+#include <SpellChess/Board.h>
+#include <string>
+#include <utility>
+#include <variant>
 
 using namespace SpellChessLib;
 

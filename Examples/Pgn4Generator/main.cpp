@@ -2,8 +2,20 @@
 #include <SpellChess/RandomPlayer.h>
 #include <SpellChess/GameRunner.h>
 #include <SpellChess/SpellChessDocumentHTMLRenderer.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/Factory.h>
+#include <SpellChess/GameRunnerConfiguration.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/TimerService.h>
+
+#include <SpellChess/Scheduler/ObjectAllocator.h>
 
 
+#include <cstdlib>
+#include <optional>
+#include <string>
 #include <memory>
 #include <fstream>
 #include <iostream>

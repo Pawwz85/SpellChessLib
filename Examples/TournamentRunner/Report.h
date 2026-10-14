@@ -1,10 +1,12 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-#include <SpellChess/MatchStatistics.h>
-#include "Configuration.h"
+#include <nlohmann/json_fwd.hpp>
+
+namespace SpellChessLib { namespace Stats { struct TrinomialModel; } }
 
 namespace Runner {
+
+    struct Configuration;
 
     struct Report {
         unsigned int numberOfGames; 

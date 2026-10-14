@@ -1,5 +1,8 @@
 #include <SpellChess/PositionSupplier.h>
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/Board.h>
+#include <cstdlib>
+#include <vector>
 
 SpellChessLib::GameState SpellChessLib::RandomPositionSupplier::recursiveRandomization(GameState in, int level)
 {

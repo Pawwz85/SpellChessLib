@@ -1,10 +1,11 @@
 #include <SpellChess/PGNExporter.h>
-#include <SpellChess/MoveLegality.h> // for isMoveCastling function
-#include <SpellChess/MoveGen.h>
 #include <SpellChess/MoveNotation.h>
-#include <algorithm>
-#include <set>
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
 #include <sstream>
+#include <climits>
+#include <stdexcept>
+#include <variant>
 
 
 std::string SpellChessLib::PGNExporter::calculateSanMoveTokenAndAdvance(const SpellChessMove& move){

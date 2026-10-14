@@ -1,9 +1,19 @@
 #include <SpellChess/DocumentAnnotator.h>
-#include <SpellChess/MoveGen.h>
 #include <SpellChess/Arbiter.h>
-#include <SpellChess/ZobristHash.h>
+#include <SpellChess/GameAnnotations.h>
+#include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/SpellChessUciLoaderPort.h>
+#include <SpellChess/UCIHelpers.h>
+#include <SpellChess/Board.h>
+#include <UCILoader/EngineEvent.h>
+#include <UCILoader/UCI.h>
+#include <UCILoader/EngineConnection.h>
 #include <stdexcept>
 #include <cmath>
+#include <algorithm>
+#include <cstddef>
+#include <exception>
+#include <utility>
 
 std::optional<SpellChessLib::PositionInsights>
 SpellChessLib::DocumentAnnotator::lookupCache(SpellChessDocument::Handle pos) {

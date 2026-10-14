@@ -1,4 +1,7 @@
 #include <SpellChess/Player.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Board.h>
+#include <vector>
 #include <stdexcept>
 
 bool SpellChessLib::Player::ponderhit(const SpellChessMove& move) const {

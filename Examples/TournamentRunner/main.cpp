@@ -1,16 +1,24 @@
 #include <SpellChess/GameRunnerPool.h>
 #include <SpellChess/UCIEnginePlayer.h>
 #include <SpellChess/Scheduler/GameScheduler.h>
-#include <SpellChess/MatchStatistics.h>
 #include <SpellChess/SPRTTournament.h>
 #include <SpellChess/GrimoireOpeningBook.h>
 #include <SpellChess/OpeningBookPositionSupplier.h>
+#include <SpellChess/PlayerRegistry.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/TimerService.h>
+#include <SpellChess/PlayerEntry.h>
 
 #include <UCILoader/ProcessWrapper.h>
 
+#include <cstdlib>
+#include <ctime>
+#include <exception>
+#include <filesystem>
+#include <memory>
+#include <optional>
+#include <string>
 #include <iostream>
-#include <vector>
-#include <fstream>
 #include <csignal>
 
 #include <cxxopts.hpp>

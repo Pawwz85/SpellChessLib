@@ -1,7 +1,10 @@
 #pragma once
 
-#include "pch.h"
 #include <SpellChess/StringTokenizer.h>
+#include <SpellChess/Board.h>
+#include <vector>
+#include <initializer_list>
+#include <cstdint>
 
 static uint64_t computeExpectedMask(const std::initializer_list<const char*>& in) {
 	uint64_t result = 0ull;

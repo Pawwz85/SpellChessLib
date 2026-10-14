@@ -3,11 +3,17 @@
 #include "GameRunnerPool.h"
 #include "MatchStatistics.h"
 #include "PositionSupplier.h"
+#include "Board.h"
+#include "GameRunnerConfiguration.h"
 #include <mutex>
 #include <condition_variable>
+#include <cstddef>
+#include <memory>
 
 namespace SpellChessLib {
-
+	
+	class Game;
+	
 	class SPRTPTournament {
 	private:
 		Stats::TrinomialModel tournamentModel;

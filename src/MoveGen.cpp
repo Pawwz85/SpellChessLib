@@ -1,5 +1,8 @@
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/MoveLegality.h>
+#include <SpellChess/Board.h>
+#include <cstddef>
+#include <cmath>
 
 void SpellChessLib::MoveGenerator::resetCache()
 {

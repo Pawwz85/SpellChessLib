@@ -1,7 +1,11 @@
 #pragma once
 
+#include "Board.h"
 #include "Observer.h"
 #include "SpellChessGame.h"
+
+#include <memory>
+#include <vector>
 
 namespace SpellChessLib {
 

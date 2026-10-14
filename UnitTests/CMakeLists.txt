@@ -11,7 +11,6 @@ set ( header_files
 )
 
 set ( test_files 
-        "test.cpp"
         "TestAnnotations.cpp"
         "TestArbiter.cpp"
         "TestAsynchronousPlayer.cpp"

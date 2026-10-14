@@ -1,5 +1,8 @@
 #include <SpellChess/OpeningBookPositionSupplier.h>
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/OpeningBook.h>
+#include <SpellChess/Board.h>
+#include <optional>
 
 SpellChessLib::GameState SpellChessLib::OpeningBookPositionSupplier::produce() {
     GameState result = startPos;

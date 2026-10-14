@@ -5,7 +5,14 @@
 #include <cxxopts.hpp>
 
 #include <fstream>
+#include <cstdlib>
+#include <exception>
+#include <memory>
+#include <string>
+#include <utility>
 #include <iostream>
+
+#include <SpellChess/SpellChessDocument.h>
 
 int main(int argc, char ** argv) {
     try {

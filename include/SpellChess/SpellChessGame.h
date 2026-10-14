@@ -1,16 +1,18 @@
 #pragma once
 
 #include "Board.h"
-#include "MoveGen.h"
 #include "TimerService.h"
 #include "SpellChessDocument.h"
 #include "ZobristHash.h"
 #include "Arbiter.h"
+#include "GameAnnotations.h"
 #include <mutex>
 #include <memory>
-#include <functional>
-#include <list>
-#include <thread>
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <vector>
 #include <UCILoader/UCI.h>
 
 namespace SpellChessLib {

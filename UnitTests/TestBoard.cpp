@@ -1,7 +1,10 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 #include <SpellChess/Board.h>
 #include <SpellChess/StringTokenizer.h>
 #include <algorithm>
+#include <cstdint>
+#include <cstddef>
+
 using namespace SpellChessLib;
 
 TEST(Square, empty) {

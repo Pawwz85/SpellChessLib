@@ -1,4 +1,6 @@
 #include <SpellChess/UCIHelpers.h>
+#include <SpellChess/Board.h>
+#include <UCILoader/UCI.h>
 #include <stdexcept>
 
 namespace SpellChessLib {

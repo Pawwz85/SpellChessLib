@@ -1,7 +1,16 @@
 #include <SpellChess/SpellChessGame.h>
-#include <SpellChess/MoveLegality.h>
-#include <cassert>
+#include <SpellChess/Arbiter.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/MoveGen.h>
+#include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/TimerService.h>
+#include <SpellChess/ZobristHash.h>
+#include <SpellChess/GameAnnotations.h>
+#include <UCILoader/UCI.h>
 #include <stdexcept>
+#include <algorithm>
+#include <map>
+#include <optional>
 
 void SpellChessLib::Game::notifyResultObservers(){
 	for(auto & weakPointer : resultObservers)

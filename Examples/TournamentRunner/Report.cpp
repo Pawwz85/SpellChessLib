@@ -1,4 +1,7 @@
 #include "Report.h"
+#include "Configuration.h"
+#include <SpellChess/MatchStatistics.h>
+#include <nlohmann/json.hpp>
 #include <fstream>
 
 Runner::Report Runner::makeReport(const SpellChessLib::Stats::TrinomialModel &model,  const Configuration & config){

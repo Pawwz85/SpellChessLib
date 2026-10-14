@@ -2,8 +2,9 @@
 
 #include "PositionSupplier.h"
 #include "OpeningBook.h"
+#include "Board.h"
 #include <memory>
-#include <mutex>
+#include <string>
 
 namespace SpellChessLib {
 

@@ -1,5 +1,8 @@
 #include <SpellChess/SpellChessUciLoaderPort.h>
 #include <SpellChess/StringTokenizer.h>
+#include <SpellChess/Board.h>
+#include <UCILoader/EngineConnection.h>
+
 void SpellChessLib::SpellChessMoveMarshaler::loadInto(const std::string& token, SpellChessMove & target) const {
 	target = token;
 }

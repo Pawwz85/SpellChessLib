@@ -3,6 +3,7 @@
 #include <memory>
 #include <mutex>
 #include <atomic>
+#include <chrono> // for milliseconds
 #include "TimerService.h"
 
 namespace SpellChessLib {

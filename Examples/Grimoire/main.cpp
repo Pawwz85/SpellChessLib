@@ -3,7 +3,18 @@
 #include "OpeningBookEntry.h"
 #include <cxxopts.hpp>
 
+#include <UCILoader/ProcessWrapper.h>
+#include <UCILoader/EngineConnection.h>
+
+#include <SpellChess/SpellChessUciLoaderPort.h>
+
+#include <cstdlib>
+#include <memory>
+#include <string>
+#include <vector>
 #include <iostream>
+
+namespace SpellChessLib { struct SpellChessMove; }
 
 int main(int argc, char ** argv) {
 

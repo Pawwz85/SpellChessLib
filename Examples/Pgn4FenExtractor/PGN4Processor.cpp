@@ -1,6 +1,9 @@
 #include "PGN4Processor.h"
 #include "Feature.h"
 #include <iostream>
+#include <cstddef>
+#include <exception>
+#include <SpellChess/SpellChessDocument.h>
 #include <SpellChess/PGN4Parser.h>
 
 using namespace Extractor;

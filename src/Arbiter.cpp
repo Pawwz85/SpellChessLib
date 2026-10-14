@@ -1,7 +1,9 @@
 #include <SpellChess/Arbiter.h>
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/ZobristHash.h>
+#include <SpellChess/Board.h>
 #include <algorithm>
+#include <cstdint>
 
 SpellChessLib::ArbiterVerdict
 SpellChessLib::arbite(const GameState & pos, const GameHistory & history) {

@@ -1,6 +1,11 @@
 #include <SpellChess/SpellChessDocumentHTMLRenderer.h>
 #include <SpellChess/MoveNotation.h>
-
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
+#include <SpellChess/SpellChessDocument.h>
+#include <cstddef>
+#include <utility>
+#include <vector>
 namespace SpellChessLib {
     namespace HTML {
 

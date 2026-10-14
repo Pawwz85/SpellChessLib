@@ -1,5 +1,6 @@
 #include <SpellChess/StringTokenizer.h>
-#include <string.h>
+#include <cctype>
+#include <cstddef>
 #include <sstream>
 
 using namespace SpellChessLib;

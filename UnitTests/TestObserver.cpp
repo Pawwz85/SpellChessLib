@@ -1,6 +1,6 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 #include <SpellChess/Observer.h>
-
+#include <memory>
 using namespace SpellChessLib;
 
 
@@ -12,7 +12,7 @@ public:
 	State getKnownValue() { return knownValue; }
 	int getUpdateCount() { return updateCount; }
 
-	// Odziedziczono za poœrednictwem elementu Observer
+	// Odziedziczono za poï¿½rednictwem elementu Observer
 	void onObservedStateUpdate(const State& state) override{
 		knownValue = state;
 		++updateCount;

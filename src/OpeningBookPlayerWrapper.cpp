@@ -1,4 +1,11 @@
 #include <SpellChess/OpeningBookPlayerWrapper.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/OpeningBook.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Scheduler/ObjectAllocator.h>
+#include <optional>
+#include <utility>
 
 SpellChessLib::PlayerWithOpeningBook::PlayerWithOpeningBook(Scheduler::ResourcePointer<Player> && wraped, std::shared_ptr<OpeningBook> book)
     : book(book), wrapped(std::move(wraped))

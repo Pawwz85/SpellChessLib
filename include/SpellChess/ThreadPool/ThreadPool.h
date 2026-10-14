@@ -4,6 +4,10 @@
 #include <queue>
 #include <list>
 #include <functional>
+#include <chrono>
+#include <cstddef>
+#include <exception>
+#include <thread>
 
 #include "WorkerThread.h"
 

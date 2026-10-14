@@ -1,10 +1,14 @@
 #pragma once
 
-#include <UCILoader/ProcessWrapper.h>
 #include <UCILoader/EngineConnection.h>
 
 #include "Player.h"
 #include "Factory.h"
+#include "Board.h"
+
+#include <memory>
+#include <chrono>
+#include <string>
 
 namespace SpellChessLib {
 	

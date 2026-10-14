@@ -2,10 +2,12 @@
 
 #include <SpellChess/Board.h>
 #include <vector>
-
-#include "GameNode.h"
+#include <cstdint>
+#include <string>
 
 namespace Grimoire {
+
+    struct GameNode;
 
     struct OpeningBookEntry {
         uint64_t hash;

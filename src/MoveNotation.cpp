@@ -1,10 +1,12 @@
 #include <SpellChess/MoveNotation.h>
 #include <SpellChess/MoveLegality.h> // for isMoveCastling function
 #include <SpellChess/MoveGen.h>
+#include <SpellChess/Board.h>
 #include <set>
 #include <vector>
-#include <stdexcept>
 #include <algorithm>
+#include <cstddef>
+
 
 enum SANAmbiguityLevel {
 			NoAmbiguity,

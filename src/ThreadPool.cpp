@@ -1,4 +1,7 @@
 #include <SpellChess/ThreadPool/ThreadPool.h>
+#include <SpellChess/ThreadPool/WorkerThread.h>
+#include <utility>
+
 using namespace SpellChessLib;
 
 void SpellChessLib::ThreadPool::shrinkPool()

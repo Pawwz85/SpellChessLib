@@ -1,4 +1,6 @@
 #include <SpellChess/PlayerRegistry.h>
+#include <SpellChess/PlayerEntry.h>
+#include <utility>
 
 std::unique_ptr<SpellChessLib::PlayerRegistry_t>  SpellChessLib::PlayerRegistry = std::make_unique<SpellChessLib::PlayerRegistry_t>();
 

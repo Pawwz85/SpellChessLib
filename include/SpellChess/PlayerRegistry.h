@@ -1,9 +1,11 @@
 #pragma once
 
 #include "PlayerEntry.h"
-#include "Observer.h"
 #include <memory>
 #include <map>
+#include <atomic>
+#include <exception>
+#include <string>
 
 namespace SpellChessLib {
 

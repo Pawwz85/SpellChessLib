@@ -1,7 +1,13 @@
 #pragma once
 
+#include "Board.h"
 #include "OpeningBook.h"
 #include <mutex>
+#include <cstdint>
+#include <cstdio>
+#include <filesystem>
+#include <memory>
+#include <vector>
 
 namespace SpellChessLib {
 

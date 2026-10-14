@@ -1,7 +1,9 @@
 #pragma once
 
 #include <optional>
-#include <cxxopts.hpp>
+#include <string>
+
+namespace cxxopts { class ParseResult; }
 
 namespace Runner {
 

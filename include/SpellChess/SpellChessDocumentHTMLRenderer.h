@@ -6,6 +6,9 @@
 #include <unordered_map>
 #include <optional>
 #include <memory>
+#include <string>
+
+ namespace SpellChessLib { namespace Annotation { enum class MoveClassification; } }
 
 namespace SpellChessLib {
 

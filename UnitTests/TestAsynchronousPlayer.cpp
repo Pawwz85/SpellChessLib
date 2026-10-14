@@ -1,8 +1,12 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 #include <SpellChess/AsynchronousPlayer.h>
-#include <SpellChess/GameRunner.h>
 #include <SpellChess/TimerService.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/SpellChessGame.h>
 #include <thread>
+#include <memory>
+#include <chrono>
 
 SpellChessLib::Game
 gameFixture() {

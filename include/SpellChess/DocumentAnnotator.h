@@ -1,11 +1,17 @@
 #pragma once
 
+#include "Board.h"
 #include "SpellChessDocument.h"
 #include "GameAnnotations.h"
-#include "SpellChessUciLoaderPort.h"
+
+#include <UCILoader/EngineConnection.h>
 
 #include "UCIHelpers.h"
 
+#include <chrono>
+#include <cstdint>
+#include <string>
+#include <vector>
 #include <optional>
 #include <functional>
 #include <memory>

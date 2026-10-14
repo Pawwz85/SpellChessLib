@@ -1,6 +1,13 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 #include <SpellChess/SpellChessGame.h>
-#
+#include <SpellChess/TimerService.h>
+#include <chrono>
+#include <ctime>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <thread>
+
 using namespace SpellChessLib;
 
 

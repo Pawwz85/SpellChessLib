@@ -1,6 +1,14 @@
+#include <SpellChess/OpeningBook.h>
 #include <SpellChess/GrimoireOpeningBook.h>
 #include <SpellChess/ZobristHash.h>
+#include <SpellChess/Board.h>
 #include <random>
+#include <optional>
+#include <mutex>
+#include <vector>
+#include <filesystem>
+#include <cstdio>
+#include <cstdint>
 
 long SpellChessLib::GrimoireOpeningBook::count() const {
     if(fseek(file, 0, SEEK_END))

@@ -2,11 +2,14 @@
 
 #include <memory>
 #include <vector>
-#include <cstdint>
 #include <mutex>
 #include <atomic>
-#include <unordered_map>
 #include <optional>
+#include <cstddef>
+#include <exception>
+#include <map>
+#include <string>
+#include "Board.h"
 #include "GameAnnotations.h"
 
 namespace SpellChessLib {

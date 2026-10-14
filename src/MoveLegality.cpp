@@ -1,6 +1,10 @@
+#include <SpellChess/Board.h>
 #include <SpellChess/MoveLegality.h>
 #include <SpellChess/StringTokenizer.h> // for parseSquareIndex
-#include <assert.h>
+#include <cmath>
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 
 using namespace SpellChessLib;
 

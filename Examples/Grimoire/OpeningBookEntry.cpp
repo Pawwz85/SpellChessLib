@@ -1,9 +1,12 @@
 #include "OpeningBookEntry.h"
+#include "GameNode.h" 
 
 #include <algorithm>
 #include <cstdio>
 #include <queue>
+#include <cmath>
 #include <SpellChess/ZobristHash.h>
+#include <SpellChess/Board.h>
 
 void Grimoire::sort_opening_book(std::vector<OpeningBookEntry> &book)
 {

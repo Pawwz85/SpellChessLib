@@ -1,12 +1,18 @@
 #include "Feature.h"
 
 #include <SpellChess/ZobristHash.h>
+#include <SpellChess/SpellChessDocument.h>
 
 #include <algorithm>
 #include <cctype>
 #include <functional>
 #include <stdexcept>
-#include <sstream>
+#include <cstddef>                         
+#include <iterator>                        
+#include <optional>                         
+#include <utility>                          
+
+namespace SpellChessLib { class GameState; }
 
 namespace {
 std::string trim(const std::string & value) {

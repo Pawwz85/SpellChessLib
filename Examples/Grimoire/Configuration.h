@@ -1,9 +1,12 @@
 #pragma once
 
-#include <UCILoader/EngineConnection.h>
-#include <SpellChess/SpellChessUciLoaderPort.h>
 #include <cstdint>
-#include <cxxopts.hpp>
+#include <chrono>
+#include <string>
+#include <SpellChess/Board.h>
+#include <UCILoader/UCI.h>
+
+namespace cxxopts { class ParseResult; }
 
 namespace Grimoire {
 

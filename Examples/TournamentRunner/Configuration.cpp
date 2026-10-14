@@ -1,4 +1,5 @@
 #include "Configuration.h"
+#include <cxxopts.hpp>
 #include <thread>
 
 Runner::Configuration Runner::parseConfig(cxxopts::ParseResult & parsedArguments) {

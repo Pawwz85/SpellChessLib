@@ -1,7 +1,13 @@
 #include <SpellChess/UCIEnginePlayer.h>
 #include <SpellChess/SpellChessUciLoaderPort.h>
-#include <UCILoader/Logger.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Board.h>
+#include <UCILoader/EngineConnection.h>
+#include <UCILoader/ProcessWrapper.h>
+#include <UCILoader/UCI.h>
 #include <stdexcept>
+#include <vector>
 
 SpellChessLib::Player::Result SpellChessLib::UCIEnginePlayer::waitForResult(std::chrono::milliseconds duration)
 {

@@ -3,6 +3,8 @@
 #include "Board.h"
 #include "GameAnnotations.h"
 #include <ostream>
+#include <cstdint>
+#include <string>
 
 namespace SpellChessLib {
 	class PGN4Exporter {

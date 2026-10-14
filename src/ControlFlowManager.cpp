@@ -1,4 +1,5 @@
 #include <SpellChess/ControlFlowManager.h>
+#include <SpellChess/TimerService.h>
 
 void SpellChessLib::ControlFlowManager::registerBlockingTask(BlockingTask* task){
 	std::lock_guard<std::mutex> guard(lock);

@@ -1,4 +1,5 @@
 #include <SpellChess/ZobristHash.h>
+#include <SpellChess/Board.h>
 
 std::array<uint64_t, SpellChessLib::Internal::zobrish_key_count()> SpellChessLib::zobrishKeys = 
     SpellChessLib::Internal::generate_random_table< SpellChessLib::Internal::zobrish_key_count()>();

@@ -3,6 +3,8 @@
 #include "Board.h"
 #include "GameAnnotations.h"
 #include <ostream>
+#include <cstddef>
+#include <string>
 
 namespace SpellChessLib {
 

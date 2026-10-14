@@ -1,4 +1,6 @@
 #include <SpellChess/GameRunnerConfiguration.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/TimerService.h>
 
 SpellChessLib::GameRunnerConfigurationBuilder& SpellChessLib::GameRunnerConfigurationBuilder::withPosition(const std::string& fen, const std::vector<SpellChessMove>& moves){
     config.rootFen = fen;

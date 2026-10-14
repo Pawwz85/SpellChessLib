@@ -1,9 +1,11 @@
 #include <SpellChess/Board.h>
 #include <SpellChess/SpellChessUciLoaderPort.h>
 
+#include <UCILoader/ProcessWrapper.h>
 #include <UCILoader/EngineConnection.h>
 #include <UCILoader/UCI.h>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
@@ -13,6 +15,15 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <cmath>
+#include <cstdlib>
+#include <exception>
+#include <filesystem>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace {
 

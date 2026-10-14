@@ -1,6 +1,13 @@
-#include "pch.h"
-
+#include <gtest/gtest.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
 #include <SpellChess/SpellChessDocument.h>
+#include <memory>
+#include <string>
+#include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
 using namespace SpellChessLib;
 

@@ -1,7 +1,20 @@
 #include <SpellChess/SPRTTournament.h>
 #include <SpellChess/PlayerRegistry.h>
+#include <SpellChess/GameAnnotations.h>
+#include <SpellChess/GameRunnerPool.h>
+#include <SpellChess/MatchStatistics.h>
+#include <SpellChess/PlayerEntry.h>
+#include <SpellChess/PositionSupplier.h>
+#include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/GameRunnerConfiguration.h>
+#include <SpellChess/Board.h>
 #include <iostream>
-#include <cstdlib>
+#include <exception>
+#include <functional>
+#include <string>
+#include <utility>
+#include <vector>
 
 SpellChessLib::GameRunnerPool::GameRunRequest SpellChessLib::SPRTPTournament::makeRequest(int whitePlayerId, int blackPlayerId, const GameState& root)
 {

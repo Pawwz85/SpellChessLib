@@ -1,5 +1,8 @@
 #include <SpellChess/GameMonitor.h>
-#include <mutex>
+#include <SpellChess/Observer.h>
+#include <SpellChess/SpellChessGame.h>
+
+#include <atomic>
 
 void SpellChessLib::GameMonitor::onGameValueChanged(const Game& game){
 	observableState->set(game.getGameState());

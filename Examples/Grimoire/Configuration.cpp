@@ -1,5 +1,7 @@
 #include "Configuration.h"
-
+#include <SpellChess/Board.h>
+#include <UCILoader/UCI.h>
+#include <cxxopts.hpp>
 #include <iostream>
 
 Grimoire::Configuration *Grimoire::parseConfiguration(cxxopts::ParseResult &parsedArguments)

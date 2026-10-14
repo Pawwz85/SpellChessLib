@@ -2,7 +2,12 @@
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/StringTokenizer.h>
 #include <SpellChess/MoveLegality.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
 #include <stdexcept>
+#include <cstddef>
+#include <variant>
+#include <vector>
 
 void SpellChessLib::PGN4Exporter::writeTagLine(const Annotation::TagPair& tagPair, std::ostream& out){
 	out << '[' << tagPair.name << " \"" << tagPair.value << "\"]\n";

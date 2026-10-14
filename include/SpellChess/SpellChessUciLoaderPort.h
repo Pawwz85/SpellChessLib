@@ -3,7 +3,10 @@
 #include "Board.h"
 #include <UCILoader/UCI.h>
 #include <UCILoader/Parser.h>
-#include <UCILoader/EngineConnection.h>
+#include <memory>
+#include <string>
+
+ namespace UCILoader { template <class Move> class EngineInstanceBuilder; }
 
 namespace SpellChessLib {
 

@@ -1,8 +1,13 @@
 #pragma once
 
-#include "SpellChessGame.h"
+#include "Board.h"
+#include <chrono>
+#include <memory>
+
 
 namespace SpellChessLib {
+	class Game;
+
 	class Player {
 	public:
 		class Result;

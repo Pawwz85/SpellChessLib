@@ -1,10 +1,14 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 
 #include <SpellChess/SpellChessDocument.h>
 #include <SpellChess/PGNExporter.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
 
 #include <sstream>
 #include <fstream>
+#include <memory>
+#include <cstring>
 
 std::string exportToPGN(std::shared_ptr<SpellChessLib::SpellChessDocument> doc) {
     std::stringstream sstream;

@@ -1,11 +1,18 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 
 #include <Feature.h>
 #include <PGN4Processor.h>
 #include <PGN4Supplier.h>
 
 #include <SpellChess/SpellChessDocument.h>
+#include <SpellChess/GameAnnotations.h>
+#include <SpellChess/Board.h>
 
+#include <cstddef>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 #include <filesystem>
 #include <fstream>
 #include <algorithm>

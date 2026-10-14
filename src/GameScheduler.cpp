@@ -1,5 +1,14 @@
 #include <SpellChess/Scheduler/GameScheduler.h>
+#include <SpellChess/Scheduler/ObjectAllocator.h>
+#include <SpellChess/Scheduler/ObjectAllocatorRepository.h>
+#include <SpellChess/Scheduler/PoolObjectAllocator.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/PlayerEntry.h>
+#include <SpellChess/PlayerRegistry.h>
+
 #include <climits>
+#include <algorithm>
+#include <utility>
 
 size_t SpellChessLib::Scheduler::GameScheduler::countPlayerOccurrencesInEntries(int playerId) const{
 	size_t result = 0;

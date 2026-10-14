@@ -2,10 +2,11 @@
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/PGN4Exporter.h>
 #include <SpellChess/PGNExporter.h>
+#include <SpellChess/Board.h>
+#include <ctime>
 #include <fstream>
 #include <iostream> // for std::cerr
 #include <chrono>
-#include <time.h>
 
 const unsigned int& SpellChessLib::Annotation::MoveIndication::getValue() const {
     return value;

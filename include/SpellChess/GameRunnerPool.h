@@ -1,15 +1,20 @@
 #pragma once
 
 #include <functional>
+#include <chrono>
+#include <cstddef>
+#include <exception>
+#include <memory>
 #include "PlayerEntry.h"
-#include "GameMonitor.h"
 #include "GameRunnerConfiguration.h"
-#include "GameRunner.h"
 #include "ThreadPool/ThreadPool.h"
 #include "TimerService.h"
 #include "Scheduler/GameScheduler.h"
 
 namespace SpellChessLib {
+
+	class Game;
+	class GameMonitor;
 
 	class GameRunnerPool {
 		constexpr static auto SCHEDULER_POLL_INTERVAL = std::chrono::milliseconds{250};

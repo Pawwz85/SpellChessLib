@@ -1,5 +1,8 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 
+#include <cstring>
+#include <vector>
+#include <SpellChess/Board.h>
 #include <SpellChess/GameRunnerConfiguration.h>
 #include "utils.h"
 

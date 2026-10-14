@@ -1,4 +1,6 @@
 #pragma once
+
+#include <cstdint>
 #include "Board.h"
 
 namespace SpellChessLib {

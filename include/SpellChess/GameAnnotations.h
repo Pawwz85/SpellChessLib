@@ -1,12 +1,10 @@
 #pragma once
 
-
+#include <cstddef>
 #include <vector>
 #include <list>
 #include <string>
 #include <variant>
-#include <map>
-#include <functional>
 #include "Board.h"
 
 namespace SpellChessLib {

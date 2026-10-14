@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 #include <cstring> // for memcpy
+#include <cstddef>
+#include <exception>
 #include <vector>
 
 namespace SpellChessLib {

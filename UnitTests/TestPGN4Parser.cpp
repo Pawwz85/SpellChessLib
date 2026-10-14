@@ -1,9 +1,13 @@
-#include "pch.h"
+#include "gtest/gtest.h"
 
 #include <SpellChess/PGN4Parser.h>
 #include <SpellChess/StringTokenizer.h>
 #include <SpellChess/PGN4Exporter.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
 #include <sstream>
+#include <string>
+#include <vector>
 
 static std::string spellFieldFen(const std::string& fields, bool includeFields = true) {
     const std::string emptyBoard =

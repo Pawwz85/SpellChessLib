@@ -1,6 +1,10 @@
 #pragma once
 
-#include "SpellChessGame.h"
+#include "Board.h"
+#include "TimerService.h"
+#include <cstddef>
+#include <cstdint>
+#include <string>
 #include <vector>
 #include <memory>
 

@@ -1,12 +1,24 @@
 #include "GameNode.h"
+#include "Configuration.h"
+
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/ZobristHash.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/SpellChessUciLoaderPort.h>
 
-#include <UCILoader/Parser.h>
+#include <UCILoader/EngineConnection.h>
+#include <UCILoader/EngineEvent.h>
+#include <UCILoader/UCI.h>
+
 #include <sstream>
 #include <queue>
 #include <set>
 #include <iostream>
+#include <cstddef>
+#include <exception>
+#include <memory>
+#include <string>
+#include <vector>
 
 void deallocate_game_tree_recursive(Grimoire::GameNode* node ){
     if (node->children == nullptr)

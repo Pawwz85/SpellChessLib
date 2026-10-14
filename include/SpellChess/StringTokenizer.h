@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <cstdint>
+#include <exception>
 
 #include "Board.h"
 

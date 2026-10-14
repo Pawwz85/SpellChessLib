@@ -1,5 +1,15 @@
 #include <SpellChess/GameRunnerPool.h>
+#include <SpellChess/GameAnnotations.h>
+#include <SpellChess/GameRunner.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/PlayerEntry.h>
+#include <SpellChess/Scheduler/GameScheduler.h>
+#include <SpellChess/Scheduler/ObjectAllocator.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/ThreadPool/ThreadPool.h>
 #include <memory>
+#include <thread>
+#include <utility>
 
 inline void updateSevenTagRooster(SpellChessLib::GameRunner& runner, const SpellChessLib::GameRunnerPool::GameRunRequest & request) {
 	auto roster = runner.getGame().getRoster();

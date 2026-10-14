@@ -1,11 +1,12 @@
 #pragma once
 
-#include <queue>
-#include <functional>
 #include <memory>
 #include <mutex>
+#include <cstddef>
+#include <list>
+#include "ObjectAllocator.h"
 #include "ObjectAllocatorRepository.h"
-#include "../PlayerRegistry.h"
+#include "../Player.h"
 
 namespace SpellChessLib {
 

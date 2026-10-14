@@ -1,4 +1,19 @@
 #include <SpellChess/GameRunner.h>
+#include <SpellChess/ControlFlowManager.h>
+#include <SpellChess/GameAnnotations.h>
+#include <SpellChess/GameMonitor.h>
+#include <SpellChess/GameRunnerConfiguration.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/Scheduler/ObjectAllocator.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Board.h>
+#include <UCILoader/UCI.h>
+
+#include <exception>
+#include <vector>
+
+namespace SpellChessLib { class TimerController; }
+namespace SpellChessLib { class TimerService; }
 
 void SpellChessLib::GameRunner::setCurrentPlayer(Player* p){
     std::lock_guard<std::mutex> guard(lock);

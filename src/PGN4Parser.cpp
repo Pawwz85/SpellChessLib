@@ -1,5 +1,7 @@
 #include <SpellChess/PGN4Parser.h>
 #include <SpellChess/StringTokenizer.h> // for Parsing::parseSquareIndex
+#include <SpellChess/Board.h>
+#include <SpellChess/GameAnnotations.h>
 #include <vector>
 #include <tuple>
 #include <sstream>
@@ -7,6 +9,11 @@
 #include <map>
 #include <iostream> // for cerr
 #include <limits>
+#include <cstddef>
+#include <cstdint>
+#include <stdexcept>
+#include <utility>
+#include <nlohmann/json_fwd.hpp> 
 #include <nlohmann/json.hpp> // we need to parse some inline json in PGN4
 
 namespace SpellChessLib {

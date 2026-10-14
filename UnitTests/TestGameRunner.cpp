@@ -1,10 +1,24 @@
-#include "pch.h"
+#include <gtest/gtest.h>
+
 #include "utils.h"
 
 #include <SpellChess/GameRunner.h>
 #include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Player.h>
 #include <SpellChess/Scheduler/ObjectAllocator.h>
+#include <SpellChess/Board.h>
+#include <SpellChess/GameRunnerConfiguration.h>
+#include <SpellChess/TimerService.h>
+
 #include <condition_variable>
+#include <chrono>
+#include <cstddef>
+#include <list>
+#include <memory>
+#include <mutex>
+#include <utility>
+#include <vector>
+
 using namespace SpellChessLib;
 
 TEST(GameRunner, GameIsStillOutgoing) {

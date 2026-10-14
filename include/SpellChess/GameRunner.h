@@ -1,17 +1,21 @@
 #pragma once
 
 #include "SpellChessGame.h"
-
-#include "Player.h"
+#include "Board.h"
+#include "TimerService.h"
 #include "ControlFlowManager.h"
 #include "GameRunnerConfiguration.h"
 #include "GameMonitor.h"
 #include "Scheduler/ObjectAllocator.h"
+
+#include <utility>
 #include <mutex>
 #include <memory>
 #include <atomic>
 
 namespace SpellChessLib {
+
+	class Player;
 
 	class GameRunner {
 		mutable std::mutex lock;

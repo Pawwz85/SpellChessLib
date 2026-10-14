@@ -1,15 +1,28 @@
-#include "pch.h"
+#include <gtest/gtest.h>
 
 #include <SpellChess/Scheduler/ObjectAllocator.h>
 #include <SpellChess/Scheduler/PoolObjectAllocator.h>
 #include <SpellChess/Scheduler/ObjectAllocatorRepository.h>
 #include <SpellChess/Scheduler/GameScheduler.h>
+#include <SpellChess/PlayerRegistry.h>
+#include <SpellChess/PlayerEntry.h>
+#include <SpellChess/Factory.h>
+#include <SpellChess/Player.h>
+#include <SpellChess/Board.h>
+
+#include <memory>
+#include <chrono>
+#include <cstddef>
+#include <list>
+#include <mutex>
+#include <utility>
+#include <vector>
 
 using namespace SpellChessLib;
 
 
 class IntegerFactory : public Factory<int> {
-	// Odziedziczono za poœrednictwem elementu Factory
+	// Odziedziczono za poï¿½rednictwem elementu Factory
 	std::unique_ptr<int> makeObject() override
 	{
 		return std::unique_ptr<int>(new int);
@@ -215,7 +228,7 @@ class NoopPlayer : public Player {
 };
 
 class NoopPlayerFactory : public Factory<Player> {
-	// Odziedziczono za poœrednictwem elementu Factory
+	// Odziedziczono za poï¿½rednictwem elementu Factory
 	std::unique_ptr<Player> makeObject() override{
 		return std::make_unique<NoopPlayer>();
 	}

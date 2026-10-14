@@ -1,4 +1,8 @@
 #include <SpellChess/AsynchronousPlayer.h>
+#include <SpellChess/MoveGen.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Board.h>
+#include <exception>
 #include <stdexcept>
 
 

@@ -1,6 +1,9 @@
 #pragma once
 
-#include <stdexcept>
+#include <exception>
+#include <string>
+#include <vector>
+#include "Board.h"
 #include "SpellChessGame.h"
 
 namespace SpellChessLib {

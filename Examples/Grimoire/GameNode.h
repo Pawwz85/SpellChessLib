@@ -1,14 +1,14 @@
 #pragma once
 
 #include <cstdint>
-#include <list>
 #include <SpellChess/Board.h>
-#include <SpellChess/SpellChessUciLoaderPort.h>
-#include <UCILoader/EngineConnection.h>
 
-#include "Configuration.h"
+
+ namespace UCILoader { template <class Move> class EngineInstance; }
 
 namespace Grimoire {
+
+    struct Configuration;
 
     struct GameNode {
         SpellChessLib::GameState state;

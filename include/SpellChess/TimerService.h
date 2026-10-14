@@ -3,10 +3,13 @@
 #include <mutex>
 #include <functional>
 #include <list>
-#include <UCILoader/UCI.h>
 #include <thread>
 #include <memory>
+#include <chrono>
+#include <ctime>
 #include "Board.h" // for SpellChessMove 
+
+namespace UCILoader { template <class Move> class GoParamsBuilder; }
 
 namespace SpellChessLib {
 	struct PlayerTimer_data {

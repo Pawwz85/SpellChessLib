@@ -1,4 +1,9 @@
 #include <SpellChess/MatchStatistics.h>
+#include <SpellChess/SpellChessGame.h>
+#include <SpellChess/Board.h>
+#include <algorithm>
+#include <cfloat>
+#include <cstddef>
 #include <cmath>
 #include <iostream>
 

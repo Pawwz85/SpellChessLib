@@ -1,10 +1,13 @@
 #pragma once
 
-#include <cstdint>
-#include "Board.h"
+#include <cstddef>
+#include <vector>
 
 namespace SpellChessLib {
     
+    class GameState; 
+    struct SpellChessMove;
+
     class GameHistory {
         public:
         virtual ~GameHistory() = default;

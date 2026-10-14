@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
 #include "OpeningBook.h"
 #include "Player.h"
 #include "Scheduler/ObjectAllocator.h"

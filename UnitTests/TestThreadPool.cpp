@@ -1,4 +1,7 @@
-#include "pch.h"
+#include <gtest/gtest.h>
+#include <SpellChess/ThreadPool/ThreadPool.h>
+#include <chrono>
+#include <thread>
 #include "ThreadPoolUtils.h"
 
 TEST(ThreadPool, Init) {

@@ -1,5 +1,7 @@
-#include "pch.h"
+#include <gtest/gtest.h>
+#include <cstddef>
 #include <SpellChess/Arbiter.h>
+#include <SpellChess/Board.h>
 
 class EmptyHistory : public SpellChessLib::GameHistory {
     size_t countOccurences(const SpellChessLib::GameState & position) const override {
