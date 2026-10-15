@@ -2,6 +2,7 @@
 #include <mutex>
 #include <memory>
 #include <thread>
+#include <atomic>
 #include <condition_variable>
 
 namespace SpellChessLib {
@@ -31,7 +32,7 @@ namespace SpellChessLib {
 		mutable std::mutex lock;
 		std::condition_variable conditional;
 		WorkerStatus status  = Idle;
-		std::atomic<bool> running;
+		std::atomic_bool running;
 		std::unique_ptr<Task> currentTask;
 		_WorkerThreadMaster* master;
 		std::unique_ptr<std::thread> _thread;
