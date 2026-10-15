@@ -1,6 +1,6 @@
 # SpellChessLib
 
-SpellChessLib is a C++17 implementation and toolkit for the Spell Chess variant on Chess.com. It implements the Spell Chess rules and provides reusable chess, engine, game-runner, and analysis tooling. The library was built primarily to support the [Icecream engine](https://github.com/Pawwz85/icecream).
+SpellChessLib is a C++17 implementation and toolkit for the Spell Chess variant on Chess.com. It implements the Spell Chess rules and provides reusable chess, engine, game-runner, and analysis tooling. The library was built primarily to support the tooling infrastructure for [Icecream engine](https://github.com/Pawwz85/icecream).
 
 ## Features
 
@@ -52,7 +52,7 @@ CMake builds the following five examples:
 
 ## Engine integration
 
-[Icecream](https://github.com/Pawwz85/icecream) is a separate Spell Chess-compatible UCI engine, not part of this repository. SpellChessLib supplies the rules and infrastructure that the engine and its supporting tools use: board state, move generation, legality checks, standard and extended FEN handling, spell-aware notation, game execution, UCI player integration, and tournament orchestration.
+[Icecream](https://github.com/Pawwz85/icecream) is a separate Spell Chess-compatible UCI engine, not part of this repository. SpellChessLib supplies the rules and infrastructure that engine supporting tools use: board state, move generation, legality checks, standard and extended FEN handling, spell-aware notation, game execution, UCI player integration, and tournament orchestration.
 
 Ordinary coordinate moves use long-algebraic UCI-style notation, for example `e2e4` or `b7b8q` for promotion. Spell moves extend this representation with a spell action and target square; representative document notation includes `freeze@b5&c7c6`, meaning a freeze action at `b5` together with the move `c7c6`.
 
