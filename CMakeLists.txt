@@ -68,7 +68,7 @@ include(FetchContent)
 
 FetchContent_Declare(
 		UCILoader
-		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.2.3.zip
+		URL https://github.com/Pawwz85/UCILoader/archive/refs/tags/v1.3.1.zip
 )
 
 # UCILoader v1.2.1 installs UCILoaderConfig.cmake using a relative source
