@@ -99,7 +99,8 @@ int main(int argc, char ** argv) {
         
         if (error.has_value()) {
             ++failed;
-            std::cout << "Test failed for the following position: " << test.positionFen << "\n";
+            std::cout << "Test failed: " << test.name << "\n";
+            std::cout << "Position: " << test.positionFen << "\n";
             std::cout << error.value() << "\n";
         }
     }

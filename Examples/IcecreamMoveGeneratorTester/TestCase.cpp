@@ -21,7 +21,7 @@ using namespace MoveGeneratorTester;
 
 std::vector<TestCase> MoveGeneratorTester::loadTests() {
     const std::filesystem::path testFile =
-        std::filesystem::path(__FILE__).parent_path() / "tests";
+        std::filesystem::path(__FILE__).parent_path() / "tests.json";
     std::ifstream input(testFile);
 
     if (!input) {
@@ -51,7 +51,7 @@ std::vector<TestCase> MoveGeneratorTester::loadTests() {
             throw std::runtime_error(context + " must be a JSON object");
         }
 
-        for (const char * field : {"criteria", "positionFen", "moves"}) {
+        for (const char * field : {"name", "criteria", "positionFen", "moves"}) {
             if (!record.contains(field)) {
                 throw std::runtime_error(context + " is missing required field '" + field + "'");
             }
@@ -59,6 +59,9 @@ std::vector<TestCase> MoveGeneratorTester::loadTests() {
 
         if (!record.at("criteria").is_string()) {
             throw std::runtime_error(context + " " + jsonTypeError("criteria", record.at("criteria")));
+        }
+        if (!record.at("name").is_string()) {
+            throw std::runtime_error(context + " " + jsonTypeError("name", record.at("name")));
         }
         if (!record.at("positionFen").is_string()) {
             throw std::runtime_error(context + " " + jsonTypeError("positionFen", record.at("positionFen")));
@@ -81,7 +84,7 @@ std::vector<TestCase> MoveGeneratorTester::loadTests() {
                                      "' (expected 'exact match', 'legal', 'illegal', or 'forbidden move')");
         }
 
-        TestCase test{criteria, {}, record.at("positionFen").get<std::string>()};
+        TestCase test{record.at("name").get<std::string>(), criteria, {}, record.at("positionFen").get<std::string>()};
         test.moves.reserve(record.at("moves").size());
 
         for (std::size_t moveIndex = 0; moveIndex < record.at("moves").size(); ++moveIndex) {

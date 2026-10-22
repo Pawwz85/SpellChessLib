@@ -62,6 +62,7 @@ namespace MoveGeneratorTester {
     };
 
     struct TestCase {
+        std::string name;
         AcceptanceCriteria criteria;
         MoveContainer moves;
         std::string positionFen;
