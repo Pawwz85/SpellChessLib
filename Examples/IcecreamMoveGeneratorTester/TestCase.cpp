@@ -171,9 +171,9 @@ std::optional<std::string> MoveGeneratorTester::subsetTest(const MoveContainer &
 
     if (intersection.size() != expected.size()) {
         std::string result = "Expected the following set ";
-        result += moveSetToString(actual);
-        result += " to be subset of ";
         result += moveSetToString(expected);
+        result += " to be subset of ";
+        result += moveSetToString(actual);
         return result;
     };
 
