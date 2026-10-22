@@ -39,5 +39,6 @@
   {"name":"can_not_cast_freeze_on_current_freeze_square","criteria":"forbidden move","positionFen":"r1b1kb1r/ppNqp1pp/2n5/2np1p2/8/2P2NP1/PPQPPPBP/R1B1KR2 b Qkq - 0 1 d6 - F32/J20/f40/j20","moves":[{"move":"freeze@d6&e8d8","policy":"fixed"}]},
   {"name":"freeze_check_with_king_is_illegal","criteria":"forbidden move","positionFen":"8/8/8/2b2K2/8/6k1/8/8 b - - 1 131 - - F10/J00/f10/j10","moves":[{"move":"freeze@e4&g3g4","policy":"fixed"}]},
   {"name":"jump_pawn_push_over_jumpable_field","criteria":"legal","positionFen":"rnb2k2/pp3ppB/4p3/3p4/1P1P1P2/P1N3n1/1BPP1bP1/1K1R2R1 w - - 3 15 - g3 F30/J20/f40/j12","moves":[{"move":"g2g4","policy":"addable"}]},
-  {"name":"king_can_slider_attack_blocked_by_enemy_king", "criteria":"legal", "positionFen":"1n1r1R2/6p1/2pk4/pp6/8/P3q3/1PP4P/RN1K4 b - - 4 27 - - F10/J10/f10/j12", "moves":[{"move":"b1c3", "policy":"addable"}]}
+  {"name":"king_can_slider_attack_blocked_by_enemy_king", "criteria":"legal", "positionFen":"1n1r1R2/6p1/2pk4/pp6/8/P3q3/1PP4P/RN1K4 b - - 4 27 - - F10/J10/f10/j12", "moves":[{"move":"b1c3", "policy":"addable"}]},
+  {"name":"jump_checkmate_edge_case", "criteria":"illegal", "positionFen":"1nQ1kbnr/rp1b1ppp/2p1q3/1B2p1B1/3Pp3/5N2/PPP2PPP/1N2K2R b Kk - 5 9 - c6 F40/J00/f41/j20", "moves":[{"move":"d7c8", "policy":"addable"}, {"move":"jump@d7&e6c8", "policy":"fixed"}]}
 ]

@@ -539,3 +539,13 @@ TEST(move_gen, king_can_slider_attack_blocked_by_enemy_king) {
 	std::vector<MoveCandidate> matchingMoves;
 	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
 }
+
+TEST(move_gen, pins_propagate_across_jump_square) {
+	SPELL_CHESS_MOVE_GEN_SETUP("1nQ1kbnr/rp1b1ppp/2p1q3/1B2p1B1/3Pp3/5N2/PPP2PPP/1N2K2R b Kk - 5 9 - c6 F40/J00/f41/j20");
+	ASSERT_MOVE_IS_ILLEGAL("d7c8");
+}
+
+TEST(move_gen, can_not_cast_jump_over_pinned_piece) {
+	SPELL_CHESS_MOVE_GEN_SETUP("1nQ1kbnr/rp1b1ppp/4q3/1B2p1B1/3Pp3/5N2/PPP2PPP/1N2K2R b Kk - 5 9 - - F40/J00/f41/j20");
+	ASSERT_MOVE_IS_ILLEGAL("jump@d7&e6c8");
+}
