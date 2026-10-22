@@ -114,8 +114,32 @@ namespace SpellChessLib {
 					this->promoteTo == other.promoteTo;
 		};
 
+		inline bool operator<(const SpellChessMove & other) const {
+			if (this->from != other.from)
+				return this->from < other.from;
+			if (this->to != other.to)
+				return this->to < other.to;
+			if (this->freezeSquare != other.freezeSquare)
+				return this->freezeSquare < other.freezeSquare;
+		if (this->jumpSquare != other.jumpSquare)
+				return this->jumpSquare < other.jumpSquare;
+		return this->promoteTo < other.promoteTo;
+		};
+
+		inline bool operator>(const SpellChessMove & other) const {
+			return other < *this;
+		};
+
 		inline bool operator!=(const SpellChessMove & other) const {
 			return !(*this == other); 
+		}
+
+		inline bool operator>=(const SpellChessMove & other) const {
+			return !(*this < other);
+		}
+
+		inline bool operator<=(const SpellChessMove & other) const {
+			return !(*this > other);
 		}
 
 		inline SpellChessMove & operator=(const SpellChessMove &) = default;

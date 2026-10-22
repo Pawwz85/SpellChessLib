@@ -1,0 +1,91 @@
+[
+  {
+    "criteria": "exact match",
+    "positionFen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 - - F50/J20/f50/j20",
+    "moves": [
+      {"move": "jump@h2&h1h3", "policy": "fixed"},
+      {"move": "jump@h2&h1h4", "policy": "fixed"},
+      {"move": "jump@h2&h1h5", "policy": "fixed"},
+      {"move": "jump@h2&h1h6", "policy": "fixed"},
+      {"move": "jump@h2&h1h7", "policy": "fixed"},
+      {"move": "g1h3", "policy": "addable"},
+      {"move": "g1f3", "policy": "addable"},
+      {"move": "jump@g2&f1h3", "policy": "fixed"},
+      {"move": "jump@e2&f1d3", "policy": "fixed"},
+      {"move": "jump@e2&f1c4", "policy": "fixed"},
+      {"move": "jump@e2&f1b5", "policy": "fixed"},
+      {"move": "jump@e2&f1a6", "policy": "fixed"},
+      {"move": "jump@e2&d1f3", "policy": "fixed"},
+      {"move": "jump@c2&d1b3", "policy": "fixed"},
+      {"move": "jump@e2&d1g4", "policy": "fixed"},
+      {"move": "jump@c2&d1a4", "policy": "fixed"},
+      {"move": "jump@e2&d1h5", "policy": "fixed"},
+      {"move": "jump@d2&d1d3", "policy": "fixed"},
+      {"move": "jump@d2&d1d4", "policy": "fixed"},
+      {"move": "jump@d2&d1d5", "policy": "fixed"},
+      {"move": "jump@d2&d1d6", "policy": "fixed"},
+      {"move": "jump@d2&d1d7", "policy": "fixed"},
+      {"move": "jump@d2&c1e3", "policy": "fixed"},
+      {"move": "jump@b2&c1a3", "policy": "fixed"},
+      {"move": "jump@d2&c1f4", "policy": "fixed"},
+      {"move": "jump@d2&c1g5", "policy": "fixed"},
+      {"move": "jump@d2&c1h6", "policy": "fixed"},
+      {"move": "b1c3", "policy": "addable"},
+      {"move": "b1a3", "policy": "addable"},
+      {"move": "jump@a2&a1a3", "policy": "fixed"},
+      {"move": "jump@a2&a1a4", "policy": "fixed"},
+      {"move": "jump@a2&a1a5", "policy": "fixed"},
+      {"move": "jump@a2&a1a6", "policy": "fixed"},
+      {"move": "jump@a2&a1a7", "policy": "fixed"},
+      {"move": "h2h3", "policy": "addable"},
+      {"move": "g2g3", "policy": "addable"},
+      {"move": "f2f3", "policy": "addable"},
+      {"move": "e2e3", "policy": "addable"},
+      {"move": "d2d3", "policy": "addable"},
+      {"move": "c2c3", "policy": "addable"},
+      {"move": "b2b3", "policy": "addable"},
+      {"move": "a2a3", "policy": "addable"},
+      {"move": "h2h4", "policy": "addable"},
+      {"move": "g2g4", "policy": "addable"},
+      {"move": "f2f4", "policy": "addable"},
+      {"move": "e2e4", "policy": "addable"},
+      {"move": "d2d4", "policy": "addable"},
+      {"move": "c2c4", "policy": "addable"},
+      {"move": "b2b4", "policy": "addable"},
+      {"move": "a2a4", "policy": "addable"}
+    ]
+  },
+  {
+    "criteria": "legal",
+    "positionFen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2 - - F50/J20/f50/j20",
+    "moves": [
+      {"move": "jump@h2&h1h3", "policy": "fixed"},
+      {"move": "jump@h2&h1h4", "policy": "fixed"},
+      {"move": "jump@h2&h1h5", "policy": "fixed"},
+      {"move": "jump@h2&h1h6", "policy": "fixed"},
+      {"move": "jump@h2&h1h7", "policy": "fixed"},
+      {"move": "g1e2", "policy": "addable"},
+      {"move": "g1h3", "policy": "addable"},
+      {"move": "g1f3", "policy": "addable"},
+      {"move": "f1e2", "policy": "addable"},
+      {"move": "f1d3", "policy": "addable"},
+      {"move": "f1c4", "policy": "addable"},
+      {"move": "f1b5", "policy": "addable"}
+    ]
+  },
+  {
+    "criteria": "forbidden move",
+    "positionFen": "4k3/8/8/8/8/8/4K3/8 w - - 0 1 - - F00/J00/f00/j00",
+    "moves": [
+      {"move": "e2e8", "policy": "addable"},
+      {"move": "jump@g6&g4g8", "policy": "fixed"}
+    ]
+  },
+  {
+    "criteria": "illegal",
+    "positionFen": "8/8/8/8/8/8/4K3/7k w - - 0 1 - - F00/J00/f00/j00",
+    "moves": [
+      {"move": "e2e8", "policy": "fixed"}
+    ]
+  }
+]
