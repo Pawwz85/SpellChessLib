@@ -532,3 +532,10 @@ TEST(move_gen, jump_pawn_push_over_jumpable_field) {
 	std::vector<MoveCandidate> matchingMoves;
 	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
 }
+
+TEST(move_gen, king_can_slider_attack_blocked_by_enemy_king) {
+	SPELL_CHESS_MOVE_GEN_SETUP("1n1r1R2/6p1/2pk4/pp6/8/P3q3/1PP4P/RN1K4 b - - 4 27 - - F10/J10/f10/j12");
+	std::vector<SpellChessMove> requiredMoves = parseMoveList({"b1c3"});
+	std::vector<MoveCandidate> matchingMoves;
+	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
+}
