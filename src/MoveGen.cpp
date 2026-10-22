@@ -68,15 +68,18 @@ void SpellChessLib::MoveGenerator::cacheEnemySliderRay(const GameState & state, 
 		if(!pinUsed || kingEncountered) 
 			controlledByEnemy |= 1ull << currSq;
 
-		if (state.getSquare(currSq).isEmpty())
-			goto INCREMENT;
-		if (state.getSquare(currSq).piece.owner != us)
-			break;
-		if (state.getSquare(currSq).piece.type == King) {
+		if (state.getSquare(currSq).piece.type == King && state.getSquare(currSq).piece.owner == us) {
 			pinUsed = true;
 			kingEncountered = true;
 			goto INCREMENT;
 		}
+
+		if (state.getSquare(currSq).isEmpty() || state.getJumpSquare() == currSq)
+			goto INCREMENT;
+
+		if (state.getSquare(currSq).piece.owner != us)
+			break;
+
 		if (pinUsed || kingEncountered)
 			break;
 		pinUsed = true;
