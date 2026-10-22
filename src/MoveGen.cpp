@@ -536,7 +536,8 @@ bool SpellChessLib::MoveGenerator::isMoveLegal(const SpellChessMove& move) const
 			if (usesJump && usesFreeze) continue;
 			if (usesJump && ( move.jumpSquare >= 64 || !currentState->canUseSpell(currentState->getSideToMove(), JumpSpell))) continue;
 			if (usesFreeze && (move.freezeSquare >= 64 || !currentState->canUseSpell(currentState->getSideToMove(), FreezeSpell))) continue;
-			
+			if (usesFreeze && _Constraints::doesFreezeContainSquare(move.freezeSquare, move.from)) continue;
+
 			return true;
 		}
 	}
