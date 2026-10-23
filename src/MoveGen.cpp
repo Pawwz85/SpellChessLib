@@ -407,6 +407,11 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 		switch (it->type){
 		case CastJumpSq:
 			base.jumpSquare = it->affectedSquare;
+
+			// Edge case: Do not case jump on pinned pieces
+			if (pins[base.jumpSquare] != NoSquare)
+				return;
+
 			usesJump = true;
 			policy = SpellGeneratorEnforced;
 			break;
