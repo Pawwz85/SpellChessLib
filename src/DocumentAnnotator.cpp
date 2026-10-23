@@ -26,6 +26,12 @@ double estimateWinProb(const UCILoader::UciScore & score) {
     return 1. / (1. + exp(centipawns * alpha));
 };
 
+float 
+SpellChessLib::DocumentAnnotator::calculateAccuracy(float moveLoss) {
+    return  1.031668f * std::exp( -0.04354 * moveLoss) - 3.1669f;
+}
+
+
 SpellChessLib::PlayerStatistics & 
 SpellChessLib::DocumentAnnotator::getPlayerStats(SpellChessLib::PlayerColor color){
     if (color == SpellChessLib::White)
@@ -59,6 +65,7 @@ void
 SpellChessLib::DocumentAnnotator::resetGameStatistics(){
     gameStats.whitePlayerStats.totalMoves = gameStats.blackPlayerStats.totalMoves = 0;
     gameStats.whitePlayerStats.totalLoss = gameStats.blackPlayerStats.totalLoss = 0.;
+    gameStats.whitePlayerStats.totalAccuracyReciprocals = gameStats.blackPlayerStats.totalAccuracyReciprocals = 0.;
 
     gameStats.whitePlayerStats.moveClassCounter.fill(0);
     gameStats.blackPlayerStats.moveClassCounter.fill(0);
@@ -127,7 +134,10 @@ SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document
 
         playerStats.totalMoves++;
         playerStats.moveClassCounter.at((size_t)classification)++;
-        playerStats.totalLoss += calculateLoss(gameState.getSideToMove(), insights.value(), childInsights.value());
+        float loss = calculateLoss(gameState.getSideToMove(), insights.value(), childInsights.value());
+        float acc = calculateAccuracy(loss);
+        playerStats.totalLoss += loss;
+        playerStats.totalAccuracyReciprocals += 1.f/acc; 
 
         if (classification == Annotation::MoveClassification::Blunder  ||
             classification == Annotation::MoveClassification::Mistake  ||

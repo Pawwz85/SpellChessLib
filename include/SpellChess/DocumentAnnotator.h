@@ -36,6 +36,9 @@ namespace SpellChessLib {
         // total sum of difference between best engine move and move played
         double totalLoss; 
 
+        // total sum of reciprocals of accuracy valus
+        double totalAccuracyReciprocals;
+
          // count number of moves of given type played by given size 
         std::array<size_t, Annotation::MoveClassification_EnumSize> moveClassCounter;
     };
@@ -63,6 +66,7 @@ namespace SpellChessLib {
 
         std::optional<PositionInsights> lookupCache(SpellChessDocument::Handle pos);
         float calculateLoss(SpellChessLib::PlayerColor pov, const PositionInsights & before, const PositionInsights & after);
+        float calculateAccuracy(float moveLoss);
         void resetGameStatistics();
         void updateCache(SpellChessDocument::Handle pos, const PositionInsights & insights);
         void analizeInternal(const SpellChessDocument & document, SpellChessDocument::Handle pos, const GameState & root, std::vector<SpellChessMove> & movesSinceRoot);
