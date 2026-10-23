@@ -28,7 +28,7 @@ double estimateWinProb(const UCILoader::UciScore & score) {
 
 float 
 SpellChessLib::DocumentAnnotator::calculateAccuracy(float moveLoss) {
-    return  1.031668f * std::exp( -0.04354 * moveLoss) - 3.1669f;
+    return  1.031668f * std::exp( -0.04354 * moveLoss) - 0.031669f;
 }
 
 
