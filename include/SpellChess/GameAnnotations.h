@@ -37,6 +37,8 @@ namespace SpellChessLib {
 			BrilliantMove
 		};
 		
+		constexpr size_t MoveClassification_EnumSize = 6;
+
 		std::string toToken(MoveClassification cathegory);
 
 		class MoveIndication {

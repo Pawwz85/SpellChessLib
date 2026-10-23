@@ -15,6 +15,27 @@
 #include <exception>
 #include <utility>
 
+double estimateWinProb(const UCILoader::UciScore & score) {
+
+    if (score.getUnit() == UCILoader::UciScore::Mate) {
+        return score.getValue() >= 0 ? 1 : 0;
+    }
+
+    auto centipawns = score.getValue();
+    const double alpha  = -std::log(10)/ 400.; // scaling factor for centipawn to win probability conversion
+    return 1. / (1. + exp(centipawns * alpha));
+};
+
+SpellChessLib::PlayerStatistics & 
+SpellChessLib::DocumentAnnotator::getPlayerStats(SpellChessLib::PlayerColor color){
+    if (color == SpellChessLib::White)
+        return gameStats.whitePlayerStats;
+    else if (color == SpellChessLib::Black)
+        return gameStats.blackPlayerStats;
+    throw std::invalid_argument("Can not get statistics for 'None' side");
+}
+
+
 std::optional<SpellChessLib::PositionInsights>
 SpellChessLib::DocumentAnnotator::lookupCache(SpellChessDocument::Handle pos) {
     auto locked = pos.lock();
@@ -25,6 +46,24 @@ SpellChessLib::DocumentAnnotator::lookupCache(SpellChessDocument::Handle pos) {
         return std::nullopt;
     return it->second;
 }
+
+float 
+SpellChessLib::DocumentAnnotator::calculateLoss(SpellChessLib::PlayerColor pov, const PositionInsights & before, const PositionInsights & after){
+    auto s0 = before.positionScore.toPov(pov).getScore();
+    auto s1 = after.positionScore.toPov(pov).getScore();
+    return estimateWinProb(s0) - estimateWinProb(s1);
+}
+
+
+void 
+SpellChessLib::DocumentAnnotator::resetGameStatistics(){
+    gameStats.whitePlayerStats.totalMoves = gameStats.blackPlayerStats.totalMoves = 0;
+    gameStats.whitePlayerStats.totalLoss = gameStats.blackPlayerStats.totalLoss = 0.;
+
+    gameStats.whitePlayerStats.moveClassCounter.fill(0);
+    gameStats.blackPlayerStats.moveClassCounter.fill(0);
+}
+
 
 void
 SpellChessLib::DocumentAnnotator::updateCache(SpellChessDocument::Handle pos, const PositionInsights & insights) {
@@ -84,6 +123,12 @@ SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document
             continue;
         auto classification = moveClassifier(gameState, insights.value(), childInsights.value());
 
+        auto & playerStats = getPlayerStats(gameState.getSideToMove());
+
+        playerStats.totalMoves++;
+        playerStats.moveClassCounter.at((size_t)classification)++;
+        playerStats.totalLoss += calculateLoss(gameState.getSideToMove(), insights.value(), childInsights.value());
+
         if (classification == Annotation::MoveClassification::Blunder  ||
             classification == Annotation::MoveClassification::Mistake  ||
             classification == Annotation::MoveClassification::Inaccuraccy )
@@ -142,11 +187,13 @@ SpellChessLib::DocumentAnnotator::setFinishCallback(std::function<void()> callba
 }
 
 
-void    
+SpellChessLib::GameStatistics    
 SpellChessLib::DocumentAnnotator::operator()(std::shared_ptr<SpellChessDocument> document){
+    resetGameStatistics();
     analize(*document);
     annotate(*document);
     onFinish();
+    return gameStats;
 }
 
 class AnalisisInfoReceiver : public UCILoader::EventReceiver {
@@ -265,17 +312,6 @@ SpellChessLib::makeFixedTimeAnalizer(std::shared_ptr<UCILoader::EngineInstance<S
         return analizePositionByEngine(engine, params, root, moves);
     };
 }
-
-double estimateWinProb(const UCILoader::UciScore & score) {
-
-    if (score.getUnit() == UCILoader::UciScore::Mate) {
-        return score.getValue() >= 0 ? 1 : 0;
-    }
-
-    auto centipawns = score.getValue();
-    const double alpha  = -std::log(10)/ 400.; // scaling factor for centipawn to win probability conversion
-    return 1. / (1. + exp(centipawns * alpha));
-};
 
 SpellChessLib::Annotation::MoveClassification
 SpellChessLib::SimplePositionClassifier (const GameState & state, const PositionInsights & before, const PositionInsights & after) {

@@ -16,6 +16,7 @@
 #include <functional>
 #include <memory>
 #include <map>
+#include <array>
 
 namespace SpellChessLib {
 
@@ -28,12 +29,29 @@ namespace SpellChessLib {
         std::vector<Annotation::NumericAnnotationGlyph> nags; // Any additional nags that annotator wants to add
     };
 
+    struct PlayerStatistics {
+        // total amount of analised moves
+        size_t totalMoves;
+
+        // total sum of difference between best engine move and move played
+        double totalLoss; 
+
+         // count number of moves of given type played by given size 
+        std::array<size_t, Annotation::MoveClassification_EnumSize> moveClassCounter;
+    };
+
+    struct GameStatistics{
+        PlayerStatistics whitePlayerStats;
+        PlayerStatistics blackPlayerStats;
+    };
+
     using PositionAnalizer = std::function<PositionInsights(const GameState &, const std::vector<SpellChessMove> &)>;
     using MoveClassifier = std::function<Annotation::MoveClassification(const GameState &, const PositionInsights &, const PositionInsights &)>;
 
     class DocumentAnnotator {
         PositionAnalizer analizer;
         MoveClassifier moveClassifier;
+        GameStatistics gameStats;
         bool recursive;
 
         std::function<void()> onPositionAnalized = [](){};
@@ -41,7 +59,11 @@ namespace SpellChessLib {
 
         std::map<const SpellChessDocument::Node*, PositionInsights> analizerCache;
 
+        PlayerStatistics & getPlayerStats(SpellChessLib::PlayerColor color);
+
         std::optional<PositionInsights> lookupCache(SpellChessDocument::Handle pos);
+        float calculateLoss(SpellChessLib::PlayerColor pov, const PositionInsights & before, const PositionInsights & after);
+        void resetGameStatistics();
         void updateCache(SpellChessDocument::Handle pos, const PositionInsights & insights);
         void analizeInternal(const SpellChessDocument & document, SpellChessDocument::Handle pos, const GameState & root, std::vector<SpellChessMove> & movesSinceRoot);
         void analize(const SpellChessDocument & document);
@@ -54,7 +76,7 @@ namespace SpellChessLib {
         DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive = false);
         void setPositionAnalizedCallback(std::function<void()> callback);
         void setFinishCallback(std::function<void()> callback);
-        void operator()(std::shared_ptr<SpellChessDocument> document);
+        GameStatistics operator()(std::shared_ptr<SpellChessDocument> document);
     };
 
     extern PositionAnalizer makeFixedDetphAnalizer(std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> engine, uint32_t depth);
