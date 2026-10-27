@@ -285,30 +285,31 @@ uint64_t SpellChessLib::_Attackers::getSliderAttackers(const GameState& state, c
     SquareIndex attackerLocation;
     Piece piece;
     bool kingEncountered;
+    bool jumpSqEncountered;
 
     for (size_t i = 0; i < 8; ++i) {
         validAttacker = i < 4 ? Bishop : Rook;
-        kingEncountered = false;
+        kingEncountered = jumpSqEncountered = false;
         attackerLocation = sq;
         
-        do { // this loop recasts ray if non attacking king is in the way 
+        do { // this loop recasts ray if non attacking king is in the way or blocking piece is jumpable
             attackerLocation = castRay(state, attackerLocation, delta_xs[i], delta_ys[i]);
             if (attackerLocation == NoSquare)
                 goto NEXT_ITER;
-               
+            
             piece = state.getSquare(attackerLocation).piece;
             kingEncountered = piece.type == King && piece.owner == flipColor(them);
+            jumpSqEncountered = attackerLocation == state.getJumpSquare();
         
-            if (piece.owner != them && !kingEncountered)
+            if (piece.owner != them && !kingEncountered && !jumpSqEncountered)
                  goto NEXT_ITER;
 
-        } while (kingEncountered);
+            attacker = piece.type;
+            if (piece.owner == them && (attacker == Queen || attacker == validAttacker)) 
+                 result |= 1ull << attackerLocation;
+            
 
-
-        attacker = piece.type;
-
-        if (attacker == Queen || attacker == validAttacker)
-            result |= 1ull << attackerLocation;
+        } while (kingEncountered || jumpSqEncountered);
 
     NEXT_ITER:
         continue;
