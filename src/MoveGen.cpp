@@ -458,6 +458,9 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 		}
 	}
 
+	// Do not consider attacker that enemy has self-frozen as per chess.com rules
+	attackersToBeNeutralizedByFreeze &= ~_Constraints::getFrozenAttackers(currentState->getFreezeSquare(), ~0ull);
+
 	// using freeze is irrevelant if we can simply capture enemy king
 	if (capturesKing)
 		attackersToBeNeutralizedByFreeze = 0;
