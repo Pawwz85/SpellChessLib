@@ -11,7 +11,7 @@ SpellChessLib::arbite(const GameState & pos, const GameHistory & history) {
     if (pos.getHalfMoveCounter() >= 100)
         return ArbiterVerdict::DrawByFiftyMoveRule;
 
-    if (pos.countPiece(Piece{King, White}) == 0 || pos.countPiece(Piece{King, Black}) == 0)
+    if (pos.countPiece(King, White) == 0 || pos.countPiece(King, Black) == 0)
         return ArbiterVerdict::KingCapture;
 
     MoveGenerator gen(pos);
@@ -34,10 +34,10 @@ SpellChessLib::arbite(const GameState & pos, const GameHistory & history) {
 class GameReplay : public SpellChessLib::GameHistory {
     std::vector<uint64_t> positions;
     SpellChessLib::GameState state;
+
     public:
     GameReplay(const SpellChessLib::GameState & root, 
-        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) {
-            state = root;
+        const std::vector<SpellChessLib::SpellChessMove> & movesSinceRoot) : state(root) {
             positions.push_back(SpellChessLib::calculateHash(state));
             for (auto & move : movesSinceRoot){
                 state.makeMove(move);

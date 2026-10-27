@@ -477,7 +477,7 @@ namespace SpellChessLib {
             std::array<BoardSquare, 64> result;
 
             for (size_t i = 0; i < 64; ++i) {
-                result[i].piece = {None, Nobody};
+                result[i].piece = NO_PIECE;
                 result[i].frozen = result[i].jumpable = false;
             }
 

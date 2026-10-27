@@ -52,7 +52,7 @@ SANAmbiguityLevel calculateAmbiguityLevel(const SpellChessLib::PieceType& type, 
 
 char checkMark(const SpellChessLib::GameState & state) {
 
-	if (state.countPiece({SpellChessLib::King, state.getSideToMove()}) == 0)
+	if (state.countPiece(SpellChessLib::King, state.getSideToMove()) == 0)
 		return '#';
 
     SpellChessLib::MoveGenerator gen(state);

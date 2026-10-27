@@ -46,10 +46,15 @@ namespace SpellChessLib {
 		PieceType type;
 		PlayerColor owner;
 
+		Piece() = default;
+		Piece (const Piece & other) = default;
+
 		bool operator == (const Piece& other) const {
 			return this->type == other.type && this->owner == other.owner;
 		}
 	};
+
+	#define NO_PIECE {None, Nobody}
 
 	struct BoardSquare {		
 		Piece piece; 
@@ -156,7 +161,11 @@ namespace SpellChessLib {
 
 	extern void validateSpellChessMove(const SpellChessMove& move);
 	
+	// Calculate index of the captured enpassant pawn
 	extern SquareIndex calculateEnpassantPawnIndex(const SquareIndex& from, const SquareIndex& to);
+	
+	// Calculate index of enpassant square created by given move
+	extern SquareIndex calculateEnpassantSquareIndex(const SquareIndex& from, const SquareIndex& to);
 
 	class InvalidMoveException : public std::exception {
 	public:
@@ -238,7 +247,7 @@ namespace SpellChessLib {
 		void loadCastlingRights(bool* array);
 		void loadSpellInfos(const SpellCounter* array);
 		void loadSpellFields(const std::vector<SpellField>& fields);
-		void revokeCastlingRightsAssociatedWithGivenRook(const PlayerColor & rookColor, const SquareIndex & index);
+		void revokeCastlingRightsAssociatedWithGivenRook( const SquareIndex & index);
 		void makeCastling(const PlayerColor& playerColor, const CastlingDirection & direction);
 
 	protected:
@@ -279,6 +288,7 @@ namespace SpellChessLib {
 		}
 
 		void frozeArea(const SquareIndex& sq);
+		void makeJumpable(const SquareIndex & sq);
 
 		
 	public:
@@ -286,7 +296,7 @@ namespace SpellChessLib {
 		GameState(): sideToMove(White), enpassantSquare(NoSquare), frozeSquare(NoSquare), jumpSquare(NoSquare), halfMoveRuleCounter(0), fullMoveCounter(1) {
 			spellChessMode = false;
 			for (size_t i = 0; i < 64; ++i) {
-				this->board[i] = { {None, Nobody}, false, false };
+				this->board[i] = { NO_PIECE, false, false };
 			}
 			castlingRights[0][0] = castlingRights[0][1] = castlingRights[1][0] = castlingRights[1][1] = false;
 			spells[0][FreezeSpell].spellId = spells[1][FreezeSpell].spellId = FreezeSpell;
@@ -378,6 +388,7 @@ namespace SpellChessLib {
 		void makeMove(const SpellChessMove& move);
 
 		int countPiece(Piece piece) const;
+		int countPiece(PieceType type, PlayerColor color) const;
 
 	};
 	const char START_POS[57] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

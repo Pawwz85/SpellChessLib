@@ -3,6 +3,8 @@
 #include <sstream>
 #include <cctype> // for isspace
 #include <cmath>
+#include <unordered_map>
+
 using namespace SpellChessLib;
 
 PlayerColor SpellChessLib::flipColor(const PlayerColor& c)
@@ -16,27 +18,25 @@ const char* SpellChessLib::IllegalMoveException::what() const noexcept
     return msg.c_str();
 }
 
-void SpellChessLib::GameState::revokeCastlingRightsAssociatedWithGivenRook(const PlayerColor& rookColor, const SquareIndex& index)
+void SpellChessLib::GameState::revokeCastlingRightsAssociatedWithGivenRook(const SquareIndex& index)
 {
     const auto a1 = Parsing::parseSquareIndex("a1");
     const auto a8 = Parsing::parseSquareIndex("a8");
     const auto h1 = Parsing::parseSquareIndex("h1");
     const auto h8 = Parsing::parseSquareIndex("h8");
 
-    if (rookColor == Black) {
-        if (index == a8)
-            castlingRights[Black - 1][QueenSide] = false;
+    if (index == a8)
+        getCastlingRight(Black, QueenSide) = false;
 
-        if (index == h8)
-            castlingRights[Black - 1][Kingside] = false;
-    }
-    else if (rookColor == White) {
-        if (index == a1)
-            castlingRights[White - 1][QueenSide] = false;
+    if (index == h8)
+        getCastlingRight(Black, Kingside) = false;
 
-        if (index == h1)
-            castlingRights[White - 1][Kingside] = false;
-    }
+    if (index == a1)
+        getCastlingRight(White, QueenSide) = false;
+
+    if (index == h1)
+        getCastlingRight(White, Kingside) = false;
+    
 }
 
 void SpellChessLib::GameState::makeCastling(const PlayerColor& playerColor, const CastlingDirection& direction)
@@ -45,31 +45,31 @@ void SpellChessLib::GameState::makeCastling(const PlayerColor& playerColor, cons
     castlingRights[playerColor - 1][0] = castlingRights[playerColor - 1][1] = false;
 
     if (playerColor == White && direction == Kingside) {
-        board[Parsing::parseSquareIndex("e1")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("e1")].piece = NO_PIECE;
         board[Parsing::parseSquareIndex("f1")].piece = { Rook, White };
         board[Parsing::parseSquareIndex("g1")].piece = { King, White };
-        board[Parsing::parseSquareIndex("h1")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("h1")].piece = NO_PIECE;
     }
 
     if (playerColor == Black && direction == Kingside) {
-        board[Parsing::parseSquareIndex("e8")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("e8")].piece = NO_PIECE;
         board[Parsing::parseSquareIndex("f8")].piece = { Rook, Black };
         board[Parsing::parseSquareIndex("g8")].piece = { King, Black };
-        board[Parsing::parseSquareIndex("h8")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("h8")].piece = NO_PIECE;
     }
 
     if (playerColor == White && direction == QueenSide) {
-        board[Parsing::parseSquareIndex("e1")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("e1")].piece = NO_PIECE;
         board[Parsing::parseSquareIndex("d1")].piece = { Rook, White };
         board[Parsing::parseSquareIndex("c1")].piece = { King, White };
-        board[Parsing::parseSquareIndex("a1")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("a1")].piece = NO_PIECE;
     }
 
     if (playerColor == Black && direction == QueenSide) {
-        board[Parsing::parseSquareIndex("e8")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("e8")].piece = NO_PIECE;
         board[Parsing::parseSquareIndex("d8")].piece = { Rook, Black };
         board[Parsing::parseSquareIndex("c8")].piece = { King, Black };
-        board[Parsing::parseSquareIndex("a8")].piece = { None, Nobody };
+        board[Parsing::parseSquareIndex("a8")].piece = NO_PIECE;
     }
 }
 
@@ -185,9 +185,9 @@ std::string SpellChessLib::GameState::makeSpellChessFen() const
 
 void SpellChessLib::GameState::clearSpells()
 {
-    for (SquareIndex index = 0; index < 64; ++index) {
+    for (SquareIndex index = 0; index < 64; ++index) 
         board[index].frozen = board[index].jumpable = false;
-    }
+    
     jumpSquare = NoSquare;
     frozeSquare = NoSquare;
     spellFields.clear();
@@ -212,12 +212,10 @@ void SpellChessLib::GameState::loadSpellInfos(const SpellCounter* array)
 void SpellChessLib::GameState::loadSpellFields(const std::vector<SpellField>& fields)
 {
     for (const auto& field : fields) {
-        if (field.type == FreezeSpell) {
+        if (field.type == FreezeSpell) 
             frozeArea(field.target);
-        } else if (field.type == JumpSpell) {
-            board[field.target].jumpable = true;
-            jumpSquare = field.target;
-        }
+        else if (field.type == JumpSpell) 
+            makeJumpable(field.target);
     }
 }
 
@@ -232,6 +230,12 @@ void SpellChessLib::GameState::frozeArea(const SquareIndex& sq)
     frozeSquare = sq;
 }
 
+void SpellChessLib::GameState::makeJumpable(const SquareIndex & sq){
+    board[sq].jumpable = true;
+    jumpSquare = sq;
+}
+
+
 std::string SpellChessLib::squareIndexToString(const SquareIndex& index)
 {
     uint8_t x, y;
@@ -244,31 +248,33 @@ std::string SpellChessLib::squareIndexToString(const SquareIndex& index)
 std::string SpellChessLib::spellChessMoveToString(const SpellChessMove& move)
 {
     validateSpellChessMove(move);
-    char promotionTargets[4] = { 'n', 'b', 'r', 'q' };
+
+    static std::unordered_map<PieceType, char> promotionTargets = {
+        {Knight, 'n'},
+        {Bishop, 'b'},
+        {Rook,   'r'},
+        {Queen,  'q'}
+    };
 
     std::string fromSq = squareIndexToString(move.from);
     std::string toSq = squareIndexToString(move.to);
 
     std::string result = fromSq + toSq;
+    
+    if (promotionTargets.count(move.promoteTo))
+        result += promotionTargets[move.promoteTo];
 
-    if (move.promoteTo != None && move.promoteTo != Pawn && move.promoteTo != King) {
-        result += promotionTargets[move.promoteTo - 2];
-    }
-
-    if (move.freezeSquare < 64) {
+    if (move.freezeSquare < 64)
         result = "freeze@" + squareIndexToString(move.freezeSquare) + "&" + result;
-    }
 
-    if (move.jumpSquare < 64) {
+    if (move.jumpSquare < 64) 
         result = "jump@" + squareIndexToString(move.jumpSquare) + "&" + result;
-    }
 
     return result;
 }
 
 SpellChessMove SpellChessLib::parseMove(std::string_view str)
 {
-    
     // Grammar {freeze@[sq]&, jump@[sq]&}[sq][sq]
     SpellChessMove result = {NoSquare, NoSquare, NoSquare, NoSquare, None};
     size_t len = str.size();
@@ -369,6 +375,10 @@ SquareIndex SpellChessLib::calculateEnpassantPawnIndex(const SquareIndex& from, 
     return to > from ? to - 8 : to + 8;
 }
 
+SquareIndex SpellChessLib::calculateEnpassantSquareIndex(const SquareIndex& from, const SquareIndex& to) {
+    return (std::abs(from - to) == 16) ? (from + to) / 2 : NoSquare;
+}
+
 inline bool internal_isKingMoveCastling(const SquareIndex& from, const SquareIndex& to) {
     auto d = std::abs(to % 8 - from % 8);
     return d == 2;
@@ -399,7 +409,7 @@ bool SpellChessLib::GameState::hasSufficientMatingMaterial(const PlayerColor& si
     if (ourPieces[Pawn] || ourPieces[Rook] || ourPieces[Queen])
         return true;
 
-    if (ourPiecesTotal == 1 && (!hasFreezesLeft || theirPiecesTotal == 1))
+    if (ourPiecesTotal == 1)
         return false; // lone king
 
     if (ourPiecesTotal == 2 && ourPieces[Bishop] == 1 && theirPiecesTotal == 1 && !hasFreezesLeft && !hasJumpsLeft)
@@ -435,8 +445,7 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
         decrementSpellCooldown(sideToMove, FreezeSpell);
     
     if (move.jumpSquare != NoSquare) {
-        board[move.jumpSquare].jumpable = true;
-        jumpSquare = move.jumpSquare;
+        makeJumpable(move.jumpSquare);
         spellFields.push_back({JumpSpell, sideToMove, move.jumpSquare, 1});
         decrementSpellUsages(sideToMove, JumpSpell);
     }
@@ -447,21 +456,21 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
     if (isCastling) {
         makeCastling(sideToMove, move.to > move.from ? Kingside : QueenSide);
     } else {
-        enpassantSquare = (type == Pawn && std::abs(move.from - move.to) == 16) ? (move.from + move.to) / 2 : NoSquare;
+        enpassantSquare = (type == Pawn) ? calculateEnpassantSquareIndex(move.from, move.to) : NoSquare;
         board[move.to].piece = (move.promoteTo != None) ? Piece({move.promoteTo, sideToMove}) : board[move.from].piece;
-        board[move.from].piece = { None, Nobody };
+        board[move.from].piece = NO_PIECE;
         
         if (isEnpassant) 
-            board[calculateEnpassantPawnIndex(move.from, move.to)].piece = {None, Nobody};
+            board[calculateEnpassantPawnIndex(move.from, move.to)].piece = NO_PIECE;
         
         if (type == King) 
             castlingRights[sideToMove - 1][0] = castlingRights[sideToMove - 1][1] = false;
 
         if (type == Rook)
-            revokeCastlingRightsAssociatedWithGivenRook(sideToMove, move.from);
+            revokeCastlingRightsAssociatedWithGivenRook(move.from);
 
         if (capturedType == Rook)
-            revokeCastlingRightsAssociatedWithGivenRook(flipColor(sideToMove), move.to);
+            revokeCastlingRightsAssociatedWithGivenRook(move.to);
     }
 
     halfMoveRuleCounter = resetHalfMoveCounter ? 0 : (halfMoveRuleCounter + 1);
@@ -477,6 +486,11 @@ int SpellChessLib::GameState::countPiece(Piece piece) const{
             ++result;
     return result;
 };
+
+int SpellChessLib::GameState::countPiece(PieceType type, PlayerColor color) const{
+    return countPiece(Piece{type, color});
+}
+
 
 
 void SpellChessLib::FenValidator::throwIfInvalid(std::string_view fen) const
@@ -708,7 +722,7 @@ void SpellChessLib::FenParser::loadPieceListString(GameState& state, const std::
 
     PlayerColor currentColour;
 
-    for (size_t i = 0; i < 64; ++i) state.board->piece = { None, Nobody };
+    for (size_t i = 0; i < 64; ++i) state.board->piece = NO_PIECE;
 
     for (char c : token) {
 
@@ -827,7 +841,7 @@ void SpellChessLib::FenParser::_loadSpellChessFen(GameState& state, const std::v
     
     loadSq(state.jumpSquare, tokens[7]);
 	if (state.jumpSquare != NoSquare) {
-        state.board[state.jumpSquare].jumpable = true;
+        state.makeJumpable(state.getJumpSquare());
 		state.spellFields.push_back({JumpSpell, flipColor(state.sideToMove), state.jumpSquare, 1});
 	}
     
