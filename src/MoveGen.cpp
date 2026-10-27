@@ -321,6 +321,7 @@ void SpellChessLib::MoveGenerator::generateProtoMovesForKing(const GameState& st
 		constrains.push_back({ NeutralizeSqAttackers, SquareIndex(kingPos) });
 		constrains.push_back({ NeutralizeSqAttackers, SquareIndex(kingPos + 1) });
 		constrains.push_back({ NeutralizeSqAttackers, SquareIndex(kingPos + 2) });
+		constrains.push_back( {KeptSquareUnfrozen, 	SquareIndex(kingPos + 3)});
 		out.emplace_back(kingPos, kingPos + 2, constrains);
 		constrains.clear();
 	}
@@ -333,6 +334,8 @@ void SpellChessLib::MoveGenerator::generateProtoMovesForKing(const GameState& st
 		constrains.push_back({ NeutralizeSqAttackers, SquareIndex(kingPos) });
 		constrains.push_back({ NeutralizeSqAttackers, SquareIndex(kingPos - 1) });
 		constrains.push_back({ NeutralizeSqAttackers, SquareIndex(kingPos - 2) });
+		constrains.push_back( {KeptSquareUnfrozen, 	SquareIndex(kingPos - 4)});
+
 		out.emplace_back(kingPos, kingPos - 2, constrains);
 		constrains.clear();
 	}
@@ -393,6 +396,8 @@ void SpellChessLib::MoveGenerator::generateProtoMoves(const GameState& state, st
 void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, std::vector<MoveCandidate>& out) const
 {
 	uint64_t attackersToBeNeutralizedByFreeze = 0ull;
+	uint64_t doNotFreezeSq = 1ull << protoMove.from;
+
 	uint64_t tmp;
 	bool usesJump = false;
 	
@@ -405,6 +410,11 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 	for (auto it = protoMove.cbegin(); it != protoMove.cend(); ++it) {
 		sqToNeutralize = kingPos;
 		switch (it->type){
+		
+		case KeptSquareUnfrozen:
+			doNotFreezeSq |= 1ull << (it->affectedSquare);
+			break;
+
 		case CastJumpSq:
 			base.jumpSquare = it->affectedSquare;
 
@@ -468,7 +478,7 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 
 		policy = SpellGeneratorEnforced;
 		for (SquareIndex i = 0; i < 64; ++i)
-			if (_Constraints::doFreezeFrozeAllAttackers(i, attackersToBeNeutralizedByFreeze) && !_Constraints::doesFreezeContainSquare(i, base.from) && currentState->getFreezeSquare() != i)
+			if (_Constraints::doFreezeFrozeAllAttackers(i, attackersToBeNeutralizedByFreeze) && !_Constraints::doesFreezeContainForbiddenSquare(i, doNotFreezeSq) && currentState->getFreezeSquare() != i)
 				freezeSquares.push_back(i);
 	}
 	else
@@ -550,6 +560,13 @@ bool SpellChessLib::MoveGenerator::isMoveLegal(const SpellChessMove& move) const
 			if (usesJump && ( move.jumpSquare >= 64 || !currentState->canUseSpell(currentState->getSideToMove(), JumpSpell))) continue;
 			if (usesFreeze && (move.freezeSquare >= 64 || !currentState->canUseSpell(currentState->getSideToMove(), FreezeSpell))) continue;
 			if (usesFreeze && _Constraints::doesFreezeContainSquare(move.freezeSquare, move.from)) continue;
+			
+			if (usesFreeze && isMoveCastling(*currentState, move.from, move.to)) {
+				const auto dir = move.to > move.from ? Kingside : QueenSide;
+				SquareIndex rook_sq = (dir == Kingside) ? (move.from + 3) : (move.from - 4);
+				if (_Constraints::doesFreezeContainSquare(move.freezeSquare, rook_sq))
+					continue; 
+			}
 
 			return true;
 		}
@@ -665,6 +682,12 @@ bool SpellChessLib::_Constraints::doFreezeFrozeAllAttackers(const SquareIndex& f
 {
 	return getFrozenAttackers(freeze, attackers) == attackers;
 }
+
+bool SpellChessLib::_Constraints::doesFreezeContainForbiddenSquare(const SquareIndex& freeze, const uint64_t& forbidden) {
+	uint64_t frozen = getFrozenAttackers(freeze, ~0ull);
+	return frozen & forbidden;
+}
+
 
 bool SpellChessLib::_Constraints::doesFreezeContainSquare(const SquareIndex& freeze, const SquareIndex& sq)
 {

@@ -22,6 +22,7 @@ namespace SpellChessLib {
 		uint64_t getFrozenAttackers(const SquareIndex& freezeSq, const uint64_t& attackers); // return 0 if freezeSq is NoSquare
 		uint64_t getDiscoveredAttackerByEnpassant(const GameState& state, const SquareIndex & movingSideKing,  const SquareIndex& capturingPawn);
 		bool doFreezeFrozeAllAttackers(const SquareIndex& freeze, const uint64_t& attackers);
+		bool doesFreezeContainForbiddenSquare(const SquareIndex& freeze, const uint64_t& forbidden);
 		bool doesFreezeContainSquare(const SquareIndex& freeze, const SquareIndex& sq);
 	}
 
@@ -34,7 +35,8 @@ namespace SpellChessLib {
 			NeutralizeSqAttackers,
 			NeutralizeDiscoveredCheckByEnpassant,
 			HasNoKingAttackers,
-			CastJumpSq
+			CastJumpSq,
+			KeptSquareUnfrozen
 		};
 
 		struct Constrain {
