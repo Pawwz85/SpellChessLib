@@ -45,31 +45,31 @@ void SpellChessLib::GameState::makeCastling(const PlayerColor& playerColor, cons
     castlingRights[playerColor - 1][0] = castlingRights[playerColor - 1][1] = false;
 
     if (playerColor == White && direction == Kingside) {
-        board[Parsing::parseSquareIndex("e1")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("e1")].piece = NoPiece;
         board[Parsing::parseSquareIndex("f1")].piece = { Rook, White };
         board[Parsing::parseSquareIndex("g1")].piece = { King, White };
-        board[Parsing::parseSquareIndex("h1")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("h1")].piece = NoPiece;
     }
 
     if (playerColor == Black && direction == Kingside) {
-        board[Parsing::parseSquareIndex("e8")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("e8")].piece = NoPiece;
         board[Parsing::parseSquareIndex("f8")].piece = { Rook, Black };
         board[Parsing::parseSquareIndex("g8")].piece = { King, Black };
-        board[Parsing::parseSquareIndex("h8")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("h8")].piece = NoPiece;
     }
 
     if (playerColor == White && direction == QueenSide) {
-        board[Parsing::parseSquareIndex("e1")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("e1")].piece = NoPiece;
         board[Parsing::parseSquareIndex("d1")].piece = { Rook, White };
         board[Parsing::parseSquareIndex("c1")].piece = { King, White };
-        board[Parsing::parseSquareIndex("a1")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("a1")].piece = NoPiece;
     }
 
     if (playerColor == Black && direction == QueenSide) {
-        board[Parsing::parseSquareIndex("e8")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("e8")].piece = NoPiece;
         board[Parsing::parseSquareIndex("d8")].piece = { Rook, Black };
         board[Parsing::parseSquareIndex("c8")].piece = { King, Black };
-        board[Parsing::parseSquareIndex("a8")].piece = NO_PIECE;
+        board[Parsing::parseSquareIndex("a8")].piece = NoPiece;
     }
 }
 
@@ -245,24 +245,27 @@ std::string SpellChessLib::squareIndexToString(const SquareIndex& index)
     return std::string() + char('a' + x) + char('1' + y);
 }
 
-std::string SpellChessLib::spellChessMoveToString(const SpellChessMove& move)
-{
-    validateSpellChessMove(move);
+char promotionCharacter(PieceType type){
+    switch (type) {
+    case Knight: return 'n';
+    case Bishop: return 'b';
+    case Rook:   return 'r';
+    case Queen:  return 'q';
+    default:     return '\0';
+    }
+}
 
-    static std::unordered_map<PieceType, char> promotionTargets = {
-        {Knight, 'n'},
-        {Bishop, 'b'},
-        {Rook,   'r'},
-        {Queen,  'q'}
-    };
+std::string SpellChessLib::spellChessMoveToString(const SpellChessMove& move){
+
+    validateSpellChessMove(move);
 
     std::string fromSq = squareIndexToString(move.from);
     std::string toSq = squareIndexToString(move.to);
 
     std::string result = fromSq + toSq;
     
-    if (promotionTargets.count(move.promoteTo))
-        result += promotionTargets[move.promoteTo];
+    if (char c = promotionCharacter(move.promoteTo))
+        result += c;
 
     if (move.freezeSquare < 64)
         result = "freeze@" + squareIndexToString(move.freezeSquare) + "&" + result;
@@ -398,7 +401,7 @@ bool SpellChessLib::GameState::hasSufficientMatingMaterial(const PlayerColor& si
         }
 
         if (board[i].piece.owner == flipColor(side)) {
-            ourPieces[board[i].piece.type]++;
+            theirPieces[board[i].piece.type]++;
             theirPiecesTotal++;
         }
     }
@@ -458,10 +461,10 @@ void SpellChessLib::GameState::makeMove(const SpellChessMove& move)
     } else {
         enpassantSquare = (type == Pawn) ? calculateEnpassantSquareIndex(move.from, move.to) : NoSquare;
         board[move.to].piece = (move.promoteTo != None) ? Piece({move.promoteTo, sideToMove}) : board[move.from].piece;
-        board[move.from].piece = NO_PIECE;
+        board[move.from].piece = NoPiece;
         
         if (isEnpassant) 
-            board[calculateEnpassantPawnIndex(move.from, move.to)].piece = NO_PIECE;
+            board[calculateEnpassantPawnIndex(move.from, move.to)].piece = NoPiece;
         
         if (type == King) 
             castlingRights[sideToMove - 1][0] = castlingRights[sideToMove - 1][1] = false;
@@ -722,7 +725,7 @@ void SpellChessLib::FenParser::loadPieceListString(GameState& state, const std::
 
     PlayerColor currentColour;
 
-    for (size_t i = 0; i < 64; ++i) state.board->piece = NO_PIECE;
+    for (size_t i = 0; i < 64; ++i) state.board[i].piece = NoPiece;
 
     for (char c : token) {
 

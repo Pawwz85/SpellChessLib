@@ -46,15 +46,12 @@ namespace SpellChessLib {
 		PieceType type;
 		PlayerColor owner;
 
-		Piece() = default;
-		Piece (const Piece & other) = default;
-
 		bool operator == (const Piece& other) const {
 			return this->type == other.type && this->owner == other.owner;
 		}
 	};
 
-	#define NO_PIECE {None, Nobody}
+	inline constexpr Piece NoPiece{None, Nobody};
 
 	struct BoardSquare {		
 		Piece piece; 
@@ -296,7 +293,7 @@ namespace SpellChessLib {
 		GameState(): sideToMove(White), enpassantSquare(NoSquare), frozeSquare(NoSquare), jumpSquare(NoSquare), halfMoveRuleCounter(0), fullMoveCounter(1) {
 			spellChessMode = false;
 			for (size_t i = 0; i < 64; ++i) {
-				this->board[i] = { NO_PIECE, false, false };
+				this->board[i] = { NoPiece, false, false };
 			}
 			castlingRights[0][0] = castlingRights[0][1] = castlingRights[1][0] = castlingRights[1][1] = false;
 			spells[0][FreezeSpell].spellId = spells[1][FreezeSpell].spellId = FreezeSpell;
