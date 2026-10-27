@@ -40,5 +40,8 @@
   {"name":"freeze_check_with_king_is_illegal","criteria":"forbidden move","positionFen":"8/8/8/2b2K2/8/6k1/8/8 b - - 1 131 - - F10/J00/f10/j10","moves":[{"move":"freeze@e4&g3g4","policy":"fixed"}]},
   {"name":"jump_pawn_push_over_jumpable_field","criteria":"legal","positionFen":"rnb2k2/pp3ppB/4p3/3p4/1P1P1P2/P1N3n1/1BPP1bP1/1K1R2R1 w - - 3 15 - g3 F30/J20/f40/j12","moves":[{"move":"g2g4","policy":"addable"}]},
   {"name":"king_can_slider_attack_blocked_by_enemy_king", "criteria":"legal", "positionFen":"1n1r1R2/6p1/2pk4/pp6/8/P3q3/1PP4P/RN1K4 w - - 4 27 - - F10/J10/f10/j12", "moves":[{"move":"b1c3", "policy":"addable"}]},
-  {"name":"jump_checkmate_edge_case", "criteria":"illegal", "positionFen":"1nQ1kbnr/rp1b1ppp/2p1q3/1B2p1B1/3Pp3/5N2/PPP2PPP/1N2K2R b Kk - 5 9 - c6 F40/J00/f41/j20", "moves":[{"move":"d7c8", "policy":"addable"}, {"move":"jump@d7&e6c8", "policy":"fixed"}]}
+  {"name":"jump_checkmate_edge_case", "criteria":"illegal", "positionFen":"1nQ1kbnr/rp1b1ppp/2p1q3/1B2p1B1/3Pp3/5N2/PPP2PPP/1N2K2R b Kk - 5 9 - c6 F40/J00/f41/j20", "moves":[{"move":"d7c8", "policy":"addable"}, {"move":"jump@d7&e6c8", "policy":"fixed"}]},
+  {"name":"can_capture_checking_pawn_by_enpassant", "criteria":"legal", "positionFen":"3R4/8/7p/2kpn3/1p1Pp3/1P2P2P/P1P3P1/3K4 b - d3 0 41 - - F00/J00/f00/j10", "moves":[{"move":"e4d3", "policy":"addable"}]},
+  {"name":"castling_is_illegal_is_move_freezes_rock", "criteria":"illegal", "positionFen":"rnbqk2r/ppb2Qpp/2p2n2/3p2N1/4p3/2P1P2P/PP1P1PP1/RNB1KB1R b KQkq - 0 8 - d5 F50/J12/f50/j20", "moves":[{"move":"freeze@g7&e8g8", "policy":"fixed"}]},
+  {"name":"can_not_ignore_check_by_jump_sq", "criteria":"illegal", "positionFen":"4k2r/1p3p1p/5b1p/p7/P2P1r2/n1K2BP1/5P2/3R4 w k - 12 29 - d4 F42/J20/f41/j12", "moves":[{"move":"g3f4", "policy":"addable"}]}
 ]

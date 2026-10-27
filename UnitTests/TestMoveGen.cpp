@@ -549,3 +549,29 @@ TEST(move_gen, can_not_cast_jump_over_pinned_piece) {
 	SPELL_CHESS_MOVE_GEN_SETUP("1nQ1kbnr/rp1b1ppp/4q3/1B2p1B1/3Pp3/5N2/PPP2PPP/1N2K2R b Kk - 5 9 - - F40/J00/f41/j20");
 	ASSERT_MOVE_IS_ILLEGAL("jump@d7&e6c8");
 }
+
+TEST(move_gen, can_capture_checking_pawn_by_enpassant) {
+	SPELL_CHESS_MOVE_GEN_SETUP("3R4/8/7p/2kpn3/1p1Pp3/1P2P2P/P1P3P1/3K4 b - d3 0 41 - - F00/J00/f00/j10");
+	std::vector<SpellChessMove> requiredMoves = parseMoveList({"e4d3"});
+	std::vector<MoveCandidate> matchingMoves;
+	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
+}
+
+TEST(move_gen, castling_is_illegal_is_move_freezes_rock) {
+	SPELL_CHESS_MOVE_GEN_SETUP("rnbqk2r/ppb2Qpp/2p2n2/3p2N1/4p3/2P1P2P/PP1P1PP1/RNB1KB1R b KQkq - 0 8 - d5 F50/J12/f50/j20");
+	ASSERT_MOVE_IS_ILLEGAL("freeze@g7&e8g8");
+}
+
+TEST(move_gen, king_can_move_into_attack_of_frozen_piece) {
+	// TODO: in engine, this move is not planned to be supported by main move gen
+	// But it should be outputted by legacy one
+	SPELL_CHESS_MOVE_GEN_SETUP("8/1k2b1p1/6p1/1n1p1n2/8/3K4/6r1/8 w - - 0 35 f1 - F22/J00/f22/j00");
+	std::vector<SpellChessMove> requiredMoves = parseMoveList({"d3e2"});
+	std::vector<MoveCandidate> matchingMoves;
+	ASSERT_REQUIRED_MOVES_PRESENT(requiredMoves, matchingMoves);
+}
+
+TEST(move_gen, can_not_ignore_check_by_jump_sq) {
+	SPELL_CHESS_MOVE_GEN_SETUP("4k2r/1p3p1p/5b1p/p7/P2P1r2/n1K2BP1/5P2/3R4 w k - 12 29 - d4 F42/J20/f41/j12");
+	ASSERT_MOVE_IS_ILLEGAL("g3f4");
+}
