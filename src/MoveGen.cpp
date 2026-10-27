@@ -429,6 +429,11 @@ void SpellChessLib::MoveGenerator::expandProtoMove(const ProtoMove& protoMove, s
 			attackersToBeNeutralizedByFreeze |= getAttackers(*currentState, sqToNeutralize, flipColor(currentState->getSideToMove()));
 			attackersToBeNeutralizedByFreeze &= ~_Constraints::getCapturedAttacker(base.to, attackersToBeNeutralizedByFreeze);
 			
+			// Edge case: enpassant capturing king attacker
+			if (pieceType == Pawn && base.to == currentState->getEnppassantSquare())
+				 attackersToBeNeutralizedByFreeze &= 
+				 ~_Constraints::getCapturedAttacker(calculateEnpassantPawnIndex(base.from, base.to), attackersToBeNeutralizedByFreeze);
+
 			if(pieceType != King)
 				attackersToBeNeutralizedByFreeze &= ~_Constraints::getBlockedAttacker(base.to, kingPos, attackersToBeNeutralizedByFreeze);
 		

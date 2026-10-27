@@ -155,6 +155,9 @@ namespace SpellChessLib {
 	extern SpellChessMove parseMove(std::string_view str);
 
 	extern void validateSpellChessMove(const SpellChessMove& move);
+	
+	extern SquareIndex calculateEnpassantPawnIndex(const SquareIndex& from, const SquareIndex& to);
+
 	class InvalidMoveException : public std::exception {
 	public:
 		const char* what() const noexcept override {

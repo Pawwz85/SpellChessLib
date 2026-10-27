@@ -365,7 +365,7 @@ void SpellChessLib::validateSpellChessMove(const SpellChessMove& move)
         throw InvalidMoveException();
 }
 
-inline SquareIndex calculateEnpassantPawnIndex(const SquareIndex& from, const SquareIndex& to) {
+SquareIndex SpellChessLib::calculateEnpassantPawnIndex(const SquareIndex& from, const SquareIndex& to) {
     return to > from ? to - 8 : to + 8;
 }
 
