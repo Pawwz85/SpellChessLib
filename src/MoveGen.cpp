@@ -564,7 +564,7 @@ bool SpellChessLib::MoveGenerator::isMoveLegal(const SpellChessMove& move) const
 			if (usesFreeze && (move.freezeSquare >= 64 || !currentState->canUseSpell(currentState->getSideToMove(), FreezeSpell))) continue;
 			if (usesFreeze && _Constraints::doesFreezeContainSquare(move.freezeSquare, move.from)) continue;
 			
-			if (usesFreeze && isMoveCastling(*currentState, move.from, move.to)) {
+			if (usesFreeze && currentState->getSquare(move.from).piece.type == King && isMoveCastling(*currentState, move.from, move.to)) {
 				const auto dir = move.to > move.from ? Kingside : QueenSide;
 				SquareIndex rook_sq = (dir == Kingside) ? (move.from + 3) : (move.from - 4);
 				if (_Constraints::doesFreezeContainSquare(move.freezeSquare, rook_sq))

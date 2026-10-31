@@ -575,3 +575,8 @@ TEST(move_gen, can_not_ignore_check_by_jump_sq) {
 	SPELL_CHESS_MOVE_GEN_SETUP("4k2r/1p3p1p/5b1p/p7/P2P1r2/n1K2BP1/5P2/3R4 w k - 12 29 - d4 F42/J20/f41/j12");
 	ASSERT_MOVE_IS_ILLEGAL("g3f4");
 }
+
+TEST(move_gen, freeze_legality_bug) {
+	SPELL_CHESS_MOVE_GEN_SETUP("rnbq1b1Q/1pppkppp/p3pn2/1B6/8/4P3/PPPP1PPP/RNB1K1NR w KQ - 1 5 - - F40/J12/f40/j20");
+	ASSERT_TRUE(gen.isMoveLegal("freeze@e7&h8f8"));
+}
