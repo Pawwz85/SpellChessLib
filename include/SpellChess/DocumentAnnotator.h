@@ -33,11 +33,14 @@ namespace SpellChessLib {
         // total amount of analised moves
         size_t totalMoves;
 
+        // Accuracy of a player
+        double accuracy;
+
         // total sum of difference between best engine move and move played
         double totalLoss; 
 
         // total sum of reciprocals of accuracy valus
-        double totalAccuracyReciprocals;
+        double accuracyAccumulator;
 
          // count number of moves of given type played by given size 
         std::array<size_t, Annotation::MoveClassification_EnumSize> moveClassCounter;
@@ -56,6 +59,7 @@ namespace SpellChessLib {
         MoveClassifier moveClassifier;
         GameStatistics gameStats;
         bool recursive;
+        float accuracyPowerAverageExponent = 1.f;
 
         std::function<void()> onPositionAnalized = [](){};
         std::function<void()> onFinish = [](){};
@@ -67,6 +71,7 @@ namespace SpellChessLib {
         float calculateLoss(SpellChessLib::PlayerColor pov, const PositionInsights & before, const PositionInsights & after);
         float calculateAccuracy(float moveLoss);
         void resetGameStatistics();
+        void agregateStatistics();
         void updateCache(SpellChessDocument::Handle pos, const PositionInsights & insights);
         void analizeInternal(const SpellChessDocument & document, SpellChessDocument::Handle pos, const GameState & root, std::vector<SpellChessMove> & movesSinceRoot);
         void analize(const SpellChessDocument & document);
@@ -76,7 +81,7 @@ namespace SpellChessLib {
         SpellChessDocument::Handle writeVariation(SpellChessDocument & document, SpellChessDocument::Handle pos, const std::vector<SpellChessMove> & moves);
         
         public:
-        DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive = false);
+        DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive = false, float accuracyExponent = -1.02);
         void setPositionAnalizedCallback(std::function<void()> callback);
         void setFinishCallback(std::function<void()> callback);
         GameStatistics operator()(std::shared_ptr<SpellChessDocument> document);

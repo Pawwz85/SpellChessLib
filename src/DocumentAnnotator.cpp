@@ -28,7 +28,8 @@ double estimateWinProb(const UCILoader::UciScore & score) {
 
 float 
 SpellChessLib::DocumentAnnotator::calculateAccuracy(float moveLoss) {
-    return  1.031668f * std::exp( -4.354 * moveLoss) - 0.031669f;
+    float tmp =  1.031668f * std::exp( -4.354 * moveLoss) - 0.031669f; 
+    return std::max(tmp, 0.01f);
 }
 
 
@@ -65,10 +66,36 @@ void
 SpellChessLib::DocumentAnnotator::resetGameStatistics(){
     gameStats.whitePlayerStats.totalMoves = gameStats.blackPlayerStats.totalMoves = 0;
     gameStats.whitePlayerStats.totalLoss = gameStats.blackPlayerStats.totalLoss = 0.;
-    gameStats.whitePlayerStats.totalAccuracyReciprocals = gameStats.blackPlayerStats.totalAccuracyReciprocals = 0.;
+    gameStats.whitePlayerStats.accuracyAccumulator = gameStats.blackPlayerStats.accuracyAccumulator = 0.;
+    gameStats.whitePlayerStats.accuracy = gameStats.blackPlayerStats.accuracy = 1.f;
 
     gameStats.whitePlayerStats.moveClassCounter.fill(0);
     gameStats.blackPlayerStats.moveClassCounter.fill(0);
+}
+
+double pow_avg(double acc, double n, double k) {
+    double n_k;
+    if (k < 0) {
+        n_k = std::pow(n, -k);
+        return n_k / acc;
+    }
+
+    return acc / n_k;
+}
+
+void
+SpellChessLib::DocumentAnnotator::agregateStatistics() {
+    gameStats.whitePlayerStats.accuracy = pow_avg(
+        gameStats.whitePlayerStats.accuracyAccumulator,
+        gameStats.whitePlayerStats.totalMoves,
+        accuracyPowerAverageExponent
+    );
+
+    gameStats.blackPlayerStats.accuracy = pow_avg(
+        gameStats.blackPlayerStats.accuracyAccumulator,
+        gameStats.blackPlayerStats.totalMoves,
+        accuracyPowerAverageExponent
+    );
 }
 
 
@@ -137,7 +164,7 @@ SpellChessLib::DocumentAnnotator::annotateInternal(SpellChessDocument & document
         float loss = calculateLoss(gameState.getSideToMove(), insights.value(), childInsights.value());
         float acc = calculateAccuracy(loss);
         playerStats.totalLoss += loss;
-        playerStats.totalAccuracyReciprocals += 1.f/acc; 
+        playerStats.accuracyAccumulator += std::pow(acc, accuracyPowerAverageExponent); 
 
         if (classification == Annotation::MoveClassification::Blunder  ||
             classification == Annotation::MoveClassification::Mistake  ||
@@ -181,9 +208,9 @@ SpellChessLib::DocumentAnnotator::writeVariation(SpellChessDocument & document, 
 }
 
 
-SpellChessLib::DocumentAnnotator::DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive) :
-    analizer(analizer), moveClassifier(moveClassifier), recursive(recursive) {
-
+SpellChessLib::DocumentAnnotator::DocumentAnnotator(PositionAnalizer analizer, MoveClassifier moveClassifier, bool recursive, float accuracyExponent) :
+    analizer(analizer), moveClassifier(moveClassifier), recursive(recursive),
+    accuracyPowerAverageExponent(accuracyExponent) {
     }
 
 void
@@ -202,6 +229,7 @@ SpellChessLib::DocumentAnnotator::operator()(std::shared_ptr<SpellChessDocument>
     resetGameStatistics();
     analize(*document);
     annotate(*document);
+    agregateStatistics();
     onFinish();
     return gameStats;
 }
