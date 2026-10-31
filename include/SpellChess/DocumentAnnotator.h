@@ -64,7 +64,6 @@ namespace SpellChessLib {
 
         PlayerStatistics & getPlayerStats(SpellChessLib::PlayerColor color);
 
-        std::optional<PositionInsights> lookupCache(SpellChessDocument::Handle pos);
         float calculateLoss(SpellChessLib::PlayerColor pov, const PositionInsights & before, const PositionInsights & after);
         float calculateAccuracy(float moveLoss);
         void resetGameStatistics();
@@ -81,6 +80,7 @@ namespace SpellChessLib {
         void setPositionAnalizedCallback(std::function<void()> callback);
         void setFinishCallback(std::function<void()> callback);
         GameStatistics operator()(std::shared_ptr<SpellChessDocument> document);
+        std::optional<PositionInsights> lookupCache(SpellChessDocument::Handle pos);
     };
 
     extern PositionAnalizer makeFixedDetphAnalizer(std::shared_ptr<UCILoader::EngineInstance<SpellChessMove>> engine, uint32_t depth);
