@@ -29,7 +29,7 @@ double estimateWinProb(const UCILoader::UciScore & score) {
 float 
 SpellChessLib::DocumentAnnotator::calculateAccuracy(float moveLoss) {
     float tmp =  1.031668f * std::exp( -4.354 * moveLoss) - 0.031669f; 
-    return std::max(tmp, 0.01f);
+    return std::max(tmp, 0.1f);
 }
 
 
@@ -202,7 +202,11 @@ SpellChessLib::SpellChessDocument::Handle
 SpellChessLib::DocumentAnnotator::writeVariation(SpellChessDocument & document, SpellChessDocument::Handle pos, const std::vector<SpellChessMove> & moves){
     auto currentPos = pos;
     for (auto & move : moves) {
-        currentPos = document.makeMove(currentPos, move);
+        try {
+            currentPos = document.makeMove(currentPos, move);
+        } catch (const SpellChessDocument::IllegalMoveError & e) {
+            document.setComment(currentPos, std::string("Engine reccomended illegal move: ") + e.what());
+        }
     }
     return currentPos;
 }
