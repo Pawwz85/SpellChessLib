@@ -16,6 +16,8 @@ namespace SpellChessLib {
 	*/
 	int tryGettingCastlingDirection(const GameState& state, const SquareIndex& from, const SquareIndex& to);
 
+	bool isMoveCastling(const GameState& state, const SpellChessMove & move);
+
 	bool arePointsColinear(const int8_t& x1, const int8_t& y1, const int8_t& x2, const int8_t& y2);
 	int _sliderStep(const int8_t& u, const int8_t& w);
 	

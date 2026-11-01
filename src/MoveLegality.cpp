@@ -36,6 +36,14 @@ int SpellChessLib::tryGettingCastlingDirection(const GameState& state, const Squ
     return -1;
 }
 
+bool SpellChessLib::isMoveCastling(const GameState& state, const SpellChessMove & move) {
+    if (state.getSquare(move.from).piece.type != King)
+        return false;
+    
+    return tryGettingCastlingDirection(state, move.from, move.to) != -1;
+}
+
+
 bool SpellChessLib::arePointsColinear(const int8_t& x1, const int8_t& y1, const int8_t& x2, const int8_t& y2)
 {
     return (x1 == x2) || (y1 == y2) || (x1 + y1 == x2 + y2) || (x1 - y1 == x2 - y2);
