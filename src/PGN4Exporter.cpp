@@ -152,7 +152,7 @@ std::string SpellChessLib::PGN4Exporter::makeTokenFromMoveAndAdvance(const Spell
 	PieceType capturedPiece = currentState.getSquare(move.to).piece.type;
 
 	if (movedPiece == King) {
-		int castlingDirection = isMoveCastling(currentState, move.from, move.to);
+		int castlingDirection = tryGettingCastlingDirection(currentState, move.from, move.to);
 		if (castlingDirection == int(Kingside)) {
 			result = "O-O";
 			goto BASE_CALCULATED;

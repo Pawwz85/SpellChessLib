@@ -1,5 +1,5 @@
 #include <SpellChess/MoveNotation.h>
-#include <SpellChess/MoveLegality.h> // for isMoveCastling function
+#include <SpellChess/MoveLegality.h> // for tryGettingCastlingDirection function
 #include <SpellChess/MoveGen.h>
 #include <SpellChess/Board.h>
 #include <set>
@@ -78,7 +78,7 @@ std::string SpellChessLib::spellChessMoveToSAN(const SpellChessMove & move, cons
 	SANAmbiguityLevel lvl = NoAmbiguity;
 
 	if (movedPiece == King) {
-		int castlingDirection = isMoveCastling(context, move.from, move.to);
+		int castlingDirection = tryGettingCastlingDirection(context, move.from, move.to);
 		if (castlingDirection == int(Kingside)) {
 			base = "O-O";
 			goto BASE_CALCULATED;

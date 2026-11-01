@@ -14,7 +14,7 @@ namespace SpellChessLib {
 		0 if move is KingSide castling
 		1 if move is QueenSide castling
 	*/
-	int isMoveCastling(const GameState& state, const SquareIndex& from, const SquareIndex& to);
+	int tryGettingCastlingDirection(const GameState& state, const SquareIndex& from, const SquareIndex& to);
 
 	bool arePointsColinear(const int8_t& x1, const int8_t& y1, const int8_t& x2, const int8_t& y2);
 	int _sliderStep(const int8_t& u, const int8_t& w);

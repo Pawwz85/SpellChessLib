@@ -16,7 +16,7 @@ SquareIndex SpellChessLib::findKingPos(const GameState& state, const PlayerColor
     return NoSquare;
 }
 
-int SpellChessLib::isMoveCastling(const GameState& state, const SquareIndex& from, const SquareIndex& to)
+int SpellChessLib::tryGettingCastlingDirection(const GameState& state, const SquareIndex& from, const SquareIndex& to)
 {
     /*
         Preconditions:
@@ -159,7 +159,7 @@ bool SpellChessLib::isKnightMovePseudoLegal(const GameState & state, const Playe
 
 bool SpellChessLib::isKingMovePseudoLegal(const GameState& state, const PlayerColor& us, const SquareIndex& from, const SquareIndex& to)
 {
-    int castlingStatus = isMoveCastling(state,  from, to);
+    int castlingStatus = tryGettingCastlingDirection(state,  from, to);
 
     if (castlingStatus != -1) {
         // castling is pseudo
