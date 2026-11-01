@@ -229,7 +229,8 @@ void SpellChessLib::PGN4Exporter::exportPGN4(const GameState& root, const Annota
 	writeTagLine({"RuleVariants", "EnPassant Play4Mate Spell=1+3"}, out);
 
 	for (const auto& tag : annotations.tagSection)
-		writeTagLine(tag, out);
+		if (tag.name != "StartFen4" && tag.name != "RuleVariants")	// prevent tag duplication
+			writeTagLine(tag, out);
 
 	out << "\n";
 
