@@ -7,21 +7,37 @@
 #include "GameRunnerConfiguration.h"
 #include <mutex>
 #include <condition_variable>
-#include <cstddef>
+#include <filesystem>
+#include <functional>
 #include <memory>
 
 namespace SpellChessLib {
 	
 	class Game;
 	
+	struct SPRTStatiscs {
+		unsigned int totalGames;
+		unsigned int gamesLeftEstimate;
+		double winRatio;	// Win ratio of the measured player
+		double drawRatio;
+		double eloDiff;
+		double eloDiffConfidenceInterval;
+		double LLR;
+	};
+
 	class SPRTPTournament {
 	private:
 		Stats::TrinomialModel tournamentModel;
 		Stats::MatchOutcomeTables outcomeTables;
 
+		std::filesystem::path gameSaveLocation = "Games/";
 		size_t gamesIssued, gameCounter;
 		std::shared_ptr<GameRunnerPool> runners;
 		std::shared_ptr<PositionSupplier> supplier;
+		bool shouldDisplayStats = true;
+
+		std::function<void(SPRTStatiscs)> onStatsUpdate = [](SPRTStatiscs){};
+
 		int measuredPlayer = 0, opponent = 0;
 
 
@@ -30,12 +46,13 @@ namespace SpellChessLib {
 		GameRunnerConfigurationBuilder configBuilder;
 		GameRunnerPool::GameRunRequest makeRequest(int whitePlayerId, int blackPlayerId, const GameState & root);
 
-		void displayStats() const;
+		void displayStats(const SPRTStatiscs & stats) const;
 		void updateModel(const PlayerColor& winner, const GameRunnerPool::GameRunRequest& request);
 		void onGameCompleted(const Game& game, const GameRunnerPool::GameRunRequest& request);
 		void onGameCrashed(const GameRunnerPool::GameRunRequest& request);
 		void spawnNewGameRequest();
 
+		SPRTStatiscs calculateStats() const;
 
 	protected:
 		mutable std::mutex lock;
@@ -57,6 +74,12 @@ namespace SpellChessLib {
 
 		void setMoveTime(unsigned int moveTimeMs);
 		void setTimeFormat(unsigned int baseTimeMs, unsigned int incMs, unsigned int margin);
+		void setOnStatsUpdate(std::function<void(SPRTStatiscs)> callback);
+		void setGameSaveLocation(const std::filesystem::path & path);
+		
+		void shouldDisplayStatsOnConsole(bool display) {
+			this->shouldDisplayStats = display;
+		};
 
 		Stats::TrinomialModel waitForCompletion();
 

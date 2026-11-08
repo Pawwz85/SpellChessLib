@@ -31,18 +31,20 @@ SpellChessLib::GameRunnerPool::GameRunRequest SpellChessLib::SPRTPTournament::ma
          [this](const GameRunnerPool::GameRunRequest& request, const std::exception & _) {this->onGameCrashed(request); }
     };
 
-    return GameRunnerPool::GameRunRequest();
 }
 
-void SpellChessLib::SPRTPTournament::displayStats() const
+void SpellChessLib::SPRTPTournament::displayStats(const SpellChessLib::SPRTStatiscs & stats) const
 {
+    if (!shouldDisplayStats)
+        return;
+
     std::cout << "\033[2J\033[1;1H";
-    std::cout << "Total games =" << Stats::getNumberOfGames(tournamentModel) << '\n';
-    std::cout << "About ~ " << (unsigned int) Stats::estimateGamesLeft(tournamentModel, elo0, elo1, alpha, beta) <<" games left\n";
-    std::cout << "Win ratio = " << Stats::winRatio(tournamentModel) << '\n';
-    std::cout << "Draw ratio = " << Stats::drawRatio(tournamentModel) << '\n';
-    std::cout << "Elo difference = " << Stats::eloDiff(tournamentModel) << " +- " << Stats::eloDiffConfidenceInterval(tournamentModel) <<"\n";
-    std::cout << "LLR  = " << Stats::calculateLLR(tournamentModel, elo0, elo1) << "\n";
+    std::cout << "Total games =" << stats.totalGames << '\n';
+    std::cout << "About ~ " << stats.gamesLeftEstimate <<" games left\n";
+    std::cout << "Win ratio = " << stats.winRatio << '\n';
+    std::cout << "Draw ratio = " << stats.drawRatio << '\n';
+    std::cout << "Elo difference = " << stats.eloDiff << " +- " << stats.eloDiffConfidenceInterval <<"\n";
+    std::cout << "LLR  = " << stats.LLR << "\n";
 }
 
 void SpellChessLib::SPRTPTournament::updateModel(const PlayerColor& winner, const GameRunnerPool::GameRunRequest& request){
@@ -69,8 +71,9 @@ void SpellChessLib::SPRTPTournament::onGameCompleted(const Game& game, const Gam
     outcomeTables.registerOutcome(request.whPlayer.id, request.blPlayer.id, game.getWinner(), game.getStatusCode());
     
     updateModel(game.getWinner(), request);
-    displayStats();
-
+    auto stats = calculateStats();
+    onStatsUpdate(stats);
+    displayStats(stats);
 
     double LLR = Stats::calculateLLR(tournamentModel, elo0, elo1);
     if (LLR < Stats::calculateLLRLowerThreshold(alpha, beta)) {
@@ -88,8 +91,9 @@ void SpellChessLib::SPRTPTournament::onGameCompleted(const Game& game, const Gam
 
     auto annotations = game.getDocument()->toAnnotations();
 
-    std::string saveLocation = "Games/game_" + std::to_string(Stats::getNumberOfGames(tournamentModel));
-    Annotation::exportAnnotatedGame(saveLocation, annotations);
+    std::filesystem::path saveLocation = gameSaveLocation / ("game_" + std::to_string(Stats::getNumberOfGames(tournamentModel)));
+    std::string saveLocationString = saveLocation.string();
+    Annotation::exportAnnotatedGame(saveLocationString, annotations);
 }
 
 void SpellChessLib::SPRTPTournament::onGameCrashed(const GameRunnerPool::GameRunRequest& request){
@@ -117,6 +121,20 @@ void SpellChessLib::SPRTPTournament::spawnNewGameRequest(){
     ++gamesIssued;
 }
 
+SpellChessLib::SPRTStatiscs 
+SpellChessLib::SPRTPTournament::calculateStats() const {
+    SPRTStatiscs stats;
+    stats.totalGames = Stats::getNumberOfGames(tournamentModel);
+    stats.gamesLeftEstimate = (unsigned int) Stats::estimateGamesLeft(tournamentModel, elo0, elo1, alpha, beta);
+    stats.winRatio = Stats::winRatio(tournamentModel);
+    stats.drawRatio = Stats::drawRatio(tournamentModel);
+    stats.eloDiff = Stats::eloDiff(tournamentModel);
+    stats.eloDiffConfidenceInterval = Stats::eloDiffConfidenceInterval(tournamentModel);
+    stats.LLR = Stats::calculateLLR(tournamentModel, elo0, elo1);
+    return stats;
+}
+
+
 void SpellChessLib::SPRTPTournament::startTest(int measuredPlayer, int opponent){
     this->measuredPlayer = measuredPlayer;
     this->opponent = opponent;
@@ -135,12 +153,20 @@ void SpellChessLib::SPRTPTournament::setTimeFormat(unsigned int baseTimeMs, unsi
     configBuilder.withClassicalTimer(baseTimeMs, incMs, margin);
 }
 
+void SpellChessLib::SPRTPTournament::setOnStatsUpdate(std::function<void(SPRTStatiscs)> callback) {
+    this->onStatsUpdate = callback;
+};
+
+void SpellChessLib::SPRTPTournament::setGameSaveLocation(const std::filesystem::path & path) {
+    this->gameSaveLocation = path;
+}
+
 SpellChessLib::Stats::TrinomialModel SpellChessLib::SPRTPTournament::waitForCompletion() {
     {
         std::unique_lock<std::mutex> guard(lock);
         con_var.wait(guard, [this]() {return this->SPRTCompleted;});
         
-        displayStats();
+        displayStats(calculateStats());
         outcomeTables.display();
 
         return tournamentModel;
