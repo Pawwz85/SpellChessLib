@@ -580,3 +580,13 @@ TEST(move_gen, freeze_legality_bug) {
 	SPELL_CHESS_MOVE_GEN_SETUP("rnbq1b1Q/1pppkppp/p3pn2/1B6/8/4P3/PPPP1PPP/RNB1K1NR w KQ - 1 5 - - F40/J12/f40/j20");
 	ASSERT_TRUE(gen.isMoveLegal("freeze@e7&h8f8"));
 }
+
+TEST(move_gen, can_capture_piece_on_jumbaple) {
+	SPELL_CHESS_MOVE_GEN_SETUP("rk5r/4q1pp/3b4/5p2/p4p1P/5P2/PPPPQ1P1/1R2K1NR w K - 0 22 - e7 F32/J11/f41/j12");
+	ASSERT_TRUE(gen.isMoveLegal("e2e7"));
+}
+
+TEST(move_gen, castling_legality_ignores_frozen_attackers) {
+	SPELL_CHESS_MOVE_GEN_SETUP("r1bqr3/pppk1ppp/8/3P4/3Q4/P1P1nN2/P2P1PPP/R1B1K2R w KQ - 3 15 e3 - F22/J20/f22/j20");
+	ASSERT_TRUE(gen.isMoveLegal("e1g1"));
+}
