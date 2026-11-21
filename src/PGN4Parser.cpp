@@ -355,6 +355,8 @@ namespace SpellChessLib {
                 return "Game ended with resignation";
             if (tok == "T")
                 return "Game ended with timeout";
+            if (tok == "S")
+                return "Game ended with stalemate";
 
             throw InvalidPGN4("Invalid termination reason token: " + tok);
         }
@@ -368,7 +370,7 @@ namespace SpellChessLib {
                 
                 if (tokens[index].type == TokenType::word) {
                     
-                    if (tokens[index].value == "#" || tokens[index].value == "R" || tokens[index].value == "T") {
+                    if (tokens[index].value == "#" || tokens[index].value == "R" || tokens[index].value == "T" || tokens[index].value == "S") {
                         result.appendComment(makeCommentFromTerminationReasonToken(tokens[index].value));
                         continue;
                     }
