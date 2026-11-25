@@ -49,13 +49,15 @@ set(all_files
 	${source_files}
 )
 
-option (ENABLE_IWYU "Enable include-what-you-use" ON)
+option (SPELLCHESS_ENABLE_IWYU "Enable include-what-you-use" OFF)
+option (SPELLCHESS_BUILD_EXAMPLES "Build examples" ON)
+option (SPELLCHESS_BUILD_TESTS "Build tests" ON)
 
-if(ENABLE_IWYU)
+if(SPELLCHESS_ENABLE_IWYU)
     find_program(IWYU_EXECUTABLE NAMES include-what-you-use)
     if(NOT IWYU_EXECUTABLE)
         message(FATAL_ERROR
-            "ENABLE_IWYU is ON, but include-what-you-use was not found.")
+            "SPELLCHESS_ENABLE_IWYU is ON, but include-what-you-use was not found.")
     endif()
 
     set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE
@@ -65,6 +67,10 @@ endif()
 add_library(spellchess STATIC ${source_files})
 
 include(FetchContent)
+
+if (NOT SPELLCHESS_BUILD_TESTS)
+	set(UCILOADER_BUILD_TESTS OFF) # Do not build UCILoader tests if user does not want to build tests
+endif()
 
 FetchContent_Declare(
 		UCILoader
@@ -101,11 +107,16 @@ target_include_directories( spellchess PRIVATE ThirdParty )
 target_link_libraries(spellchess PUBLIC uciloader)
 
 
-add_subdirectory("Examples/TournamentRunner")
-add_subdirectory("Examples/Grimoire")
-add_subdirectory("Examples/Pgn4Generator")
-add_subdirectory("Examples/Pgn4FenExtractor")
-add_subdirectory("Examples/TransitionScoreExporter")
-add_subdirectory("Examples/Pgn4PositionInsightsExporter")
-add_subdirectory("Examples/IcecreamMoveGeneratorTester")
-add_subdirectory("UnitTests")
+if(SPELLCHESS_BUILD_EXAMPLES)
+    add_subdirectory("Examples/TournamentRunner")
+    add_subdirectory("Examples/Grimoire")
+    add_subdirectory("Examples/Pgn4Generator")
+    add_subdirectory("Examples/Pgn4FenExtractor")
+    add_subdirectory("Examples/TransitionScoreExporter")
+    add_subdirectory("Examples/Pgn4PositionInsightsExporter")
+	add_subdirectory("Examples/IcecreamMoveGeneratorTester")
+endif()
+
+if (SPELLCHESS_BUILD_TESTS)
+	add_subdirectory("UnitTests")
+endif()
